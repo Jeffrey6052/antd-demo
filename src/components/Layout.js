@@ -29,7 +29,7 @@ class Layout extends React.Component {
                         <Link to="/glb_model_3d">3D模型（glb格式）</Link>
                     </span>
                     <span className="layout-link">
-                        <Link to="/about">About</Link>
+                        <Link to="/demo1">Demo1</Link>
                     </span>
                     <span className="layout-link">
                         <Link to="/button">Button</Link>

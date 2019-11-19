@@ -9,7 +9,7 @@ import {
 } from "react-router-dom";
 
 import HomePage from "./pages/Home"
-import AboutPage from "./pages/About"
+import Demo1Page from "./pages/Demo1"
 import ButtonPage from "./pages/Button"
 import ObjModel3DPage from "./pages/ObjModel3D"
 import GlbModel3DPage from "./pages/GlbModel3D"
@@ -25,8 +25,8 @@ function App() {
           <Route path="/obj_model_3d">
             <ObjModel3DPage />
           </Route>
-          <Route path="/about">
-            <AboutPage />
+          <Route path="/demo1">
+            <Demo1Page />
           </Route>
           <Route path="/button">
             <ButtonPage />
