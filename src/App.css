@@ -5,6 +5,20 @@
     margin: 4px 8px;
 }
 
+.demo-flex-box {
+    display:flex;
+}
+
+.demo-block {
+    display: block;
+    padding: 4px;
+}
+
+.demo-button {
+    display: inline-block;
+    margin: 8px 8px;
+}
+
 /* antd 演示样式 */
 
 .code-box-demo {

@@ -11,12 +11,20 @@ import {
 import HomePage from "./pages/Home"
 import AboutPage from "./pages/About"
 import ButtonPage from "./pages/Button"
+import ObjModel3DPage from "./pages/ObjModel3D"
+import GlbModel3DPage from "./pages/GlbModel3D"
 
 function App() {
   return (
     <Router>
-      <div style={{margin: "10px"}}>
+      <div>
         <Switch>
+        <Route path="/glb_model_3d">
+            <GlbModel3DPage />
+          </Route>
+          <Route path="/obj_model_3d">
+            <ObjModel3DPage />
+          </Route>
           <Route path="/about">
             <AboutPage />
           </Route>
