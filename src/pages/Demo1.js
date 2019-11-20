@@ -1,11 +1,13 @@
-import React from 'react';
+import React from 'react'
 
 import Layout from '../components/Layout'
 
 import * as THREE from "three"
 
-import Stats from 'three/examples/jsm/libs/stats.module.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import Stats from 'three/examples/jsm/libs/stats.module.js'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 
 import D3ModelLoader from '../utils/D3ModelLoader'
 
@@ -23,12 +25,17 @@ class Page extends React.Component {
         camera: null,
         renderer: null,
         stats: null,
+        clock: null,
         inited: false,
-        autoRotateScene: true
+        autoRotateScene: false
       },
       model3d: {
         man: null,
-        duck: null
+        duck: null,
+        parrot: null,
+        parrotMixer: null,
+        robot: null,
+        robotMixer: null
       },
       inspect: {
         camera: null
@@ -81,7 +88,7 @@ class Page extends React.Component {
 
     this.init3d()
 
-    this.lastTime = Date.now();
+    this.lastTime = Date.now()
 
     this.animate3d()
   }
@@ -94,27 +101,27 @@ class Page extends React.Component {
     const scene = new THREE.Scene()
 
     // camera
-    const camera = new THREE.PerspectiveCamera(90, app3d.width / app3d.height, 1, 20000);
+    const camera = new THREE.PerspectiveCamera(90, app3d.width / app3d.height, 1, 20000)
     camera.position.set(720, groundHeight + 1300, 2200)
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
     renderer.setSize(app3d.width, app3d.height)
-    renderer.gammaInput = true;
-    renderer.gammaOutput = true;
-    renderer.shadowMap.enabled = true;
+    renderer.gammaInput = true
+    renderer.gammaOutput = true
+    renderer.shadowMap.enabled = true
 
     this.ref3d.appendChild(renderer.domElement)
 
-    const stats = new Stats();
+    const stats = new Stats()
     stats.dom.style.position = "absolute"
 
-    this.ref3d.appendChild(stats.dom);
+    this.ref3d.appendChild(stats.dom)
 
     //controls
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.maxPolarAngle = Math.PI * 0.5;
-    controls.minDistance = 500;
-    controls.maxDistance = 10000;
+    const controls = new OrbitControls(camera, renderer.domElement)
+    controls.maxPolarAngle = Math.PI * 0.5
+    controls.minDistance = 500
+    controls.maxDistance = 10000
     controls.update()
 
     // lights
@@ -132,8 +139,12 @@ class Page extends React.Component {
 
     this.addDuckToScene(scene)
 
+    this.addRobotToScene(scene)
+
     // 辅助线
     this.addAxisToScene(scene)
+
+    let clock = new THREE.Clock()
 
     this.setState({
       app3d: {
@@ -142,61 +153,64 @@ class Page extends React.Component {
         camera,
         renderer,
         stats,
+        clock,
         inited: true
       }
     })
   }
 
   addAxisToScene(scene) {
-    const axisHelper = new THREE.AxisHelper(1000);
-    axisHelper.position.set(-2000, 0, -3000)
-    scene.add(axisHelper);
+
+    const { groundHeight } = this
+
+    const axisHelper = new THREE.AxisHelper(500)
+    axisHelper.position.set(-1000, groundHeight + 1, -2000)
+    scene.add(axisHelper)
   }
 
   addLightsToScene(scene) {
 
     const { groundHeight } = this
 
-    scene.add(new THREE.AmbientLight(0x666666));
+    scene.add(new THREE.AmbientLight(0x666666))
 
-    const light = new THREE.DirectionalLight(0xdfebff, 1);
-    light.position.set(300, groundHeight + 800, 500);
-    // light.position.multiplyScalar(1.3);
+    const light = new THREE.DirectionalLight(0xdfebff, 1)
+    light.position.set(300, groundHeight + 800, 500)
 
-    light.castShadow = true;
+    light.castShadow = true
 
-    light.shadow.mapSize.width = 1024;
-    light.shadow.mapSize.height = 1024;
+    light.shadow.mapSize.width = 1024
+    light.shadow.mapSize.height = 1024
 
-    const d = 10000;
+    const d = 10000
 
-    light.shadow.camera.left = - d;
-    light.shadow.camera.right = d;
-    light.shadow.camera.top = d;
-    light.shadow.camera.bottom = - d;
+    light.shadow.camera.left = - d
+    light.shadow.camera.right = d
+    light.shadow.camera.top = d
+    light.shadow.camera.bottom = - d
 
-    light.shadow.camera.far = 5000;
+    light.shadow.camera.far = 20000
 
-    scene.add(light);
+    scene.add(light)
   }
 
   addGroundToScene(scene) {
 
     const { groundHeight } = this
 
-    const loader = new THREE.TextureLoader();
-    const groundTexture = loader.load('textures/terrain/grasslight-big.jpg');
-    groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
-    groundTexture.repeat.set(25, 25);
-    groundTexture.anisotropy = 16;
+    const loader = new THREE.TextureLoader()
+    const groundTexture = loader.load('textures/terrain/grasslight-big.jpg')
+    groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping
+    groundTexture.repeat.set(25, 25)
+    groundTexture.anisotropy = 16
 
-    const groundMaterial = new THREE.MeshLambertMaterial({ map: groundTexture });
+    const groundMaterial = new THREE.MeshLambertMaterial({ map: groundTexture })
 
-    const mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(20000, 20000), groundMaterial);
-    mesh.position.y = groundHeight;
-    mesh.rotation.x = - Math.PI / 2;
-    mesh.receiveShadow = true;
-    scene.add(mesh);
+    const mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(20000, 20000), groundMaterial)
+    mesh.position.y = groundHeight
+    mesh.rotation.x = - Math.PI / 2
+    mesh.receiveShadow = true
+    scene.add(mesh)
   }
 
   async addParrotsToScene(scene) {
@@ -206,28 +220,46 @@ class Page extends React.Component {
     const loadUrl = '/models/glb/Parrot/Parrot.glb'
 
     const gltf = await D3ModelLoader.load_glb_model(loadUrl)
+    const animation = gltf.animations[0]
 
     const object = gltf.scene
 
     object.scale.set(100, 100, 100)
-    object.position.set(1700, groundHeight + 300, -200)
+    object.position.set(0, groundHeight + 1000, 0)
     object.traverse(function (node) {
       if (node instanceof THREE.Mesh) {
-        node.castShadow = true;
+        node.castShadow = true
       }
     })
+
+    const mixer = new THREE.AnimationMixer(object)
+
+    const action = mixer.clipAction( animation )
+    action.play()
 
     scene.add(object)
 
     const obj2 = object.clone()
-    obj2.position.x += 250
-    obj2.position.y += 250
+    obj2.position.x += 1000
+    obj2.position.y -= 200
     scene.add(obj2)
 
     const obj3 = object.clone()
-    obj3.position.x += 500
+    obj3.position.x -= 1000
     obj3.position.y -= 200
     scene.add(obj3)
+
+    this.setState({
+      model3d: {
+        ...this.state.model3d,
+        parrot: object,
+        parrotMixer: mixer,
+        parrot2: obj2
+        // parrot2Mixer: mixer2,
+        // parrot3: obj3,
+        // parrot3Mixer: mixer3,
+      }
+    })
   }
 
   async addDatacenterToScene(scene) {
@@ -236,15 +268,23 @@ class Page extends React.Component {
 
     const baseUrl = "/models/glb/datacenter"
 
-    const datacenterUrl = `${baseUrl}/datacenter-0715.glb`
+    const loadUrl = `${baseUrl}/datacenter-0715.glb`
 
-    const daGltf = await D3ModelLoader.load_glb_model(datacenterUrl)
+    const gltf = await D3ModelLoader.load_glb_model(loadUrl)
 
-    const daScala = 200
-    const daObject = daGltf.scene
-    daObject.scale.set(daScala, daScala, daScala)
-    daObject.position.set(0, groundHeight, 0)
-    scene.add(daObject)
+    const scala = 200
+    const object = gltf.scene
+    object.scale.set(scala, scala, scala)
+    object.position.set(0, groundHeight, 0)
+
+    object.traverse(function (node) {
+      if (node instanceof THREE.Mesh) {
+        node.castShadow = true
+        node.receiveShadow = true
+      }
+    })
+
+    scene.add(object)
   }
 
   async addManToScene(scene) {
@@ -259,13 +299,14 @@ class Page extends React.Component {
     let objHeight = 10
     let scale = 2
     object.scale.set(scale, scale, scale)
-    object.position.set(0, groundHeight + (objHeight / 2) * scale, 0)
+    object.position.set(-200, groundHeight + (objHeight / 2) * scale, -1400)
+    object.rotation.y += Math.PI / 2
 
     object.traverse(function (node) {
       if (node instanceof THREE.Mesh) {
-        node.castShadow = true;
+        node.castShadow = true
       }
-    });
+    })
 
     scene.add(object)
 
@@ -278,6 +319,7 @@ class Page extends React.Component {
   }
 
   async addDuckToScene(scene) {
+
     const { groundHeight } = this
 
     const loadUrl = '/models/gltf/Duck/Duck.gltf'
@@ -287,14 +329,14 @@ class Page extends React.Component {
     const object = gltf.scene
 
     object.scale.set(100, 100, 100)
-    object.position.set(1400, groundHeight, 400)
+    object.position.set(0, groundHeight, 0)
     object.rotation.y -= Math.PI / 2
 
     object.traverse(function (node) {
       if (node instanceof THREE.Mesh) {
-        node.castShadow = true;
+        node.castShadow = true
       }
-    });
+    })
 
     scene.add(object)
 
@@ -304,6 +346,45 @@ class Page extends React.Component {
         duck: object
       }
     })
+  }
+
+  async addRobotToScene(scene) {
+
+    const { groundHeight } = this
+
+    const loader = new FBXLoader()
+    loader.load('/models/fbx/Samba Dancing.fbx', (object) => {
+
+      const mixer = new THREE.AnimationMixer(object)
+
+      const action = mixer.clipAction(object.animations[0])
+      action.play()
+
+      object.scale.set(2, 2, 2)
+      object.position.set(400, groundHeight, -1400)
+
+      object.traverse(function (child) {
+
+        if (child.isMesh) {
+
+          child.castShadow = true
+          child.receiveShadow = true
+        }
+      })
+
+      scene.add(object)
+
+      this.setState({
+        model3d: {
+          ...this.state.model3d,
+          robot: object,
+          robotMixer: mixer
+        }
+      })
+
+    })
+
+
   }
 
   animate3d() {
@@ -318,31 +399,36 @@ class Page extends React.Component {
     if (!app3d.inited) {
       return
     }
+    const { scene, camera, renderer, clock } = app3d
+    const model3d = this.state.model3d
 
     const time = Date.now()
-
     const { lastTime } = this
     const duration = time - lastTime
+    const delta = clock.getDelta()
 
-    const { scene, camera, renderer } = app3d
 
-    const model3d = this.state.model3d
-    const man3d = model3d.man
-    const duck3d = model3d.duck
-
-    if (man3d) {
-      man3d.position.z = Math.sin(duration / 10000) * 500
+    if (model3d.parrot) {
+      model3d.parrot.position.z = duration % 20000 - 10000
     }
 
-    if (duck3d) {
-      duck3d.rotation.y = duration / 1000
+    if (model3d.duck) {
+      model3d.duck.rotation.y = duration / 1000
+    }
+
+    if (model3d.parrotMixer) {
+      model3d.parrotMixer.update(delta)
+    }
+
+    if (model3d.robotMixer) {
+      model3d.robotMixer.update(delta)
     }
 
     if (app3d.autoRotateScene) {
       scene.rotation.y -= 0.001
     }
 
-    app3d.stats.update();
+    app3d.stats.update()
 
     this.setInspectState(camera)
 
@@ -377,8 +463,8 @@ class Page extends React.Component {
 
     renderer.setSize(width, height)
 
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
+    camera.aspect = width / height
+    camera.updateProjectionMatrix()
   }
 
   stopAutoRotateScene() {

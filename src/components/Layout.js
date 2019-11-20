@@ -23,13 +23,16 @@ class Layout extends React.Component {
                         <Link to="/">Home</Link>
                     </span>
                     <span className="layout-link">
-                        <Link to="/obj_model_3d">3D模型（obj格式）</Link>
+                        <Link to="/obj_model_3d">obj</Link>
                     </span>
                     <span className="layout-link">
-                        <Link to="/glb_model_3d">3D模型（glb格式）</Link>
+                        <Link to="/glb_model_3d">glb</Link>
                     </span>
                     <span className="layout-link">
-                        <Link to="/demo1">Demo1</Link>
+                        <Link to="/demo1">demo1</Link>
+                    </span>
+                    <span className="layout-link">
+                        <Link to="/demo2">demo2</Link>
                     </span>
                     <span className="layout-link">
                         <Link to="/button">Button</Link>
