@@ -62,7 +62,7 @@ class Page extends React.Component {
             walthead: null
         }
 
-        var loader = new GLTFLoader();
+        const loader = new GLTFLoader();
 
         loader.load('/models/glb/Parrot/Parrot.glb', (gltf) => {
 
@@ -72,7 +72,7 @@ class Page extends React.Component {
 
         }, undefined, (error) => {
 
-            console.error(error);
+            console.error(error)
 
         });
 

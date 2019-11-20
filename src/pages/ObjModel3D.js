@@ -149,6 +149,7 @@ class Page extends React.Component {
 
             this.setState({
                 modelInspect: {
+                    name: "模型信息",
                     position: model.position,
                     rotation: model.rotation
                 }
@@ -307,7 +308,7 @@ class Page extends React.Component {
 
 function ModelInspect(props) {
 
-    const { position, rotation } = props
+    const { name, position, rotation } = props
 
     if (!position) {
         return null
@@ -315,7 +316,7 @@ function ModelInspect(props) {
 
     return (
         <React.Fragment>
-            <h3>模型信息</h3>
+            <h3>{name}</h3>
             <p>px: {position.x.toFixed(2)}</p>
             <p>py: {position.y.toFixed(2)}</p>
             <p>pz: {position.z.toFixed(2)}</p>
