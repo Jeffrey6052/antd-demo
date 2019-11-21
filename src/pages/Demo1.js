@@ -17,12 +17,19 @@ class Page extends React.Component {
 
     super(props)
 
-    this.state = {
+    this.state = this.genDefaultState()
+
+    this.groundHeight = -250 //平地高度
+  }
+
+  genDefaultState() {
+    return {
       app3d: {
         width: 900,
         height: 600,
         scene: null,
         camera: null,
+        controls: null,
         renderer: null,
         stats: null,
         clock: null,
@@ -41,9 +48,6 @@ class Page extends React.Component {
         camera: null
       }
     }
-
-    this.groundHeight = -250 //平地高度
-    this.lastTime = null //3D动画基准时间，初始渲染后再设置该值
   }
 
   render() {
@@ -93,6 +97,33 @@ class Page extends React.Component {
     this.animate3d()
   }
 
+  componentWillUnmount() {
+
+    let { app3d } = this.state
+
+    cancelAnimationFrame(this.nextFrameId)
+
+    if (!app3d.inited) {
+      return
+    }
+
+    let oldScene = app3d.scene
+    app3d.scene = null
+    oldScene.dispose()
+
+    let oldRenderer = app3d.renderer
+    app3d.renderer = null
+    oldRenderer.forceContextLoss()
+    oldRenderer.domElement = null
+    oldRenderer.dispose()
+
+    let oldControls = app3d.controls
+    app3d.controls = null
+    oldControls.dispose()
+
+    app3d = null
+  }
+
   init3d() {
 
     const { groundHeight } = this
@@ -109,6 +140,7 @@ class Page extends React.Component {
     renderer.gammaInput = true
     renderer.gammaOutput = true
     renderer.shadowMap.enabled = true
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
 
     this.ref3d.appendChild(renderer.domElement)
 
@@ -151,6 +183,7 @@ class Page extends React.Component {
         ...app3d,
         scene,
         camera,
+        controls,
         renderer,
         stats,
         clock,
@@ -174,24 +207,18 @@ class Page extends React.Component {
 
     scene.add(new THREE.AmbientLight(0x666666))
 
-    const light = new THREE.DirectionalLight(0xdfebff, 1)
-    light.position.set(300, groundHeight + 800, 500)
+    const light = new THREE.PointLight(0xdfebff, 1, 3500)
+    light.position.set(1500, groundHeight + 1400, -1500)
 
     light.castShadow = true
 
-    light.shadow.mapSize.width = 1024
-    light.shadow.mapSize.height = 1024
-
-    const d = 10000
-
-    light.shadow.camera.left = - d
-    light.shadow.camera.right = d
-    light.shadow.camera.top = d
-    light.shadow.camera.bottom = - d
-
-    light.shadow.camera.far = 20000
+    light.shadow.camera.far = 3500
 
     scene.add(light)
+
+    //Create a helper for the shadow camera (optional)
+    var helper = new THREE.CameraHelper(light.shadow.camera);
+    scene.add(helper);
   }
 
   addGroundToScene(scene) {
@@ -201,12 +228,12 @@ class Page extends React.Component {
     const loader = new THREE.TextureLoader()
     const groundTexture = loader.load('textures/terrain/grasslight-big.jpg')
     groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping
-    groundTexture.repeat.set(25, 25)
+    groundTexture.repeat.set(4, 4)
     groundTexture.anisotropy = 16
 
     const groundMaterial = new THREE.MeshLambertMaterial({ map: groundTexture })
 
-    const mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(20000, 20000), groundMaterial)
+    const mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(4096, 4096), groundMaterial)
     mesh.position.y = groundHeight
     mesh.rotation.x = - Math.PI / 2
     mesh.receiveShadow = true
@@ -225,7 +252,7 @@ class Page extends React.Component {
     const object = gltf.scene
 
     object.scale.set(100, 100, 100)
-    object.position.set(0, groundHeight + 1000, 0)
+    object.position.set(1000, groundHeight + 400, 400)
     object.traverse(function (node) {
       if (node instanceof THREE.Mesh) {
         node.castShadow = true
@@ -234,30 +261,16 @@ class Page extends React.Component {
 
     const mixer = new THREE.AnimationMixer(object)
 
-    const action = mixer.clipAction( animation )
+    const action = mixer.clipAction(animation)
     action.play()
 
     scene.add(object)
-
-    const obj2 = object.clone()
-    obj2.position.x += 1000
-    obj2.position.y -= 200
-    scene.add(obj2)
-
-    const obj3 = object.clone()
-    obj3.position.x -= 1000
-    obj3.position.y -= 200
-    scene.add(obj3)
 
     this.setState({
       model3d: {
         ...this.state.model3d,
         parrot: object,
-        parrotMixer: mixer,
-        parrot2: obj2
-        // parrot2Mixer: mixer2,
-        // parrot3: obj3,
-        // parrot3Mixer: mixer3,
+        parrotMixer: mixer
       }
     })
   }
@@ -388,7 +401,7 @@ class Page extends React.Component {
   }
 
   animate3d() {
-    requestAnimationFrame(this.animate3d.bind(this))
+    this.nextFrameId = requestAnimationFrame(this.animate3d.bind(this))
     this.render3d()
   }
 
@@ -403,13 +416,11 @@ class Page extends React.Component {
     const model3d = this.state.model3d
 
     const time = Date.now()
-    const { lastTime } = this
-    const duration = time - lastTime
+    const duration = time - this.lastTime
     const delta = clock.getDelta()
 
-
     if (model3d.parrot) {
-      model3d.parrot.position.z = duration % 20000 - 10000
+      model3d.parrot.position.z = (duration * 0.2) % 4096 - 2048
     }
 
     if (model3d.duck) {
@@ -440,7 +451,7 @@ class Page extends React.Component {
       inspect: {
         ...this.state.inspect,
         camera: {
-          name: "摄象机信息:",
+          name: "摄像机信息:",
           position: camera.position,
           rotation: camera.rotation
         }
