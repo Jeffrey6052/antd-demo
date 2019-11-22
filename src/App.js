@@ -14,6 +14,7 @@ import Demo2Page from "./pages/Demo2"
 import ButtonPage from "./pages/Button"
 import ObjModel3DPage from "./pages/ObjModel3D"
 import GlbModel3DPage from "./pages/GlbModel3D"
+import FunctionComponent from "./pages/FunctionComponent"
 
 function App() {
   return (
@@ -34,6 +35,9 @@ function App() {
           </Route>
           <Route path="/button">
             <ButtonPage />
+          </Route>
+          <Route path="/function_component">
+            <FunctionComponent />
           </Route>
           <Route path="/">
             <HomePage />
