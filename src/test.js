@@ -1,8 +1,14 @@
 
-console.log(Math.sin(0))
-console.log(Math.sin(1))
-console.log(Math.sin(4))
+function regexTestUrlWithSuffix(string, suffix=""){
+    
+    const escapeSuffix = suffix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
-console.log(Math.PI)
+    const matcher = new RegExp(`^http.*${escapeSuffix}$`, "i")
 
-console.log(Math.sin(1000))
+    // const matcher = new RegExp(`^http.*\${suffix}$`, "i")
+
+    return matcher.test(string)
+}
+
+console.log("-----")
+console.log(regexTestUrlWithSuffix("http://local.com/antd-demo/public/models/obj/female02/female02.mtl"))

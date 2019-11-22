@@ -27,13 +27,17 @@ class Page extends React.Component {
         stats: null,
         clock: null,
         inited: false,
-        autoRotateScene: false
+        autoRotateScene: true
       },
       model3d: {
         man: null,
         duck: null,
         parrot: null,
         parrotMixer: null,
+        parrot2: null,
+        parrot2Mixer: null,
+        parrot3: null,
+        parrot3Mixer: null,
         robot: null,
         robotMixer: null
       },
@@ -221,9 +225,7 @@ class Page extends React.Component {
 
     const gltf = await D3ModelLoader.load_glb_model(loadUrl)
     const animation = gltf.animations[0]
-
     const object = gltf.scene
-
     object.scale.set(100, 100, 100)
     object.position.set(0, groundHeight + 1000, 0)
     object.traverse(function (node) {
@@ -231,33 +233,54 @@ class Page extends React.Component {
         node.castShadow = true
       }
     })
-
-    const mixer = new THREE.AnimationMixer(object)
-
-    const action = mixer.clipAction( animation )
-    action.play()
-
     scene.add(object)
 
-    const obj2 = object.clone()
-    obj2.position.x += 1000
-    obj2.position.y -= 200
-    scene.add(obj2)
+    const gltf2 = await D3ModelLoader.load_glb_model(loadUrl)
+    const animation2 = gltf2.animations[0]
+    const object2 = gltf2.scene
+    object2.position.x += 1000
+    object2.position.y -= 200
+    object2.traverse(function (node) {
+      if (node instanceof THREE.Mesh) {
+        node.castShadow = true
+      }
+    })
+    scene.add(object2)
 
-    const obj3 = object.clone()
-    obj3.position.x -= 1000
-    obj3.position.y -= 200
-    scene.add(obj3)
+    const gltf3 = await D3ModelLoader.load_glb_model(loadUrl)
+    const animation3 = gltf3.animations[0]
+    const object3 = gltf3.scene
+    object3.position.x -= 1000
+    object3.position.y -= 200
+    object3.traverse(function (node) {
+      if (node instanceof THREE.Mesh) {
+        node.castShadow = true
+      }
+    })
+    scene.add(object3)
+
+    //飞行动画
+    const mixer = new THREE.AnimationMixer(object)
+    const action = mixer.clipAction(animation)
+    action.play()
+
+    const mixer2 = new THREE.AnimationMixer(object2)
+    const action2 = mixer.clipAction(animation2)
+    action2.play()
+
+    const mixer3 = new THREE.AnimationMixer(object3)
+    const action3 = mixer.clipAction(animation3)
+    action3.play()
 
     this.setState({
       model3d: {
         ...this.state.model3d,
         parrot: object,
         parrotMixer: mixer,
-        parrot2: obj2
-        // parrot2Mixer: mixer2,
-        // parrot3: obj3,
-        // parrot3Mixer: mixer3,
+        parrot2: object2,
+        parrot2Mixer: mixer2,
+        parrot3: object3,
+        parrot3Mixer: mixer3,
       }
     })
   }
@@ -418,6 +441,16 @@ class Page extends React.Component {
 
     if (model3d.parrotMixer) {
       model3d.parrotMixer.update(delta)
+      // console.log("parrotMixer", model3d.parrotMixer)
+    }
+
+    if (model3d.parrot2Mixer) {
+      model3d.parrot2Mixer.update(delta)
+      // console.log("parrot2Mixer", model3d.parrot2Mixer)
+    }
+
+    if (model3d.parrot3Mixer) {
+      model3d.parrot3Mixer.update(delta)
     }
 
     if (model3d.robotMixer) {
