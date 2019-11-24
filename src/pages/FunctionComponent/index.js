@@ -1,5 +1,15 @@
 
-import React, { useState, useEffect, useReducer, useCallback, useMemo, useRef } from "react"
+import React, {
+    useState,
+    useEffect,
+    useReducer,
+    useCallback,
+    useMemo,
+    useRef
+} from "react"
+
+import Layout from "../../components/Layout"
+
 import Child from "./Child"
 
 import { Context, Reducer, DefaultState, getGameResult } from "./gameBoardContext"
@@ -15,7 +25,7 @@ export default () => {
 
     const gameResultMemo = useMemo(() => getGameResult(gameBoard, "memo"), [gameBoard])
 
-    const inputEl = useRef(null)
+    const childRef = useRef()
 
     useEffect(() => {
         const timer = window.setInterval(() => {
@@ -35,27 +45,22 @@ export default () => {
         })
     }
 
-    const cleanInput = () => {
-        const dom = inputEl.current
+    const updateChildState = () => {
+        if (!childRef.current) {
+            return
+        }
 
-        console.log(dom)
-        dom.focus()
-        dom.value = ""
+        childRef.current.changeVal(Date.now())
     }
 
     return (
-        <div>
+        <Layout>
             <Context.Provider value={gameBoard}>
                 <h2> Index Component</h2>
                 <p>gameBoard = {inspect(gameBoard)}</p>
                 <p>gameResultCB() = {inspect(gameResultCB())}</p>
                 <p>gameResultMemo = {inspect(gameResultMemo)}</p>
                 <p>color = {inspect(color)}</p>
-
-                <div className="demo-button">
-                    <input ref={inputEl} type="text" />
-                    <button type="button" onClick={() => cleanInput()} style={{ marginLeft: 4 }}>Clear</button>
-                </div>
 
                 <div>
                     <span className="demo-button">
@@ -64,10 +69,13 @@ export default () => {
                     <span className="demo-button">
                         <button type="button" onClick={() => addScore("B")}>scoreB + 1</button>
                     </span>
+                    <span className="demo-button">
+                        <button type="button" onClick={() => updateChildState()}>修改子组件input值</button>
+                    </span>
                 </div>
                 <hr />
-                <Child color={color} addScore={addScore} />
+                <Child color={color} addScore={addScore} ref={childRef} />
             </Context.Provider>
-        </div >
+        </Layout>
     )
 }

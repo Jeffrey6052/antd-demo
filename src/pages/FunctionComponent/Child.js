@@ -1,10 +1,16 @@
-import React, { useState, useContext } from "react"
-import Layout from "../../components/Layout"
+import React, {
+    useState,
+    useContext,
+    useRef,
+    useImperativeHandle,
+    forwardRef
+} from "react"
+
 import { Context } from "./gameBoardContext"
 
 const inspect = require('object-inspect')
 
-export default (props) => {
+const Child = (props, ref) => {
     const [name, setName] = useState("jeffrey")
     const [age, setAge] = useState(30)
     const [app3d, setApp3d] = useState({
@@ -16,8 +22,26 @@ export default (props) => {
 
     const ctxValue = useContext(Context)
 
+    const inputRef = useRef()
+
+    useImperativeHandle(ref, () => ({
+        changeVal: (newVal) => {
+            const dom = inputRef.current
+
+            dom.value = newVal
+            dom.focus()
+        }
+    }))
+
+    const cleanInput = () => {
+        const dom = inputRef.current
+
+        dom.value = ""
+        dom.focus()
+    }
+
     return (
-        <Layout>
+        <div>
 
             <h2>Child Component</h2>
 
@@ -59,6 +83,12 @@ export default (props) => {
                 </span>
             </div>
 
-        </Layout>
+            <div className="demo-button">
+                <input ref={inputRef} type="text" />
+                <button type="button" onClick={() => cleanInput()} style={{ marginLeft: 4 }}>Clear</button>
+            </div>
+        </div>
     )
 }
+
+export default forwardRef(Child)
