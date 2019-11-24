@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react"
-import Layout from "../components/Layout"
+import React, { useState, useContext } from "react"
+import Layout from "../../components/Layout"
+import { Context } from "./gameBoardContext"
 
 const inspect = require('object-inspect')
 
@@ -13,45 +14,17 @@ export default (props) => {
         controls: null
     })
 
-    useEffect(
-        () => {
-            // console.log(`props.color effect active. ${inspect(props.color)}`)
-
-            return () => {
-                // console.log(`props.color effect leave. ${inspect(props.color)}`)
-            };
-        },
-        [props.color],
-    );
-
-    useEffect(
-        () => {
-            // console.log(`age effect active. ${age}`)
-
-            return () => {
-                // console.log(`age effect leave. ${age}`)
-            };
-        },
-        [age],
-    );
-
-    useEffect(
-        () => {
-            // console.log(`name effect active. ${name}`)
-
-            return () => {
-                // console.log(`name effect leave. ${name}`)
-            };
-        },
-        [name],
-    );
+    const ctxValue = useContext(Context)
 
     return (
         <Layout>
 
-            <h1>name = {inspect(name)}</h1>
-            <p>age = {inspect(age)}</p>
+            <h2>Child Component</h2>
+
+            <p>gameBoard = {inspect(ctxValue)}</p>
             <p>props.color = {inspect(props.color)}</p>
+            <p>name = {inspect(name)}</p>
+            <p>age = {inspect(age)}</p>
 
             <div>
                 <span className="demo-button">
@@ -74,6 +47,15 @@ export default (props) => {
                 </span>
                 <span className="demo-button">
                     <button type="button" onClick={() => setAge(prevAge => prevAge - 1)}>年龄-1</button>
+                </span>
+            </div>
+
+            <div>
+                <span className="demo-button">
+                    <button type="button" onClick={() => props.addScore("A")}>scoreA + 1</button>
+                </span>
+                <span className="demo-button">
+                    <button type="button" onClick={() => props.addScore("B")}>scoreB + 1</button>
                 </span>
             </div>
 

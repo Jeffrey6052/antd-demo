@@ -14,7 +14,7 @@ import Demo2Page from "./pages/Demo2"
 import ButtonPage from "./pages/Button"
 import ObjModel3DPage from "./pages/ObjModel3D"
 import GlbModel3DPage from "./pages/GlbModel3D"
-import FunctionComponentConnect from "./pages/FunctionComponentConnect"
+import FunctionComponent from "./pages/FunctionComponent"
 
 let color = 100000
 
@@ -41,7 +41,7 @@ function App() {
                         <ButtonPage />
                     </Route>
                     <Route path="/function_component">
-                        <FunctionComponentConnect />
+                        <FunctionComponent />
                     </Route>
                     <Route path="/">
                         <HomePage />
