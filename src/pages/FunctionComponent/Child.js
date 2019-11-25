@@ -25,7 +25,6 @@ const Child = (props, ref) => {
 
     const inputRef = useRef()
     const frameRef = useRef()
-    const ageRef = useRef()
 
     useImperativeHandle(ref, () => ({
         changeVal: (newVal) => {
@@ -37,20 +36,19 @@ const Child = (props, ref) => {
     }))
 
     useEffect(() => {
-        ageRef.current = age
+        frameRef.current = requestAnimationFrame(() => animate(age))
+        return () => {
+            cancelAnimationFrame(frameRef.current)
+        }
     }, [age])
-
-    useEffect(() => {
-        frameRef.current = requestAnimationFrame(animate)
-    }, [])
 
     const render3d = (age) => {
         console.log("render3d", age)
     }
 
-    const animate = () => {
-        frameRef.current = requestAnimationFrame(animate)
-        render3d(ageRef.current)
+    const animate = (age) => {
+        frameRef.current = requestAnimationFrame(() => animate(age))
+        render3d(age)
     }
 
     const cleanInput = () => {
