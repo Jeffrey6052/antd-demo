@@ -3,7 +3,8 @@ import React, {
     useContext,
     useRef,
     useImperativeHandle,
-    forwardRef
+    forwardRef,
+    useEffect
 } from "react"
 
 import { Context } from "./gameBoardContext"
@@ -23,6 +24,8 @@ const Child = (props, ref) => {
     const ctxValue = useContext(Context)
 
     const inputRef = useRef()
+    const frameRef = useRef()
+    const ageRef = useRef()
 
     useImperativeHandle(ref, () => ({
         changeVal: (newVal) => {
@@ -32,6 +35,23 @@ const Child = (props, ref) => {
             dom.focus()
         }
     }))
+
+    useEffect(() => {
+        ageRef.current = age
+    }, [age])
+
+    useEffect(() => {
+        frameRef.current = requestAnimationFrame(animate)
+    }, [])
+
+    const render3d = (age) => {
+        console.log("render3d", age)
+    }
+
+    const animate = () => {
+        frameRef.current = requestAnimationFrame(animate)
+        render3d(ageRef.current)
+    }
 
     const cleanInput = () => {
         const dom = inputRef.current
