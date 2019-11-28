@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@bit/joshk.basic-todo-app.todo-app": "^1.0.1",
     "antd": "^3.25.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
@@ -33,6 +34,16 @@
   },
   "devDependencies": {
     "eslint-config-airbnb": "^18.0.1",
-    "eslint-plugin-react": "^7.16.0"
+    "eslint-plugin-react": "^7.16.0",
+    "typescript": "^3.7.2",
+    "styled-components": "^4.4.1"
+  },
+  "bit": {
+    "env": {},
+    "componentsDefaultDirectory": "components/{name}",
+    "packageManager": "npm"
+  },
+  "optionalDependencies": {
+    "fsevents": "^2.1.2"
   }
 }

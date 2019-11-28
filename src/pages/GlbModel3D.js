@@ -80,7 +80,7 @@ class Page extends React.Component {
     init3d() {
 
         const scene = new THREE.Scene()
-        const camera = new THREE.PerspectiveCamera(45, CANVAS_WIDTH / CANVAS_HEIGHT, 0.1, 2000)
+        const camera = new THREE.PerspectiveCamera(45, CANVAS_WIDTH / CANVAS_HEIGHT, 0.1, 5000)
 
         camera.position.set(0, 3, 5)
 
@@ -98,11 +98,10 @@ class Page extends React.Component {
         controls.update()
 
         //光源
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1)
-        scene.add(ambientLight)
+        this.addLightsToScene(scene)
 
-        const pointLight = new THREE.PointLight(0xffffff, 0.8)
-        camera.add(pointLight)
+        //辅助线
+        this.addAxisToScene(scene)
 
         let clock = new THREE.Clock()
 
@@ -122,14 +121,53 @@ class Page extends React.Component {
 
         const loader = new GLTFLoader();
 
-        loader.load('/models/glb/Parrot/Parrot.glb', (gltf) => {
+        let url = "/models/glb/Parrot/Parrot.glb"
+
+        // url = "http://local.com/jowoiot_file/models/gltf/factory02/factory.gltf"
+        // url = "http://local.com/jowoiot_file/models/gltf/stop_flag/model.gltf"
+        url = "http://local.com/jowoiot_file/models/gltf/rhan_set_01/scene.gltf"
+
+        loader.load(url, (gltf) => {
 
             const model = gltf.scene
-            const mixer = new THREE.AnimationMixer(model)
-            const action = mixer.clipAction(gltf.animations[0])
-            action.play()
+
+            model.traverse(function (node) {
+                if (node instanceof THREE.Mesh) {
+                    node.castShadow = true
+
+                    console.log(node)
+                }
+            })
+
+            let mixer = null
+            if (gltf.animations && gltf.animations.length) {
+                mixer = new THREE.AnimationMixer(model)
+                const action = mixer.clipAction(gltf.animations[0])
+                action.play()
+            }
 
             scene.add(model);
+
+            // 测量模型的大小
+            const box = new THREE.Box3().setFromObject(model)
+            const sizeTarget = new THREE.Vector3()
+            box.getSize(sizeTarget)
+
+            let maxSize = Math.max(sizeTarget.x, sizeTarget.y, sizeTarget.z)
+
+            // 如果模型太小，做放大处理
+            if (maxSize < 1) {
+                const scale = Math.floor(1 / maxSize) + 1
+                model.scale.set(scale, scale, scale)
+                maxSize *= scale
+            }
+
+            camera.position.set(0, maxSize * 0.3, maxSize * 2)
+
+            controls.minDistance = 2
+            controls.maxDistance = maxSize * 4
+            controls.target = new THREE.Vector3(model.position.x, model.position.y + sizeTarget.y / 2, model.position.z)
+            controls.update()
 
             this.setState((prevState) => {
                 return {
@@ -149,6 +187,38 @@ class Page extends React.Component {
 
     }
 
+    addAxisToScene(scene) {
+        const axisHelper = new THREE.AxisHelper(500)
+        axisHelper.position.set(0, 0, 0)
+        scene.add(axisHelper)
+    }
+
+
+    addLightsToScene(scene) {
+
+        scene.add(new THREE.AmbientLight(0xffffff, 1))
+
+        // const light = new THREE.DirectionalLight(0xffffff, 1);
+        // light.position.set(-200, 500, -200);
+
+        // light.castShadow = true;
+
+        // const d = 1000;
+
+        // light.shadow.camera.left = - d;
+        // light.shadow.camera.right = d;
+        // light.shadow.camera.top = d;
+        // light.shadow.camera.bottom = - d;
+
+        // light.shadow.camera.far = 2400;
+
+        // scene.add(light);
+
+        // //Create a helper for the shadow camera (optional)
+        // var helper = new THREE.CameraHelper(light.shadow.camera);
+        // scene.add(helper);
+    }
+
     animate3d() {
         this.nextFrameId = requestAnimationFrame(this.animate3d.bind(this))
         this.render3d()
@@ -162,9 +232,9 @@ class Page extends React.Component {
             return
         }
 
-        if (model) {
-            model.rotation.y += 0.005
-        }
+        // if (model) {
+        //     model.rotation.y += 0.005
+        // }
 
         const delta = clock.getDelta()
 

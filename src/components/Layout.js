@@ -40,6 +40,9 @@ class Layout extends React.Component {
                     <span className="layout-link">
                         <Link to="/function_component">function_component</Link>
                     </span>
+                    <span className="layout-link">
+                        <Link to="/bit_demo">bit_demo</Link>
+                    </span>
                 </div>
 
                 {this.props.children}
