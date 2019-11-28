@@ -16,9 +16,7 @@ import ObjModel3DPage from "./pages/ObjModel3D"
 import GlbModel3DPage from "./pages/GlbModel3D"
 import FunctionComponent from "./pages/FunctionComponent"
 import BitDemo from "./pages/BitDemo"
-let color = 100000
-
-window.setTimeout(() => color += 1, 1000)
+import StyledComponent from "./pages/StyledComponent"
 
 function App() {
     return (
@@ -46,7 +44,9 @@ function App() {
                     <Route path="/bit_demo">
                         <BitDemo />
                     </Route>
-
+                    <Route path="/styled_component">
+                        <StyledComponent />
+                    </Route>
                     <Route path="/">
                         <HomePage />
                     </Route>
