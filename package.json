@@ -5,6 +5,7 @@
   "dependencies": {
     "@bit/joshk.basic-todo-app.todo-app": "^1.0.1",
     "antd": "^3.25.2",
+    "prop-types": "^15.7.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-router-dom": "^5.1.2",
@@ -15,7 +16,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "storybook": "start-storybook -p 9009 -s public",
+    "build-storybook": "build-storybook -s public"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -33,10 +36,17 @@
     ]
   },
   "devDependencies": {
+    "@storybook/addon-actions": "^5.2.6",
+    "@storybook/addon-links": "^5.2.6",
+    "@storybook/addon-storyshots": "^5.2.6",
+    "@storybook/addons": "^5.2.6",
+    "@storybook/react": "^5.2.6",
+    "babel-jest": "^24.9.0",
     "eslint-config-airbnb": "^18.0.1",
     "eslint-plugin-react": "^7.16.0",
-    "typescript": "^3.7.2",
-    "styled-components": "^4.4.1"
+    "react-test-renderer": "^16.12.0",
+    "styled-components": "^4.4.1",
+    "typescript": "^3.7.2"
   },
   "bit": {
     "env": {},

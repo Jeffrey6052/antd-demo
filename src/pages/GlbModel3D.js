@@ -125,7 +125,7 @@ class Page extends React.Component {
 
         // url = "http://local.com/jowoiot_file/models/gltf/factory02/factory.gltf"
         // url = "http://local.com/jowoiot_file/models/gltf/stop_flag/model.gltf"
-        url = "http://local.com/jowoiot_file/models/gltf/rhan_set_01/scene.gltf"
+        // url = "http://local.com/jowoiot_file/models/gltf/rhan_set_01/scene.gltf"
 
         loader.load(url, (gltf) => {
 

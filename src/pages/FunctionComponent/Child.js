@@ -14,12 +14,6 @@ const inspect = require('object-inspect')
 const Child = (props, ref) => {
     const [name, setName] = useState("jeffrey")
     const [age, setAge] = useState(30)
-    const [app3d, setApp3d] = useState({
-        scene: null,
-        renderer: null,
-        camera: null,
-        controls: null
-    })
 
     const ctxValue = useContext(Context)
 
@@ -35,21 +29,24 @@ const Child = (props, ref) => {
         }
     }))
 
+
     useEffect(() => {
-        frameRef.current = requestAnimationFrame(() => animate(age))
+
+        let animate3d = () => {
+            frameRef.current = requestAnimationFrame(() => animate3d(age))
+            render3d()
+        }
+
+        let render3d = () => {
+            console.log("render3d", age)
+        }
+
+        animate3d()
+
         return () => {
             cancelAnimationFrame(frameRef.current)
         }
     }, [age])
-
-    const render3d = (age) => {
-        console.log("render3d", age)
-    }
-
-    const animate = (age) => {
-        frameRef.current = requestAnimationFrame(() => animate(age))
-        render3d(age)
-    }
 
     const cleanInput = () => {
         const dom = inputRef.current
