@@ -25,7 +25,9 @@ const Child = (props, ref) => {
             const dom = inputRef.current
 
             dom.value = newVal
-            dom.focus()
+            // dom.focus()
+
+            setName(`${newVal}`)
         }
     }))
 

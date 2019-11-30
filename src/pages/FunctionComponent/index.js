@@ -70,7 +70,7 @@ export default () => {
                         <button type="button" onClick={() => addScore("B")}>scoreB + 1</button>
                     </span>
                     <span className="demo-button">
-                        <button type="button" onClick={() => updateChildState()}>修改子组件input值</button>
+                        <button type="button" onClick={() => updateChildState()}>修改子组件的name</button>
                     </span>
                 </div>
                 <hr />
