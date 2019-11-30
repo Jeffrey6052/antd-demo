@@ -5,7 +5,8 @@ import Layout from '../components/Layout'
 
 import * as THREE from "three"
 
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import D3ModelLoader from '../utils/D3ModelLoader'
+
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
 const CANVAS_WIDTH = 900
@@ -101,7 +102,7 @@ class Page extends React.Component {
         this.addLightsToScene(scene)
 
         //辅助线
-        this.addAxisToScene(scene)
+        // this.addAxisToScene(scene)
 
         let clock = new THREE.Clock()
 
@@ -119,17 +120,14 @@ class Page extends React.Component {
             }
         })
 
-        const loader = new GLTFLoader();
+        let url = "/models/gltf/Duck/Duck.gltf"
+        let token = "11111"
 
-        let url = "/models/glb/Parrot/Parrot.glb"
-
-        // url = "http://local.com/jowoiot_file/models/gltf/factory02/factory.gltf"
-        // url = "http://local.com/jowoiot_file/models/gltf/stop_flag/model.gltf"
-        // url = "http://local.com/jowoiot_file/models/gltf/rhan_set_01/scene.gltf"
-
-        loader.load(url, (gltf) => {
+        D3ModelLoader.load_gltf_model_with_token(url, token).then((gltf) => {
 
             const model = gltf.scene
+
+            console.log(model)
 
             model.traverse(function (node) {
                 if (node instanceof THREE.Mesh) {
@@ -178,10 +176,6 @@ class Page extends React.Component {
                     }
                 }
             })
-
-        }, undefined, (error) => {
-
-            console.error(error)
 
         });
 

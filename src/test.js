@@ -13,20 +13,12 @@
 // console.log("-----")
 // console.log(regexTestUrlWithSuffix("http://local.com/antd-demo/public/models/obj/female02/female02.mtl"))
 
-console.log(JSON.stringify("production"))
+const queryString = require('query-string');
 
-console.log(JSON.stringify("production") === "production")
+const parsed = queryString.parseUrl('/model/gltf/duck?foo=bar');
+console.log(parsed)
 
-const lodash = require("lodash")
+parsed.query.token = "12345"
 
-console.log("work!")
-
-const reload3d = ()=>{
-    console.log("reload3d")
-}
-
-const debouncedReload3d = lodash.debounce(() => reload3d(), 400)
-
-for(let i=0; i<100;i++){
-    debouncedReload3d()
-}
+const newUrl = `${parsed.url}?${queryString.stringify(parsed.query)}`
+console.log(newUrl)
