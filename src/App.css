@@ -1,6 +1,4 @@
 
-@import '~antd/dist/antd.css';
-
 .layout-link {
     margin: 4px 8px;
 }
@@ -20,6 +18,21 @@
 }
 
 /* antd 演示样式 */
+
+.margin-20 {
+    margin: 20px;
+}
+
+.box01 {
+    margin: 16px 8px;
+    padding: 4px 8px;
+    background: #00a0e9;
+}
+
+.box02 {
+    padding: 4px 8px;
+    background: #9ed2eb;
+}
 
 .code-box-demo {
     padding: 10px;

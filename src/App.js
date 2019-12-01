@@ -1,12 +1,21 @@
-import React from 'react';
+import React from 'react'
 
-import './App.css';
+import 'antd/dist/antd.css'
+import './App.css'
+
+import { ConfigProvider } from 'antd'
+import zhCN from 'antd/es/locale/zh_CN'
+
+import moment from 'moment'
+import 'moment/locale/zh-cn'
+
+moment.locale('zh-cn')
 
 import {
     BrowserRouter as Router,
     Switch,
     Route
-} from "react-router-dom";
+} from "react-router-dom"
 
 import HomePage from "./pages/Home"
 import Demo1Page from "./pages/Demo1"
@@ -17,43 +26,49 @@ import GlbModel3DPage from "./pages/GlbModel3D"
 import FunctionComponent from "./pages/FunctionComponent"
 import BitDemo from "./pages/BitDemo"
 import StyledComponent from "./pages/StyledComponent"
+import ModelManagePage from "./pages/ModelManagePage"
 
 function App() {
     return (
-        <Router>
-            <div>
-                <Switch>
-                    <Route path="/glb_model_3d">
-                        <GlbModel3DPage />
-                    </Route>
-                    <Route path="/obj_model_3d">
-                        <ObjModel3DPage />
-                    </Route>
-                    <Route path="/demo1">
-                        <Demo1Page />
-                    </Route>
-                    <Route path="/demo2">
-                        <Demo2Page />
-                    </Route>
-                    <Route path="/button">
-                        <ButtonPage />
-                    </Route>
-                    <Route path="/function_component">
-                        <FunctionComponent />
-                    </Route>
-                    <Route path="/bit_demo">
-                        <BitDemo />
-                    </Route>
-                    <Route path="/styled_component">
-                        <StyledComponent />
-                    </Route>
-                    <Route path="/">
-                        <HomePage />
-                    </Route>
-                </Switch>
-            </div>
-        </Router>
-    );
+        <ConfigProvider locale={zhCN}>
+            <Router>
+                <div>
+                    <Switch>
+                        <Route path="/glb_model_3d">
+                            <GlbModel3DPage />
+                        </Route>
+                        <Route path="/obj_model_3d">
+                            <ObjModel3DPage />
+                        </Route>
+                        <Route path="/demo1">
+                            <Demo1Page />
+                        </Route>
+                        <Route path="/demo2">
+                            <Demo2Page />
+                        </Route>
+                        <Route path="/button">
+                            <ButtonPage />
+                        </Route>
+                        <Route path="/function_component">
+                            <FunctionComponent />
+                        </Route>
+                        <Route path="/bit_demo">
+                            <BitDemo />
+                        </Route>
+                        <Route path="/styled_component">
+                            <StyledComponent />
+                        </Route>
+                        <Route path="/model_manage">
+                            <ModelManagePage />
+                        </Route>
+                        <Route path="/">
+                            <HomePage />
+                        </Route>
+                    </Switch>
+                </div>
+            </Router>
+        </ConfigProvider>
+    )
 }
 
 export default App
