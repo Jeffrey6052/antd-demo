@@ -1,4 +1,3 @@
-
 class FileUploader {
 
     constructor() {
@@ -8,7 +7,6 @@ class FileUploader {
     chooseFile(args = {}) {
         const tArgs = {
             accept: false,
-            multiple: false,
             name: "file",
             onSelect: this.donothing,
             ...args
@@ -21,33 +19,26 @@ class FileUploader {
             input.accept = tArgs.accept
         }
 
-        if (tArgs.multiple) {
-            input.multiple = 'multiple'
-        }
-
         input.onchange = e => {
             const upFiles = e.target.files
             if (!upFiles.length) {
                 return
             }
 
-            let tFile = upFiles[1] ? upFiles : upFiles[0]
+            let tFile = upFiles[0]
             this.addFile(tFile, tArgs.name)
+
             tArgs.onSelect(tFile)
         }
         input.click()
     }
 
-    chooseMultiFile(args = {}) {
-        const tArgs = {
-            ...args,
-            multiple: true
-        }
-        this.chooseFile(tArgs)
-    }
-
     addFile(file, name = "file") {
         this.files[name] = file
+    }
+
+    deleteFile(name) {
+        delete this.files[name]
     }
 
     clear() {
@@ -78,15 +69,13 @@ class FileUploader {
         xhr.onprogress = e => tArgs.onProgress(e)
         xhr.onloadend = () => {
             if (xhr.status == 200) {
-                tArgs.onSuccess(xhr.response);
-            }
-            else {
-                tArgs.onFailure(xhr.status, xhr.response);
+                tArgs.onSuccess(xhr.response)
+            } else {
+                tArgs.onFailure(xhr.status, xhr.response)
             }
         }
 
-        xhr.setRequestHeader('Content-Type', 'multipart/form-data')
-        xhr.send(formData);
+        xhr.send(formData)
     }
 
     donothing() {
