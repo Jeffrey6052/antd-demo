@@ -7,13 +7,14 @@ class FileUploader {
 
     chooseFile(args = {}) {
         const tArgs = {
-            accept = false,
-            multiple = false,
-            name = "file",
+            accept: false,
+            multiple: false,
+            name: "file",
+            onSelect: this.donothing,
             ...args
         }
 
-        const input = document.createElement('input');
+        const input = document.createElement('input')
         input.type = 'file'
 
         if (tArgs.accept) {
@@ -26,11 +27,13 @@ class FileUploader {
 
         input.onchange = e => {
             const upFiles = e.target.files
-            if (upFiles.length > 1) {
-                this.addFile(upFiles, tArgs.name)
-            } else if (upFiles.length == 1) {
-                this.addFile(upFiles[0], tArgs.name)
+            if (!upFiles.length) {
+                return
             }
+
+            let tFile = upFiles[1] ? upFiles : upFiles[0]
+            this.addFile(tFile, tArgs.name)
+            tArgs.onSelect(tFile)
         }
         input.click()
     }
@@ -38,7 +41,7 @@ class FileUploader {
     chooseMultiFile(args = {}) {
         const tArgs = {
             ...args,
-            multiple = true
+            multiple: true
         }
         this.chooseFile(tArgs)
     }
@@ -51,53 +54,42 @@ class FileUploader {
         this.files = {}
     }
 
-    getToken(){
-        
-    }
-
     submit(args = {}) {
-
         const tArgs = {
-            onProgress = this.doNothing,
-            onLoaded = this.doNothing,
-            onSuccess = this.doNothing,
-            onFailure = this.doNothing,
-            addToken = true,
+            onProgress: this.donothing,
+            onSuccess: this.donothing,
+            onFailure: this.donothing,
+            data: {},
+            method: "post",
             ...args
         }
 
-        const { url, data, onProgress, onLoaded, onSuccess, onFailure, addToken } = tArgs
-
-        const xhr = new XMLHttpRequest();
-        const formData = new FormData();
-        headers['X-Requested-With'] = 'XMLHttpRequest'
-        headers['Content-Type'] = 'multipart/form-data'
-
-        this.files.forEach((name, file) => {
-            formData.append(name, file)
-        })
-
-        if (data) {
-            data.forEach((name, value) => {
-                formData.append(name, value)
-            })
+        if (tArgs.url == undefined) {
+            throw "Missing url"
         }
 
-        // headers['X-File-Size'] = file.size
-        // headers['X-File-Type'] = file.type
-        xhr.open(method, addToken ? objToUrl(url, { token: getToken() }) : url);
-        Object.entries(headers).map(([k, v]) => xhr.setRequestHeader(k, v))
-        xhr.upload.onprogress = e => doNothing(e)
-            if (e.lengthComputable) {
-                const percent = e.loaded / e.total * 100
-                onProgress && onProgress(percent)
+        const xhr = new XMLHttpRequest()
+        xhr.open(tArgs.method, tArgs.url)
+
+        const formData = new FormData()
+        Object.entries(this.files).forEach(tuple => formData.append(...tuple))
+        Object.entries(tArgs.data).forEach(tuple => formData.append(...tuple))
+
+        xhr.onprogress = e => tArgs.onProgress(e)
+        xhr.onloadend = () => {
+            if (xhr.status == 200) {
+                tArgs.onSuccess(xhr.response);
+            }
+            else {
+                tArgs.onFailure(xhr.status, xhr.response);
             }
         }
-        xhr.upload.onloadend = e => doNothing(e)
+
+        xhr.setRequestHeader('Content-Type', 'multipart/form-data')
         xhr.send(formData);
     }
 
-    doNothing() {
+    donothing() {
     }
 }
 

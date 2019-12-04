@@ -49,6 +49,9 @@ class Layout extends React.Component {
                     <span className="layout-link">
                         <Link to="/model_manage">model_manage</Link>
                     </span>
+                    <span className="layout-link">
+                        <Link to="/file_uploader">file_uploader</Link>
+                    </span>
                 </div>
 
                 {this.props.children}

@@ -27,6 +27,7 @@ import FunctionComponent from "./pages/FunctionComponent"
 import BitDemo from "./pages/BitDemo"
 import StyledComponent from "./pages/StyledComponent"
 import ModelManagePage from "./pages/ModelManagePage"
+import FileUploaderPage from "./pages/FileUploaderPage"
 
 function App() {
     return (
@@ -60,6 +61,9 @@ function App() {
                         </Route>
                         <Route path="/model_manage">
                             <ModelManagePage />
+                        </Route>
+                        <Route path="/file_uploader">
+                            <FileUploaderPage />
                         </Route>
                         <Route path="/">
                             <HomePage />
