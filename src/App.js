@@ -28,6 +28,7 @@ import BitDemo from "./pages/BitDemo"
 import StyledComponent from "./pages/StyledComponent"
 import ModelManagePage from "./pages/ModelManagePage"
 import FileUploaderPage from "./pages/FileUploaderPage"
+import ReactJsonViewPage from "./pages/ReactJsonViewPage"
 
 function App() {
     return (
@@ -64,6 +65,9 @@ function App() {
                         </Route>
                         <Route path="/file_uploader">
                             <FileUploaderPage />
+                        </Route>
+                        <Route path="/react-json-view">
+                            <ReactJsonViewPage />
                         </Route>
                         <Route path="/">
                             <HomePage />

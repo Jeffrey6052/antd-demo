@@ -52,3 +52,7 @@
 .ant-btn {
     margin: 4px 8px;
 }
+
+.jowo-react-json-view.icon-hidden .icon-container{
+    display:none!important;
+}
