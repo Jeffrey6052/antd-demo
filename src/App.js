@@ -29,6 +29,7 @@ import StyledComponent from "./pages/StyledComponent"
 import ModelManagePage from "./pages/ModelManagePage"
 import FileUploaderPage from "./pages/FileUploaderPage"
 import ReactJsonViewPage from "./pages/ReactJsonViewPage"
+import TablePage from "./pages/TablePage"
 
 function App() {
     return (
@@ -68,6 +69,9 @@ function App() {
                         </Route>
                         <Route path="/react-json-view">
                             <ReactJsonViewPage />
+                        </Route>
+                        <Route path="/table">
+                            <TablePage />
                         </Route>
                         <Route path="/">
                             <HomePage />

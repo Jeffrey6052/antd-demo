@@ -55,7 +55,9 @@ class Layout extends React.Component {
                     <span className="layout-link">
                         <Link to="/react-json-view">react-json-view</Link>
                     </span>
-
+                    <span className="layout-link">
+                        <Link to="/table">table</Link>
+                    </span>
                 </div>
 
                 {this.props.children}
