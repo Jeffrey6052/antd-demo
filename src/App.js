@@ -30,6 +30,7 @@ import ModelManagePage from "./pages/ModelManagePage"
 import FileUploaderPage from "./pages/FileUploaderPage"
 import ReactJsonViewPage from "./pages/ReactJsonViewPage"
 import TablePage from "./pages/TablePage"
+import ElectricalSymbolPage from "./pages/ElectricalSymbol"
 
 function App() {
     return (
@@ -72,6 +73,9 @@ function App() {
                         </Route>
                         <Route path="/table">
                             <TablePage />
+                        </Route>
+                        <Route path="/electrical_symbol">
+                            <ElectricalSymbolPage />
                         </Route>
                         <Route path="/">
                             <HomePage />
