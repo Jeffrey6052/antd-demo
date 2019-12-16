@@ -30,6 +30,7 @@ import ModelManagePage from "./pages/ModelManagePage"
 import FileUploaderPage from "./pages/FileUploaderPage"
 import ReactJsonViewPage from "./pages/ReactJsonViewPage"
 import TablePage from "./pages/TablePage"
+import ProxyPage from "./pages/ProxyPage"
 
 function App() {
     return (
@@ -72,6 +73,9 @@ function App() {
                         </Route>
                         <Route path="/table">
                             <TablePage />
+                        </Route>
+                        <Route path="/proxy">
+                            <ProxyPage />
                         </Route>
                         <Route path="/">
                             <HomePage />
