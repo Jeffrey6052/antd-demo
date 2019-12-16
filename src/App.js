@@ -30,7 +30,11 @@ import ModelManagePage from "./pages/ModelManagePage"
 import FileUploaderPage from "./pages/FileUploaderPage"
 import ReactJsonViewPage from "./pages/ReactJsonViewPage"
 import TablePage from "./pages/TablePage"
+<<<<<<< HEAD
 import ProxyPage from "./pages/ProxyPage"
+=======
+import ElectricalSymbolPage from "./pages/ElectricalSymbol"
+>>>>>>> 13dcc1fbb5fd9e09ccf3a0fd4bc39fd6ed451afb
 
 function App() {
     return (
@@ -74,8 +78,13 @@ function App() {
                         <Route path="/table">
                             <TablePage />
                         </Route>
+<<<<<<< HEAD
                         <Route path="/proxy">
                             <ProxyPage />
+=======
+                        <Route path="/electrical_symbol">
+                            <ElectricalSymbolPage />
+>>>>>>> 13dcc1fbb5fd9e09ccf3a0fd4bc39fd6ed451afb
                         </Route>
                         <Route path="/">
                             <HomePage />

@@ -1,0 +1,14 @@
+<svg version="1.1" 
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <symbol id="YWinding" viewBox="-40 -40 81 81">
+            <circle cx="0" cy="0" r="20" fill-opacity="0" stroke-width="2"/>
+            <line x1="-10" y1="-5" x2="0" y2="6" stroke-width="1"/>
+            <line x1="10" y1="-5" x2="0" y2="6" stroke-width="1"/>
+            <line x1="0" y1="6" x2="0" y2="18" stroke-width="1"/>
+        </symbol>
+        <symbol id="account-logout" viewBox="0 0 8 8">
+            <path d="M3 0v1h4v5h-4v1h5v-7h-5zm-1 2l-2 1.5 2 1.5v-1h4v-1h-4v-1z"></path>
+        </symbol>
+    </defs>
+</svg>
