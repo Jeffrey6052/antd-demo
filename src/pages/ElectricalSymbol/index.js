@@ -40,7 +40,7 @@ class ElectricalSymbol extends React.Component {
         const height = 81
         const stroke = "black"
         const strokeOpacity = "0.8"
-        const symbolName = this.state.dis1Open ? "Dis_V_D_OPen" : "Dis_V_D_Close"
+        const symbolName = this.state.dis1Open ? "Dis_V_D_Open" : "Dis_V_D_Close"
 
         return (
             <use

@@ -64,6 +64,9 @@ class Layout extends React.Component {
                     <span className="layout-link">
                         <Link to="/electrical_symbol">electrical_symbol</Link>
                     </span>
+                    <span className="layout-link">
+                        <Link to="/circuit_diagram">circuit_diagram</Link>
+                    </span>
                 </div>
 
                 {this.props.children}

@@ -32,6 +32,7 @@ import ReactJsonViewPage from "./pages/ReactJsonViewPage"
 import TablePage from "./pages/TablePage"
 import ProxyPage from "./pages/ProxyPage"
 import ElectricalSymbolPage from "./pages/ElectricalSymbol"
+import CircuitDiagramPage from "./pages/CircuitDiagram"
 
 function App() {
     return (
@@ -80,6 +81,9 @@ function App() {
                         </Route>
                         <Route path="/electrical_symbol">
                             <ElectricalSymbolPage />
+                        </Route>
+                        <Route path="/circuit_diagram">
+                            <CircuitDiagramPage />
                         </Route>
                         <Route path="/">
                             <HomePage />
