@@ -67,7 +67,7 @@ class ElectricalSymbol extends React.Component {
                 <div style={{ margin: 20 }}>
                     <svg
                         style={{ width: 600, height: 400, border: "1px solid #eee" }}
-                        viewBox="0 0 900 600"
+                        viewBox="0 0 500 400"
                         xmlns="http://www.w3.org/2000/svg"
                         xmlnsXlink="http://www.w3.org/1999/xlink"
                     >
@@ -93,7 +93,6 @@ class ElectricalSymbol extends React.Component {
                     </svg>
                 </div>
             </div >
-
         )
     }
 }

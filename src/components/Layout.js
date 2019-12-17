@@ -59,11 +59,10 @@ class Layout extends React.Component {
                         <Link to="/table">table</Link>
                     </span>
                     <span className="layout-link">
-<<<<<<< HEAD
                         <Link to="/proxy">proxy</Link>
-=======
+                    </span>
+                    <span className="layout-link">
                         <Link to="/electrical_symbol">electrical_symbol</Link>
->>>>>>> 13dcc1fbb5fd9e09ccf3a0fd4bc39fd6ed451afb
                     </span>
                 </div>
 
