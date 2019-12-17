@@ -85,21 +85,29 @@ class Page extends React.Component {
 
         camera.position.set(0, 3, 5)
 
+        scene.add(camera )
+
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+        renderer.physicallyCorrectLights = true;
+        renderer.gammaOutput = false;
+        renderer.gammaFactor = 2.2;
+        // renderer.setClearColor(0xcccccc);
+        renderer.toneMappingExposure = 1.0
+
         renderer.setSize(CANVAS_WIDTH, CANVAS_HEIGHT)
 
         this.ref3d.appendChild(renderer.domElement)
 
         //controls
         const controls = new OrbitControls(camera, renderer.domElement)
-        controls.maxPolarAngle = Math.PI * 0.5
+        // controls.maxPolarAngle = Math.PI
         controls.minDistance = 2
         controls.maxDistance = 10
         controls.target = new THREE.Vector3(0, 0, 0)
         controls.update()
 
         //光源
-        this.addLightsToScene(scene)
+        this.addLightsToScene(scene, camera)
 
         //辅助线
         // this.addAxisToScene(scene)
@@ -120,12 +128,34 @@ class Page extends React.Component {
             }
         })
 
-        let url = "/models/gltf/Duck/Duck.gltf"
+        let url
+        url = "/models/gltf/Duck/Duck.gltf"
+        url = "/models/gltf/x.glb"
         let token = "11111"
 
         D3ModelLoader.load_gltf_model_with_token(url, token).then((gltf) => {
 
             const model = gltf.scene
+
+            const box = new THREE.Box3().setFromObject(model);
+            const size = box.getSize(new THREE.Vector3()).length();
+            const center = box.getCenter(new THREE.Vector3());
+
+            controls.reset();
+
+            model.position.x += (model.position.x - center.x);
+            model.position.y += (model.position.y - center.y);
+            model.position.z += (model.position.z - center.z);
+            controls.maxDistance = size * 10;
+            camera.near = size / 100;
+            camera.far = size * 100;
+            camera.updateProjectionMatrix();
+
+            camera.position.copy(center);
+            camera.position.x += size / 2.0;
+            camera.position.y += size / 5.0;
+            camera.position.z += size / 2.0;
+            camera.lookAt(center);
 
             console.log(model)
 
@@ -144,28 +174,35 @@ class Page extends React.Component {
                 action.play()
             }
 
+            this.traverseMaterials(model, (material) => {
+                const encoding = THREE.sRGBEncoding
+                if (material.map) material.map.encoding = encoding;
+                if (material.emissiveMap) material.emissiveMap.encoding = encoding;
+                if (material.map || material.emissiveMap) material.needsUpdate = true;
+            });
+
             scene.add(model);
 
-            // 测量模型的大小
-            const box = new THREE.Box3().setFromObject(model)
-            const sizeTarget = new THREE.Vector3()
-            box.getSize(sizeTarget)
+            // // 测量模型的大小
+            // const box = new THREE.Box3().setFromObject(model)
+            // const sizeTarget = new THREE.Vector3()
+            // box.getSize(sizeTarget)
 
-            let maxSize = Math.max(sizeTarget.x, sizeTarget.y, sizeTarget.z)
+            // let maxSize = Math.max(sizeTarget.x, sizeTarget.y, sizeTarget.z)
 
-            // 如果模型太小，做放大处理
-            if (maxSize < 1) {
-                const scale = Math.floor(1 / maxSize) + 1
-                model.scale.set(scale, scale, scale)
-                maxSize *= scale
-            }
+            // // 如果模型太小，做放大处理
+            // if (maxSize < 1) {
+            //     const scale = Math.floor(1 / maxSize) + 1
+            //     model.scale.set(scale, scale, scale)
+            //     maxSize *= scale
+            // }
 
-            camera.position.set(0, maxSize * 0.3, maxSize * 2)
+            // camera.position.set(0, maxSize * 0.3, maxSize * 2)
 
-            controls.minDistance = 2
-            controls.maxDistance = maxSize * 4
-            controls.target = new THREE.Vector3(model.position.x, model.position.y + sizeTarget.y / 2, model.position.z)
-            controls.update()
+            // controls.minDistance = 2
+            // controls.maxDistance = maxSize * 4
+            // controls.target = new THREE.Vector3(model.position.x, model.position.y + sizeTarget.y / 2, model.position.z)
+            // controls.update()
 
             this.setState((prevState) => {
                 return {
@@ -181,6 +218,16 @@ class Page extends React.Component {
 
     }
 
+    traverseMaterials(object, callback) {
+        object.traverse((node) => {
+            if (!node.isMesh) return;
+            const materials = Array.isArray(node.material)
+                ? node.material
+                : [node.material];
+            materials.forEach(callback);
+        });
+    }
+
     addAxisToScene(scene) {
         const axisHelper = new THREE.AxisHelper(500)
         axisHelper.position.set(0, 0, 0)
@@ -188,9 +235,24 @@ class Page extends React.Component {
     }
 
 
-    addLightsToScene(scene) {
+    addLightsToScene(scene, camera) {
 
-        scene.add(new THREE.AmbientLight(0xffffff, 1))
+        const hemiLight = new THREE.HemisphereLight();
+        hemiLight.name = 'hemi_light';
+        scene.add(hemiLight);
+
+        const light1 = new THREE.AmbientLight(0xffffff, 0.3);
+        light1.name = 'ambient_light';
+        light1.intensity = 0.3;
+        camera.add(light1);
+
+        const light2 = new THREE.DirectionalLight(0xffffff, 2.5);
+        light2.position.set(0.5, 0, 0.866);
+        light2.name = 'main_light';
+        light2.intensity = 0.8 * Math.PI;
+        camera.add(light2);
+
+        // scene.add(new THREE.AmbientLight(0xffffff, 1))
 
         // const light = new THREE.DirectionalLight(0xffffff, 1);
         // light.position.set(-200, 500, -200);
