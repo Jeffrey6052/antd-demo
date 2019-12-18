@@ -33,6 +33,7 @@ import TablePage from "./pages/TablePage"
 import ProxyPage from "./pages/ProxyPage"
 import ElectricalSymbolPage from "./pages/ElectricalSymbol"
 import CircuitDiagramPage from "./pages/CircuitDiagram"
+import SvgJsPage from "./pages/SvgJs"
 
 function App() {
     return (
@@ -84,6 +85,9 @@ function App() {
                         </Route>
                         <Route path="/circuit_diagram">
                             <CircuitDiagramPage />
+                        </Route>
+                        <Route path="/svg_js">
+                            <SvgJsPage />
                         </Route>
                         <Route path="/">
                             <HomePage />
