@@ -1,29 +1,35 @@
 import React from 'react';
 
-import { Button } from 'antd'
+import { Button, Divider } from 'antd'
 
 import Layout from '../../components/Layout'
 
 import exampleIcons from '../../assets/svg/example_icons.svg'
 import electricalSymbols from '../../assets/svg/electrical_symbols.svg'
 
+import { UncontrolledReactSVGPanZoom } from 'react-svg-pan-zoom';
+
 class CircuitDiagramPage extends React.Component {
 
     constructor(props) {
         super(props)
         this.state = {
-            clock: this.getClock()
+            clock: 0
         }
 
-        this.frame = null
+        this.nextFrameId = null
     }
 
     componentDidMount() {
         this.animate()
     }
 
+    componentWillUnmount() {
+        window.cancelAnimationFrame(this.nextFrameId)
+    }
+
     animate() {
-        this.frame = window.requestAnimationFrame(() => this.animate())
+        this.nextFrameId = window.requestAnimationFrame(() => this.animate())
         this.setState({
             clock: this.getClock()
         })
@@ -49,9 +55,10 @@ class CircuitDiagramPage extends React.Component {
                     y: 0
                 },
                 style: {
-                    visible: true,
+                    visible: false,
                     shape: "circle",
-                    width: "4",
+                    opacity: 0.5,
+                    width: 4,
                     color: "rgba(255, 0, 0, 1)"
                 }
             },
@@ -65,8 +72,9 @@ class CircuitDiagramPage extends React.Component {
                 },
                 style: {
                     visible: true,
+                    opacity: 0.5,
                     shape: "circle",
-                    width: "2",
+                    width: 2,
                     color: "rgba(255, 0, 0, 1)"
                 }
             },
@@ -80,9 +88,10 @@ class CircuitDiagramPage extends React.Component {
                 },
                 style: {
                     visible: true,
-                    shape: "circle",
-                    width: "3",
-                    color: "rgba(255, 255, 0, 1)"
+                    opacity: 0.5,
+                    shape: "rect",
+                    width: 10,
+                    color: "rgba(200, 0, 50, 1)"
                 }
             },
             {
@@ -95,8 +104,9 @@ class CircuitDiagramPage extends React.Component {
                 },
                 style: {
                     visible: true,
+                    opacity: 0.5,
                     shape: "circle",
-                    width: "2",
+                    width: 2,
                     color: "rgba(255, 0, 255, 1)"
                 }
             }
@@ -124,11 +134,35 @@ class CircuitDiagramPage extends React.Component {
         }
         dragramElements.push(symbol2)
 
+        const symbol3 = {
+            identifier: "隔离开关3",
+            type: "symbol",
+            typeId: "Dis_H_L_Open",
+            position: {
+                x: 200,
+                y: 0
+            }
+        }
+        dragramElements.push(symbol3)
+
         // 电路图 连线数据
         const dragramLinks = [
             {
                 from: {
                     identifier: "点1"
+                },
+                to: {
+                    identifier: "隔离开关3",
+                    point: "left"
+                },
+                style: {
+                    // color: "rgba(255, 0, 0, 1)"
+                }
+            },
+            {
+                from: {
+                    identifier: "隔离开关3",
+                    point: "right"
                 },
                 to: {
                     identifier: "点2"
@@ -242,6 +276,10 @@ class CircuitDiagramPage extends React.Component {
 
 export class CircuitDiagram extends React.Component {
 
+    componentDidMount() {
+        this.refViewer.fitToViewer()
+    }
+
     calculateLinkPosition(element, point, symbolsMap) {
         switch (element.type) {
             case "point":
@@ -299,10 +337,45 @@ export class CircuitDiagram extends React.Component {
 
         // console.log("renderPoint", element)
 
-        return (
-            <rect width="1" height="1" x={position.x - 0.5} y={position.y - 0.5}
-                style={{ fill: "rgba(255,0,0,1)" }} />
-        )
+        const width = style.width || 1
+        const height = style.height || width
+
+        let opacity = style.opacity || 1
+        if (!style.visible) {
+            opacity = 0
+        }
+
+        const color = style.color || "rgba(255,0,0,1)"
+        const shape = style.shape || "circle"
+
+        switch (shape) {
+            case "circle":
+                return (
+                    <ellipse
+                        key={element.identifier}
+                        opacity={opacity}
+                        cx={position.x}
+                        cy={position.y}
+                        rx={width / 2}
+                        ry={height / 2}
+                        style={{ fill: color }}
+                    />
+                )
+            case "rect":
+                return (
+                    <rect
+                        key={element.identifier}
+                        opacity={opacity}
+                        width={width}
+                        height={height}
+                        x={position.x - width / 2}
+                        y={position.y - height / 2}
+                        style={{ fill: color }}
+                    />
+                )
+            default:
+                return null
+        }
     }
 
     renderSymbolElement(element, symbol) {
@@ -319,6 +392,7 @@ export class CircuitDiagram extends React.Component {
 
         return (
             <use
+                key={element.identifier}
                 xlinkHref={`${electricalSymbols}#${symbol.identifier}`}
                 width={width}
                 height={height}
@@ -361,7 +435,7 @@ export class CircuitDiagram extends React.Component {
 
         const { dragramLinks } = this.props
 
-        const links = dragramLinks.map(({ from, to, style }) => {
+        const links = dragramLinks.map(({ from, to, style }, index) => {
 
             const fromElement = elementsMap[from.identifier]
             const toElement = elementsMap[to.identifier]
@@ -379,6 +453,7 @@ export class CircuitDiagram extends React.Component {
 
             return (
                 <line
+                    key={index}
                     x1={fromPosition.x}
                     y1={fromPosition.y}
                     x2={toPosition.x}
@@ -404,17 +479,51 @@ export class CircuitDiagram extends React.Component {
         const elementsMap = this.generateElementsMap()
         const symbolsMap = this.generateSymbolsMap()
 
+        const viewerWidth = 900
+        const viewerHeight = 600
+        const viewerPadding = 50
+
         return (
-            <svg
-                style={{ width: 600, height: 400, border: "1px solid #ccc" }}
-                viewBox="-20 -20 360 260"
-                xmlns="http://www.w3.org/2000/svg"
-                xmlnsXlink="http://www.w3.org/1999/xlink"
-                preserveAspectRatio="none"
-            >
-                {this.renderDragramLinks({ elementsMap, symbolsMap })}
-                {this.renderDragramElements({ symbolsMap })}
-            </svg>
+            <div style={{ width: viewerWidth, height: viewerHeight, border: "1px solid #ccc" }}>
+                <UncontrolledReactSVGPanZoom
+                    width={viewerWidth} height={viewerHeight}
+                    ref={x => this.refViewer = x}
+                    scaleFactorMax={100}
+                    scaleFactorMin={1}
+                    onClick={event => console.log('click', event.x, event.y, event.originalEvent)}
+                >
+                    <svg
+                        viewBox={`0 0 ${viewerWidth} ${viewerHeight}`}
+                        xmlns="http://www.w3.org/2000/svg"
+                        xmlnsXlink="http://www.w3.org/1999/xlink"
+                        preserveAspectRatio="none"
+                        onWheel={(e) => console.log("wheel", e)}
+                    >
+                        <svg
+                            viewBox={`${viewerPadding * -1} ${viewerPadding * -1} ${viewerWidth + viewerPadding} ${viewerHeight + viewerPadding}`}
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            {this.renderDragramLinks({ elementsMap, symbolsMap })}
+                            {this.renderDragramElements({ symbolsMap })}
+
+                            <line
+                                x1={10}
+                                y1={230}
+                                x2={110}
+                                y2={230}
+                                strokeWidth="10"
+                                stroke={"rgba(0, 0, 0, 1)"}
+                                strokeOpacity="1"
+                                strokeLinecap='square'
+                                onClick={() => console.log("click")}
+                                onMouseEnter={() => console.log("mouseEnter")}
+                                onMouseLeave={() => console.log("mouseLeave")}
+                            />
+                        </svg>
+                    </svg>
+                </UncontrolledReactSVGPanZoom>
+            </div>
         )
     }
 }

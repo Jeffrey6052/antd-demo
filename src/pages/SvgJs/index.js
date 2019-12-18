@@ -21,9 +21,9 @@ export class SvgJs extends React.Component {
 
     componentDidMount() {
         
-        const draw = SVG(this.refDraw).size(600, 400).viewbox(0, 0, 300, 200)
+        // console.log(canvas)
 
-        // draw.rect(10, 10).move(280, 180).attr({ fill: '#f06' })
+        const draw = SVG(this.refDraw).size(600, 400).viewbox(0, 0, 300, 200)
 
         const pattern = draw.pattern(50, 50, function (add) {
             add.rect(50, 50).fill('#f06')
