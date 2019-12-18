@@ -7,199 +7,237 @@ import Layout from '../../components/Layout'
 import exampleIcons from '../../assets/svg/example_icons.svg'
 import electricalSymbols from '../../assets/svg/electrical_symbols.svg'
 
-const CircuitDiagramPage = () => {
+class CircuitDiagramPage extends React.Component {
 
-    // 电路图 成员数据
-    const dragramElements = [
-        {
-            identifier: "点1",
-            type: "point",
-            typeId: "",
-            position: {
-                x: 0,
-                y: 0
+    constructor(props) {
+        super(props)
+        this.state = {
+            clock: this.getClock()
+        }
+
+        this.frame = null
+    }
+
+    componentDidMount() {
+        this.animate()
+    }
+
+    animate() {
+        this.frame = window.requestAnimationFrame(() => this.animate())
+        this.setState({
+            clock: this.getClock()
+        })
+    }
+
+    getClock() {
+        const now = new Date()
+        return now.getSeconds() * 1000 + now.getMilliseconds()
+    }
+
+    render() {
+
+        const { clock } = this.state
+
+        // 电路图 成员数据
+        const dragramElements = [
+            {
+                identifier: "点1",
+                type: "point",
+                typeId: "",
+                position: {
+                    x: 0,
+                    y: 0
+                },
+                style: {
+                    visible: true,
+                    shape: "circle",
+                    width: "4",
+                    color: "rgba(255, 0, 0, 1)"
+                }
             },
-            style: {
-                visible: true,
-                shape: "circle",
-                width: "4",
-                color: "rgba(255, 0, 0, 1)"
-            }
-        },
-        {
-            identifier: "点2",
-            type: "point",
-            typeId: "",
-            position: {
-                x: 300,
-                y: 0
+            {
+                identifier: "点2",
+                type: "point",
+                typeId: "",
+                position: {
+                    x: 300,
+                    y: 0
+                },
+                style: {
+                    visible: true,
+                    shape: "circle",
+                    width: "2",
+                    color: "rgba(255, 0, 0, 1)"
+                }
             },
-            style: {
-                visible: true,
-                shape: "circle",
-                width: "2",
-                color: "rgba(255, 0, 0, 1)"
-            }
-        },
-        {
-            identifier: "点3",
-            type: "point",
-            typeId: "",
-            position: {
-                x: 300,
-                y: 200
+            {
+                identifier: "点3",
+                type: "point",
+                typeId: "",
+                position: {
+                    x: 300,
+                    y: 200
+                },
+                style: {
+                    visible: true,
+                    shape: "circle",
+                    width: "3",
+                    color: "rgba(255, 255, 0, 1)"
+                }
             },
-            style: {
-                visible: true,
-                shape: "circle",
-                width: "3",
-                color: "rgba(255, 255, 0, 1)"
+            {
+                identifier: "点4",
+                type: "point",
+                typeId: "",
+                position: {
+                    x: 0,
+                    y: 200
+                },
+                style: {
+                    visible: true,
+                    shape: "circle",
+                    width: "2",
+                    color: "rgba(255, 0, 255, 1)"
+                }
             }
-        },
-        {
-            identifier: "点4",
-            type: "point",
-            typeId: "",
-            position: {
-                x: 0,
-                y: 200
-            },
-            style: {
-                visible: true,
-                shape: "circle",
-                width: "2",
-                color: "rgba(255, 0, 255, 1)"
-            }
-        },
-        {
+        ]
+
+        const symbol1 = {
             identifier: "隔离开关1",
             type: "symbol",
             typeId: "Dis_V_D_Open",
             position: {
-                x: 300,
+                x: 300 + 10 * Math.sin(clock / 1000),
                 y: 100
             }
-        },
-        {
+        }
+        dragramElements.push(symbol1)
+
+        const symbol2 = {
             identifier: "隔离开关2",
             type: "symbol",
             typeId: "Dis_H_L_Open",
             position: {
                 x: 100,
-                y: 200
+                y: 200 + 10 * Math.sin(clock / 1000)
             }
         }
-    ]
+        dragramElements.push(symbol2)
 
-    // 电路图 连线数据
-    const dragramLinks = [
-        {
-            from: {
-                identifier: "点1"
+        // 电路图 连线数据
+        const dragramLinks = [
+            {
+                from: {
+                    identifier: "点1"
+                },
+                to: {
+                    identifier: "点2"
+                },
+                style: {
+                    // color: "rgba(255, 0, 0, 1)"
+                }
             },
-            to: {
-                identifier: "点2"
+            {
+                from: {
+                    identifier: "点2"
+                },
+                to: {
+                    identifier: "隔离开关1",
+                    point: "up"
+                },
+                style: {
+                    // color: "rgba(255, 255, 0, 1)"
+                }
             },
-            style: {
-                // color: "rgba(255, 0, 0, 1)"
+            {
+                from: {
+                    identifier: "隔离开关1",
+                    point: "down",
+                },
+                to: {
+                    identifier: "点3"
+                },
+                style: {
+                    // color: "rgba(255, 0, 255, 1)"
+                }
+            },
+            {
+                from: {
+                    identifier: "点3"
+                },
+                to: {
+                    identifier: "隔离开关2",
+                    point: "right"
+                },
+                style: {
+                    // color: "rgba(0, 255, 0, 1)"
+                }
+            },
+            {
+                from: {
+                    identifier: "隔离开关2",
+                    point: "left",
+                },
+                to: {
+                    identifier: "点4"
+                },
+                style: {
+                    // color: "rgba(255, 255, 0, 1)"
+                }
+            },
+            {
+                from: {
+                    identifier: "点4"
+                },
+                to: {
+                    identifier: "点1"
+                },
+                style: {
+                    // color: "rgba(0, 255, 255, 1)"
+                }
             }
-        },
-        {
-            from: {
-                identifier: "点2"
-            },
-            to: {
-                identifier: "隔离开关1",
-                point: "up"
-            },
-            style: {
-                // color: "rgba(255, 255, 0, 1)"
-            }
-        },
-        {
-            from: {
-                identifier: "隔离开关1",
-                point: "down",
-            },
-            to: {
-                identifier: "点3"
-            },
-            style: {
-                // color: "rgba(255, 0, 255, 1)"
-            }
-        },
-        {
-            from: {
-                identifier: "点3"
-            },
-            to: {
-                identifier: "隔离开关2",
-                point: "right"
-            },
-            style: {
-                // color: "rgba(0, 255, 0, 1)"
-            }
-        },
-        {
-            from: {
-                identifier: "隔离开关2",
-                point: "left",
-            },
-            to: {
-                identifier: "点4"
-            },
-            style: {
-                // color: "rgba(255, 255, 0, 1)"
-            }
-        },
-        {
-            from: {
-                identifier: "点4"
-            },
-            to: {
-                identifier: "点1"
-            },
-            style: {
-                // color: "rgba(0, 255, 255, 1)"
-            }
-        }
-    ]
+        ]
 
-    // 电路图 元件定义
-    const dragramSymbols = [
-        {
-            identifier: "Dis_V_D_Open",
-            desc: "隔离开关_竖直_刀下_分",
-            width: 81,
-            height: 81,
-            points: {
-                center: { x: 40, y: 40 },
-                up: { x: 0, y: -30 },
-                down: { x: 0, y: 30 }
+        // 电路图 元件定义
+        const dragramSymbols = [
+            {
+                identifier: "Dis_V_D_Open",
+                desc: "隔离开关_竖直_刀下_分",
+                width: 81,
+                height: 81,
+                points: {
+                    center: { x: 40, y: 40 },
+                    up: { x: 0, y: -30 },
+                    down: { x: 0, y: 30 }
+                }
+            },
+            {
+                identifier: "Dis_H_L_Open",
+                desc: "隔离开关_水平_刀左_分",
+                width: 81,
+                height: 81,
+                points: {
+                    center: { x: 40, y: 40 },
+                    left: { x: -30, y: 0 },
+                    right: { x: 30, y: 0 }
+                }
             }
-        },
-        {
-            identifier: "Dis_H_L_Open",
-            desc: "隔离开关_水平_刀左_分",
-            width: 81,
-            height: 81,
-            points: {
-                center: { x: 40, y: 40 },
-                left: { x: -30, y: 0 },
-                right: { x: 30, y: 0 }
-            }
-        }
-    ]
+        ]
 
-    return (
-        <Layout>
-            <CircuitDiagram
-                dragramElements={dragramElements}
-                dragramLinks={dragramLinks}
-                dragramSymbols={dragramSymbols}
-            />
-        </Layout>
-    )
+        return (
+            <Layout>
+                <h3>电路图渲染测试</h3>
+
+                <p>Clock: {this.state.clock}</p>
+
+                <CircuitDiagram
+                    dragramElements={dragramElements}
+                    dragramLinks={dragramLinks}
+                    dragramSymbols={dragramSymbols}
+                />
+            </Layout>
+        )
+    }
 }
 
 export class CircuitDiagram extends React.Component {
@@ -218,7 +256,7 @@ export class CircuitDiagram extends React.Component {
                     return null
                 }
 
-                console.log(element, symbolPoint)
+                // console.log(element, symbolPoint)
 
                 return {
                     x: element.position.x + symbolPoint.x,
@@ -255,9 +293,11 @@ export class CircuitDiagram extends React.Component {
     }
 
     renderPoint(element) {
-        const { position } = element
+        const { position, style } = element
 
-        console.log("renderPoint", element)
+        const pStyle = style || {}
+
+        // console.log("renderPoint", element)
 
         return (
             <rect width="1" height="1" x={position.x - 0.5} y={position.y - 0.5}
@@ -365,21 +405,16 @@ export class CircuitDiagram extends React.Component {
         const symbolsMap = this.generateSymbolsMap()
 
         return (
-            <div>
-                <h3>电路图渲染测试</h3>
-
-                <svg
-                    style={{ width: 600, height: 400, border: "1px solid #ccc" }}
-                    viewBox="-20 -20 320 260"
-                    xmlns="http://www.w3.org/2000/svg"
-                    xmlnsXlink="http://www.w3.org/1999/xlink"
-                // preserveAspectRatio="none"
-                >
-                    {this.renderDragramLinks({ elementsMap, symbolsMap })}
-                    {this.renderDragramElements({ symbolsMap })}
-                </svg>
-
-            </div>
+            <svg
+                style={{ width: 600, height: 400, border: "1px solid #ccc" }}
+                viewBox="-20 -20 360 260"
+                xmlns="http://www.w3.org/2000/svg"
+                xmlnsXlink="http://www.w3.org/1999/xlink"
+                preserveAspectRatio="none"
+            >
+                {this.renderDragramLinks({ elementsMap, symbolsMap })}
+                {this.renderDragramElements({ symbolsMap })}
+            </svg>
         )
     }
 }
