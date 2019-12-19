@@ -9,9 +9,13 @@ export default class CircuitDiagramPage extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
+            _v: 0,
             startTime: new Date().getTime(),
             clock: 0,
-            dragram: this.initDragram()
+            dragram: this.initDragram(),
+            width: 900,
+            height: 600,
+            borderWidth: 4
         }
 
         this.nextFrameId = null
@@ -162,6 +166,22 @@ export default class CircuitDiagramPage extends React.Component {
                     width: 2,
                     color: "rgba(255, 0, 255, 1)"
                 }
+            },
+            {
+                identifier: "测试拖动元素",
+                type: "point",
+                typeId: "",
+                position: {
+                    x: 130,
+                    y: 110
+                },
+                style: {
+                    visible: true,
+                    opacity: 0.5,
+                    shape: "circle",
+                    width: 15,
+                    color: "#007bff"
+                }
             }
         ]
     }
@@ -256,7 +276,7 @@ export default class CircuitDiagramPage extends React.Component {
 
     animate() {
         this.nextFrameId = window.requestAnimationFrame(() => this.animate())
-        this.updateFrame()
+        this.playFrame()
     }
 
     getClock() {
@@ -264,14 +284,20 @@ export default class CircuitDiagramPage extends React.Component {
         return now - this.state.startTime
     }
 
-    moveElement(element, newPosition) {
+    createElementWithNewPosition(element, newPosition) {
         return {
             ...element,
             position: newPosition
         }
     }
 
-    updateFrame() {
+    refresh() {
+        this.setState((prevState) => ({
+            _v: prevState._v + 1
+        }))
+    }
+
+    playFrame() {
 
         const { dragram } = this.state
 
@@ -280,12 +306,12 @@ export default class CircuitDiagramPage extends React.Component {
         const newElements = dragram.elements.map((element) => {
             switch (element.identifier) {
                 case "隔离开关1":
-                    return this.moveElement(element, {
+                    return this.createElementWithNewPosition(element, {
                         x: 300 + 10 * Math.sin(clock / 2000),
                         y: 100 + 6 * Math.sin(clock / 500)
                     })
                 case "隔离开关2":
-                    return this.moveElement(element, {
+                    return this.createElementWithNewPosition(element, {
                         x: 100 + 6 * Math.sin(clock / 2000),
                         y: 200 + 10 * Math.sin(clock / 500)
                     })
@@ -294,18 +320,18 @@ export default class CircuitDiagramPage extends React.Component {
             }
         })
 
-        this.setState({
+        this.setState((prevState) => ({
             clock: clock,
             dragram: {
-                ...dragram,
+                ...prevState.dragram,
                 elements: newElements
             }
-        })
+        }))
     }
 
     render() {
 
-        const { clock, dragram } = this.state
+        const { clock, dragram, width, height, borderWidth } = this.state
 
         return (
             <Layout>
@@ -313,7 +339,13 @@ export default class CircuitDiagramPage extends React.Component {
 
                 <p>Clock: {clock}</p>
 
-                <CircuitDiagram dragram={dragram} />
+                <CircuitDiagram
+                    dragram={dragram}
+                    width={width}
+                    height={height}
+                    borderWidth={borderWidth}
+                    refresh={this.refresh.bind(this)}
+                />
             </Layout>
         )
     }

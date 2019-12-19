@@ -1,9 +1,9 @@
 import React from 'react';
 
 import electricalSymbols from '../../assets/svg/electrical_symbols.svg';
-import { INITIAL_VALUE, ReactSVGPanZoom, TOOL_NONE } from 'react-svg-pan-zoom';
+import { INITIAL_VALUE, ReactSVGPanZoom, TOOL_NONE, TOOL_AUTO } from 'react-svg-pan-zoom';
 
-import SampleDragramItem from './SampleDragramItem';
+import lodash from "lodash"
 
 // const inspect = require("object-inspect")
 
@@ -21,9 +21,11 @@ export default class CircuitDiagram extends React.Component {
         super(props)
 
         this.state = {
-            zoomTool: TOOL_NONE,
+            zoomTool: TOOL_NONE, // TOOL_AUTO
             zoomValue: INITIAL_VALUE,
-            mouse: INITIAL_MOUSE
+            mouse: INITIAL_MOUSE,
+            viewerMouse: INITIAL_MOUSE,
+            shadowElement: null //鼠标拖动元素时，该元素的半透明克隆对象
         }
     }
 
@@ -44,8 +46,6 @@ export default class CircuitDiagram extends React.Component {
                 if (!symbolPoint) {
                     return null
                 }
-
-                // console.log(element, symbolPoint)
 
                 return {
                     x: element.position.x + symbolPoint.x,
@@ -85,8 +85,6 @@ export default class CircuitDiagram extends React.Component {
 
         const pStyle = style || {}
 
-        // console.log("renderPoint", element)
-
         const width = style.width || 1
         const height = style.height || width
 
@@ -108,7 +106,8 @@ export default class CircuitDiagram extends React.Component {
                         cy={position.y}
                         rx={width / 2}
                         ry={height / 2}
-                        style={{ fill: color }}
+                        style={{ fill: color, cursor: "move" }}
+                        dragram-element-id={element.identifier}
                     />
                 )
             case "rect":
@@ -120,7 +119,8 @@ export default class CircuitDiagram extends React.Component {
                         height={height}
                         x={position.x - width / 2}
                         y={position.y - height / 2}
-                        style={{ fill: color }}
+                        style={{ fill: color, cursor: "move" }}
+                        dragram-element-id={element.identifier}
                     />
                 )
             default:
@@ -150,6 +150,8 @@ export default class CircuitDiagram extends React.Component {
                 y={y}
                 stroke={stroke}
                 strokeOpacity={strokeOpacity}
+                dragram-element-id={element.identifier}
+                style={{ cursor: "move" }}
             />
         )
     }
@@ -159,19 +161,7 @@ export default class CircuitDiagram extends React.Component {
         const { elements } = this.props.dragram
 
         const rendElements = elements.map((element) => {
-            const { type, position } = element
-            switch (type) {
-                case "point":
-                    return this.renderPoint(element)
-                case "symbol":
-                    const symbol = symbolsMap[element.typeId]
-                    if (!symbol) {
-                        return null
-                    }
-                    return this.renderSymbolElement(element, symbol)
-                default:
-                    return null
-            }
+            return this.renderDragramElement({ element, symbolsMap })
         })
 
         return (
@@ -181,6 +171,51 @@ export default class CircuitDiagram extends React.Component {
         )
     }
 
+    renderDragramElement({ element, symbolsMap }) {
+        if (!element) {
+            return null
+        }
+
+        const { type } = element
+        switch (type) {
+            case "point":
+                return this.renderPoint(element)
+            case "symbol":
+                const symbol = symbolsMap[element.typeId]
+                if (!symbol) {
+                    return null
+                }
+                return this.renderSymbolElement(element, symbol)
+            default:
+                return null
+        }
+    }
+
+    // 拖动元素时，跟随鼠标显示该元素的镜像
+    renderShadowElement() {
+
+        const { shadowElement, viewerMouse } = this.state
+
+        if (!shadowElement) {
+            return null
+        }
+
+        if (!viewerMouse.down || !viewerMouse.moved) {
+            return null
+        }
+
+        const { symbols } = this.props.dragram
+
+        const symbolId = shadowElement.type === "symbol" && shadowElement.typeId
+        const findSymbol = symbolId && symbols.find((symbol) => symbol.identifier === symbolId)
+
+        const symbolsMap = {}
+        if (findSymbol) {
+            symbolsMap[symbolId] = findSymbol
+        }
+
+        return this.renderDragramElement({ element: shadowElement, symbolsMap })
+    }
 
     /**鼠标按下 */
     handleMouseDown(e) {
@@ -241,16 +276,178 @@ export default class CircuitDiagram extends React.Component {
     }
 
 
-    handleViewerMouseDown(e) {
-        console.log("handleViewerMouseDown", e)
+    handleViewerMouseDown(viewerEvent) {
+
+        const event = viewerEvent.originalEvent
+
+        const target = event.target
+
+        const elementId = target.getAttribute("dragram-element-id")
+        let shadowElement = null
+        if (elementId) {
+            event.stopPropagation()
+
+            const element = this.getDragramElementById(elementId)
+
+            if (element) {
+                shadowElement = lodash.cloneDeep(element)
+            }
+        }
+
+        const x = viewerEvent.x
+        const y = viewerEvent.y
+
+        // console.log("down", x, y)
+
+        this.setState((prevState) => ({
+            viewerMouse: {
+                ...prevState.viewerMouse,
+                down: true,
+                downPosition: { x: x, y: y },
+                moved: false,
+                movedPosition: null,
+                target: target
+            },
+            shadowElement: shadowElement
+        }))
     }
 
-    handleViewerMouseMove(e) {
-        // console.log("handleViewerMouseMove", e)
+    handleViewerMouseMove(viewerEvent) {
+
+        const { viewerMouse } = this.state
+
+        if (!viewerMouse.down) {
+            return
+        }
+
+        const target = viewerMouse.target
+        if (!target) {
+            return
+        }
+
+        const elementId = target.getAttribute("dragram-element-id")
+        if (!elementId) {
+            return
+        }
+
+        const movedPosition = { x: viewerEvent.x, y: viewerEvent.y }
+
+        this.setState((prevState) => ({
+            viewerMouse: {
+                ...prevState.viewerMouse,
+                moved: true,
+                movedPosition: movedPosition
+            }
+        }))
+
+        // TODO 每次都去查找，效率很低
+        const element = this.getDragramElementById(elementId)
+        if (!element) {
+            return
+        }
+
+        const finalPosition = this.calculateFinalPosition(
+            element.position,
+            viewerMouse.downPosition,
+            movedPosition,
+            viewerEvent.value,
+            viewerEvent.scaleFactor
+        )
+
+        this.setState((prevState) => {
+            const { shadowElement } = prevState
+            if (!shadowElement) {
+                return prevState
+            }
+
+            return {
+                shadowElement: {
+                    ...shadowElement,
+                    position: finalPosition
+                }
+            }
+        })
     }
 
-    handleViewerMouseUp(e) {
-        // console.log("handleViewerMouseUp", e)
+    handleViewerMouseUp(viewerEvent) {
+
+        const { viewerMouse } = this.state
+        if (!viewerMouse.down) {
+            return
+        }
+
+        const target = viewerMouse.target
+        if (!target) {
+            return
+        }
+
+        const elementId = target.getAttribute("dragram-element-id")
+        if (!elementId) {
+            return
+        }
+
+        const movedPosition = {
+            x: viewerEvent.x,
+            y: viewerEvent.y
+        }
+
+        this.setState({
+            viewerMouse: INITIAL_MOUSE,
+            shadowElement: null
+        })
+
+        const element = this.getDragramElementById(elementId)
+        if (!element) {
+            return
+        }
+
+        // console.log("up", movedPosition)
+
+        const finalPosition = this.calculateFinalPosition(
+            element.position,
+            viewerMouse.downPosition,
+            movedPosition,
+            viewerEvent.value,
+            viewerEvent.scaleFactor
+        )
+
+        // TODO 直接改变原值将导致后续无法添加撤销操作, 最好不要这样做
+        element.position = finalPosition
+
+        this.props.refresh()
+    }
+
+    // 计算最终的落点坐标
+    calculateFinalPosition(originPosition, mouseDownPosition, mouseMovedPosition, viewerValue, scaleFactor) {
+
+        const { SVGWidth, SVGHeight } = viewerValue
+
+        const svgPadding = this.getPropPadding()
+        // const paddingFactorX = SVGWidth / (SVGWidth - 2 * svgPadding)
+        // const paddingFactorY = SVGHeight / (SVGHeight - 2 * svgPadding)
+
+        const paddingFactorX = 1
+        const paddingFactorY = 1
+
+        // 纠正padding以及放大倍率的影响
+        const offsetX = (mouseMovedPosition.x - mouseDownPosition.x) * paddingFactorX / scaleFactor
+        const offsetY = (mouseMovedPosition.y - mouseDownPosition.y) * paddingFactorY / scaleFactor
+
+        const finalPosition = {
+            x: originPosition.x + offsetX,
+            y: originPosition.y + offsetY,
+        }
+
+        return finalPosition
+    }
+
+    getDragramElementById(elementId) {
+        if (!elementId) {
+            return null
+        }
+
+        const { elements } = this.props.dragram
+        return elements.find((element) => element.identifier === elementId) || null
     }
 
     renderDragramLinks({ elementsMap, symbolsMap }) {
@@ -333,14 +530,32 @@ export default class CircuitDiagram extends React.Component {
         )
     }
 
+    getPropWidth() {
+        return this.props.width || 1440
+    }
+
+    getPropHeight() {
+        return this.props.height || 900
+    }
+
+    getPropBorderWidth() {
+        return this.props.borderWidth || 4
+    }
+
+    getPropPadding() {
+        // return 0
+        return this.props.padding || 20
+    }
+
     render() {
 
         const elementsMap = this.generateElementsMap()
         const symbolsMap = this.generateSymbolsMap()
 
-        const wrapWidth = 1440
-        const wrapHeight = 900
-        const wrapBorderWidth = 4
+        const wrapWidth = this.getPropWidth()
+        const wrapHeight = this.getPropHeight()
+        const wrapBorderWidth = this.getPropBorderWidth()
+        const svgPadding = this.getPropPadding()
 
         const wrapStyle = {
             borderWidth: wrapBorderWidth,
@@ -393,8 +608,6 @@ export default class CircuitDiagram extends React.Component {
             viewerProps.onMouseUp = (e) => this.handleViewerMouseUp(e)
         }
 
-        const viewBoxPadding = 50
-
         return (
             <div {...wrapProps}>
                 <ReactSVGPanZoom {...viewerProps}>
@@ -405,15 +618,14 @@ export default class CircuitDiagram extends React.Component {
                         preserveAspectRatio="none"
                     >
                         <svg
-                            viewBox={`${viewBoxPadding * -1} ${viewBoxPadding * -1} ${viewerWidth + viewBoxPadding} ${viewerHeight + viewBoxPadding}`}
+                            viewBox={`${svgPadding * -1} ${svgPadding * -1} ${viewerWidth + svgPadding} ${viewerHeight + svgPadding}`}
                             xmlns="http://www.w3.org/2000/svg"
                             xmlnsXlink="http://www.w3.org/1999/xlink"
                         >
                             {this.renderDragramLinks({ elementsMap, symbolsMap })}
                             {this.renderDragramElements({ symbolsMap })}
-                            <SampleDragramItem />
 
-                            <rect x="130" y="110" width="30" height="20" fill="#007bff" />
+                            {this.renderShadowElement()}
                         </svg>
                     </svg>
                 </ReactSVGPanZoom>
