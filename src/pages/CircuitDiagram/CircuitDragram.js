@@ -5,15 +5,9 @@ import { INITIAL_VALUE, ReactSVGPanZoom, TOOL_NONE, TOOL_AUTO } from 'react-svg-
 
 import lodash from "lodash"
 
-// const inspect = require("object-inspect")
+import { isCtrlDown, isShiftDown, isAltDown } from "../../utils/KeyboardWatch"
 
-// 鼠标初始状态
-const INITIAL_MOUSE = {
-    down: false,
-    moved: false,
-    downPosition: null,
-    upPosition: null
-}
+// const inspect = require("object-inspect")
 
 export default class CircuitDiagram extends React.Component {
 
@@ -23,14 +17,54 @@ export default class CircuitDiagram extends React.Component {
         this.state = {
             zoomTool: TOOL_NONE, // TOOL_AUTO
             zoomValue: INITIAL_VALUE,
-            mouse: INITIAL_MOUSE,
-            viewerMouse: INITIAL_MOUSE,
-            shadowElement: null //鼠标拖动元素时，该元素的半透明克隆对象
+            mouse: this.buildDefaultMouse(),
+            viewerMouse: this.buildDefaultMouse(),
+            shadowElement: null, //鼠标拖动元素时，该元素的半透明克隆对象
+            ctrlDown: isCtrlDown(),
+            shiftDown: isShiftDown(),
+            altDown: isAltDown()
+        }
+    }
+
+    buildDefaultMouse() {
+        return {
+            down: false,
+            moved: false,
+            downPosition: null,
+            upPosition: null
         }
     }
 
     componentDidMount() {
         this.refViewer.fitToViewer()
+        window.addEventListener("keydown", this.refreshKeyboard.bind(this))
+        window.addEventListener("keyup", this.refreshKeyboard.bind(this))
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("keydown", this.refreshKeyboard.bind(this))
+        window.removeEventListener("keyup", this.refreshKeyboard.bind(this))
+    }
+
+    refreshKeyboard(e) {
+
+        const { ctrlDown, shiftDown, altDown } = this.state
+
+        const newCtrlDown = isCtrlDown()
+        const newShiftDown = isShiftDown()
+        const newAltDown = isAltDown()
+
+        if (ctrlDown != newCtrlDown) {
+            this.setState({ "ctrlDown": newCtrlDown })
+        }
+
+        if (shiftDown != newShiftDown) {
+            this.setState({ "shiftDown": newShiftDown })
+        }
+
+        if (altDown != newAltDown) {
+            this.setState({ "altDown": newAltDown })
+        }
     }
 
     calculateLinkPosition(element, point, symbolsMap) {
@@ -260,19 +294,16 @@ export default class CircuitDiagram extends React.Component {
 
         const { mouse } = this.state
 
-        if (!mouse.down) {
-            return
-        }
-
         const isClick = mouse.down && !mouse.moved
+        const isAreaSelect = mouse.down && mouse.moved && mouse.downPosition && mouse.movedPosition
 
         if (isClick) {
             console.log("TODO 选中单击元素")
-        } else if (mouse.downPosition && mouse.movedPosition) {
+        } else if (isAreaSelect) {
             console.log("TODO 选中范围内的元素", mouse.downPosition, mouse.movedPosition)
         }
 
-        this.setState({ mouse: INITIAL_MOUSE })
+        this.setState({ mouse: this.buildDefaultMouse() })
     }
 
 
@@ -296,8 +327,6 @@ export default class CircuitDiagram extends React.Component {
 
         const x = viewerEvent.x
         const y = viewerEvent.y
-
-        // console.log("down", x, y)
 
         this.setState((prevState) => ({
             viewerMouse: {
@@ -391,7 +420,7 @@ export default class CircuitDiagram extends React.Component {
         }
 
         this.setState({
-            viewerMouse: INITIAL_MOUSE,
+            viewerMouse: this.buildDefaultMouse(),
             shadowElement: null
         })
 
@@ -399,8 +428,6 @@ export default class CircuitDiagram extends React.Component {
         if (!element) {
             return
         }
-
-        // console.log("up", movedPosition)
 
         const finalPosition = this.calculateFinalPosition(
             element.position,
@@ -552,12 +579,6 @@ export default class CircuitDiagram extends React.Component {
             style: wrapStyle
         }
 
-        if (this.state.zoomTool === "none") {
-            wrapProps.onMouseDown = (e) => this.handleMouseDown(e)
-            wrapProps.onMouseMove = (e) => this.handleMouseMove(e)
-            wrapProps.onMouseUp = (e) => this.handleMouseUp(e)
-        }
-
         const miniatureProps = {
             position: "right" // one of none, right, left
         }
@@ -569,6 +590,12 @@ export default class CircuitDiagram extends React.Component {
         const viewerWidth = wrapWidth - wrapBorderWidth * 2
         const viewerHeight = wrapHeight - wrapBorderWidth * 2
 
+        const { zoomTool, ctrlDown } = this.state
+        let currentTool = zoomTool
+        if (currentTool === TOOL_NONE && ctrlDown) {
+            currentTool = TOOL_AUTO
+        }
+
         const viewerProps = {
             width: viewerWidth,
             height: viewerHeight,
@@ -579,13 +606,16 @@ export default class CircuitDiagram extends React.Component {
             onChangeValue: (value) => this.setZoomValue(value),
             detectAutoPan: false,
             disableDoubleClickZoomWithToolAuto: true,
-            tool: this.state.zoomTool,
+            tool: currentTool,
             onChangeTool: (tool) => this.setZoomTool(tool),
             miniatureProps: miniatureProps,
             toolbarProps: toolbarProps,
         }
 
-        if (this.state.zoomTool === "none") {
+        if (currentTool === TOOL_NONE) {
+            wrapProps.onMouseDown = (e) => this.handleMouseDown(e)
+            wrapProps.onMouseMove = (e) => this.handleMouseMove(e)
+            wrapProps.onMouseUp = (e) => this.handleMouseUp(e)
             viewerProps.onMouseDown = (e) => this.handleViewerMouseDown(e)
             viewerProps.onMouseMove = (e) => this.handleViewerMouseMove(e)
             viewerProps.onMouseUp = (e) => this.handleViewerMouseUp(e)

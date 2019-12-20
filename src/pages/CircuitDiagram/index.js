@@ -13,8 +13,8 @@ export default class CircuitDiagramPage extends React.Component {
             startTime: new Date().getTime(),
             clock: 0,
             dragram: this.initDragram(),
-            width: 900,
-            height: 600,
+            width: 1440,
+            height: 900,
             borderWidth: 0
         }
 

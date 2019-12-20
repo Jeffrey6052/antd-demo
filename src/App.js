@@ -35,6 +35,8 @@ import ElectricalSymbolPage from "./pages/ElectricalSymbol"
 import CircuitDiagramPage from "./pages/CircuitDiagram"
 import SvgJsPage from "./pages/SvgJs"
 
+import "./utils/KeyboardWatch"
+
 function App() {
     return (
         <ConfigProvider locale={zhCN}>
