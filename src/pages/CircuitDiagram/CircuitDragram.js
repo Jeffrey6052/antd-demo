@@ -350,7 +350,6 @@ export default class CircuitDiagram extends React.Component {
             element.position,
             viewerMouse.downPosition,
             movedPosition,
-            viewerEvent.value,
             viewerEvent.scaleFactor
         )
 
@@ -407,7 +406,6 @@ export default class CircuitDiagram extends React.Component {
             element.position,
             viewerMouse.downPosition,
             movedPosition,
-            viewerEvent.value,
             viewerEvent.scaleFactor
         )
 
@@ -418,20 +416,11 @@ export default class CircuitDiagram extends React.Component {
     }
 
     // 计算最终的落点坐标
-    calculateFinalPosition(originPosition, mouseDownPosition, mouseMovedPosition, viewerValue, scaleFactor) {
-
-        const { SVGWidth, SVGHeight } = viewerValue
-
-        const svgPadding = this.getPropPadding()
-        // const paddingFactorX = SVGWidth / (SVGWidth - 2 * svgPadding)
-        // const paddingFactorY = SVGHeight / (SVGHeight - 2 * svgPadding)
-
-        const paddingFactorX = 1
-        const paddingFactorY = 1
+    calculateFinalPosition(originPosition, mouseDownPosition, mouseMovedPosition, scaleFactor) {
 
         // 纠正padding以及放大倍率的影响
-        const offsetX = (mouseMovedPosition.x - mouseDownPosition.x) * paddingFactorX / scaleFactor
-        const offsetY = (mouseMovedPosition.y - mouseDownPosition.y) * paddingFactorY / scaleFactor
+        const offsetX = (mouseMovedPosition.x - mouseDownPosition.x) / scaleFactor
+        const offsetY = (mouseMovedPosition.y - mouseDownPosition.y) / scaleFactor
 
         const finalPosition = {
             x: originPosition.x + offsetX,
@@ -542,11 +531,6 @@ export default class CircuitDiagram extends React.Component {
         return this.props.borderWidth || 4
     }
 
-    getPropPadding() {
-        // return 0
-        return this.props.padding || 20
-    }
-
     render() {
 
         const elementsMap = this.generateElementsMap()
@@ -555,7 +539,6 @@ export default class CircuitDiagram extends React.Component {
         const wrapWidth = this.getPropWidth()
         const wrapHeight = this.getPropHeight()
         const wrapBorderWidth = this.getPropBorderWidth()
-        const svgPadding = this.getPropPadding()
 
         const wrapStyle = {
             borderWidth: wrapBorderWidth,
@@ -617,16 +600,10 @@ export default class CircuitDiagram extends React.Component {
                         xmlnsXlink="http://www.w3.org/1999/xlink"
                         preserveAspectRatio="none"
                     >
-                        <svg
-                            viewBox={`${svgPadding * -1} ${svgPadding * -1} ${viewerWidth + svgPadding} ${viewerHeight + svgPadding}`}
-                            xmlns="http://www.w3.org/2000/svg"
-                            xmlnsXlink="http://www.w3.org/1999/xlink"
-                        >
-                            {this.renderDragramLinks({ elementsMap, symbolsMap })}
-                            {this.renderDragramElements({ symbolsMap })}
+                        {this.renderDragramLinks({ elementsMap, symbolsMap })}
+                        {this.renderDragramElements({ symbolsMap })}
 
-                            {this.renderShadowElement()}
-                        </svg>
+                        {this.renderShadowElement()}
                     </svg>
                 </ReactSVGPanZoom>
                 {this.renderMouseArea()}

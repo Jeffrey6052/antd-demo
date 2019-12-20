@@ -15,14 +15,14 @@ export default class CircuitDiagramPage extends React.Component {
             dragram: this.initDragram(),
             width: 900,
             height: 600,
-            borderWidth: 4
+            borderWidth: 0
         }
 
         this.nextFrameId = null
     }
 
     componentDidMount() {
-        // this.animate()
+        this.animate()
     }
 
     componentWillUnmount() {
@@ -100,7 +100,7 @@ export default class CircuitDiagramPage extends React.Component {
                 typeId: "Dis_H_L_Open",
                 position: {
                     x: 200,
-                    y: 0
+                    y: 40
                 }
             },
             {
@@ -108,8 +108,8 @@ export default class CircuitDiagramPage extends React.Component {
                 type: "point",
                 typeId: "",
                 position: {
-                    x: 0,
-                    y: 0
+                    x: 40,
+                    y: 40
                 },
                 style: {
                     visible: false,
@@ -125,7 +125,7 @@ export default class CircuitDiagramPage extends React.Component {
                 typeId: "",
                 position: {
                     x: 300,
-                    y: 0
+                    y: 40
                 },
                 style: {
                     visible: true,
@@ -156,7 +156,7 @@ export default class CircuitDiagramPage extends React.Component {
                 type: "point",
                 typeId: "",
                 position: {
-                    x: 0,
+                    x: 40,
                     y: 200
                 },
                 style: {
@@ -331,7 +331,7 @@ export default class CircuitDiagramPage extends React.Component {
 
     render() {
 
-        const { clock, dragram, width, height, borderWidth } = this.state
+        const { clock, dragram, width, height, borderWidth, padding } = this.state
 
         return (
             <Layout>
@@ -344,6 +344,7 @@ export default class CircuitDiagramPage extends React.Component {
                     width={width}
                     height={height}
                     borderWidth={borderWidth}
+                    padding={padding}
                     refresh={this.refresh.bind(this)}
                 />
             </Layout>
