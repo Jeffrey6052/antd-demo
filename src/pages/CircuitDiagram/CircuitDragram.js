@@ -37,16 +37,16 @@ export default class CircuitDiagram extends React.Component {
 
     componentDidMount() {
         this.refViewer.fitToViewer()
-        window.addEventListener("keydown", this.refreshKeyboard.bind(this))
-        window.addEventListener("keyup", this.refreshKeyboard.bind(this))
+        window.addEventListener("keydown", this.loadKeyboard.bind(this))
+        window.addEventListener("keyup", this.loadKeyboard.bind(this))
     }
 
     componentWillUnmount() {
-        window.removeEventListener("keydown", this.refreshKeyboard.bind(this))
-        window.removeEventListener("keyup", this.refreshKeyboard.bind(this))
+        window.removeEventListener("keydown", this.loadKeyboard.bind(this))
+        window.removeEventListener("keyup", this.loadKeyboard.bind(this))
     }
 
-    refreshKeyboard(e) {
+    loadKeyboard(e) {
 
         const { ctrlDown, shiftDown, altDown } = this.state
 
@@ -141,6 +141,7 @@ export default class CircuitDiagram extends React.Component {
                         rx={width / 2}
                         ry={height / 2}
                         style={{ fill: color, cursor: "move" }}
+                        dragram-element-type="point"
                         dragram-element-id={element.identifier}
                     />
                 )
@@ -154,6 +155,7 @@ export default class CircuitDiagram extends React.Component {
                         x={position.x - width / 2}
                         y={position.y - height / 2}
                         style={{ fill: color, cursor: "move" }}
+                        dragram-element-type="point"
                         dragram-element-id={element.identifier}
                     />
                 )
@@ -184,18 +186,52 @@ export default class CircuitDiagram extends React.Component {
                 y={y}
                 stroke={stroke}
                 strokeOpacity={strokeOpacity}
+                dragram-element-type="symbol"
                 dragram-element-id={element.identifier}
                 style={{ cursor: "move" }}
             />
         )
     }
 
-    renderDragramElements({ symbolsMap }) {
+    renderConnectingLine(element, symbolsMap, elementsMap) {
+        const { identifier, from, to, style } = element
+
+        const fromPosition = from.position || this.calculateElementPointPosition(from.identifier, from.point, elementsMap, symbolsMap)
+
+        const toPosition = to.position || this.calculateElementPointPosition(to.identifier, to.point, elementsMap, symbolsMap)
+
+        if (!fromPosition || !toPosition) {
+            return null
+        }
+
+        const stroke = style.color || "rgba(0, 0, 0, 1)"
+
+        const linePoints = [fromPosition, ...element.points, toPosition].map((position) => {
+            return `${position.x},${position.y}`
+        }).join(" ")
+
+        return (
+            < polyline
+                key={identifier}
+                points={linePoints}
+                strokeWidth="1"
+                stroke={stroke}
+                strokeOpacity="1"
+                strokeLinecap='square'
+                style={{ fill: "none", cursor: "move" }}
+                dragram-element-type="connectingLine"
+                dragram-element-id={identifier}
+            />
+        )
+    }
+
+    renderDragramElements({ symbolsMap, elementsMap }) {
 
         const { elements } = this.props.dragram
 
         const rendElements = elements.map((element) => {
-            return this.renderDragramElement({ element, symbolsMap })
+            // console.log("renderDragramElement", element)
+            return this.renderDragramElement({ element, symbolsMap, elementsMap })
         })
 
         return (
@@ -205,21 +241,23 @@ export default class CircuitDiagram extends React.Component {
         )
     }
 
-    renderDragramElement({ element, symbolsMap }) {
+    renderDragramElement({ element, symbolsMap, elementsMap }) {
         if (!element) {
             return null
         }
 
         const { type } = element
         switch (type) {
-            case "point":
-                return this.renderPoint(element)
             case "symbol":
                 const symbol = symbolsMap[element.typeId]
                 if (!symbol) {
                     return null
                 }
                 return this.renderSymbolElement(element, symbol)
+            case "connectingLine":
+                return this.renderConnectingLine(element, symbolsMap, elementsMap)
+            case "point":
+                return this.renderPoint(element)
             default:
                 return null
         }
@@ -248,7 +286,9 @@ export default class CircuitDiagram extends React.Component {
             symbolsMap[symbolId] = findSymbol
         }
 
-        return this.renderDragramElement({ element: shadowElement, symbolsMap })
+        const elementsMap = {}
+
+        return this.renderDragramElement({ element: shadowElement, symbolsMap, elementsMap })
     }
 
     /**鼠标按下 */
@@ -298,7 +338,7 @@ export default class CircuitDiagram extends React.Component {
         const isAreaSelect = mouse.down && mouse.moved && mouse.downPosition && mouse.movedPosition
 
         if (isClick) {
-            console.log("TODO 选中单击元素")
+            // console.log("TODO 单击事件")
         } else if (isAreaSelect) {
             console.log("TODO 选中范围内的元素", mouse.downPosition, mouse.movedPosition)
         }
@@ -349,7 +389,21 @@ export default class CircuitDiagram extends React.Component {
             return
         }
 
-        const target = viewerMouse.target
+        const movedPosition = { x: viewerEvent.x, y: viewerEvent.y }
+
+        this.dragShadowElement(viewerMouse.target, viewerMouse.downPosition, movedPosition, viewerEvent.scaleFactor)
+
+        this.setState((prevState) => ({
+            viewerMouse: {
+                ...prevState.viewerMouse,
+                moved: true,
+                movedPosition: movedPosition
+            }
+        }))
+    }
+
+    dragShadowElement(target, downPosition, movedPosition, scaleFactor) {
+
         if (!target) {
             return
         }
@@ -359,27 +413,22 @@ export default class CircuitDiagram extends React.Component {
             return
         }
 
-        const movedPosition = { x: viewerEvent.x, y: viewerEvent.y }
-
-        this.setState((prevState) => ({
-            viewerMouse: {
-                ...prevState.viewerMouse,
-                moved: true,
-                movedPosition: movedPosition
-            }
-        }))
-
-        // TODO 每次都去查找，效率很低
+        // TODO 每次都去查找，是否可以缓存
         const element = this.getDragramElementById(elementId)
         if (!element) {
             return
         }
 
+        if (element.type === "connectingLine") {
+            console.log("todo 拖动连接线")
+            return
+        }
+
         const finalPosition = this.calculateFinalPosition(
             element.position,
-            viewerMouse.downPosition,
+            downPosition,
             movedPosition,
-            viewerEvent.scaleFactor
+            scaleFactor
         )
 
         this.setState((prevState) => {
@@ -405,6 +454,34 @@ export default class CircuitDiagram extends React.Component {
         }
 
         const target = viewerMouse.target
+
+        const isClick = viewerMouse.down && !viewerMouse.moved
+        const isDrag = viewerMouse.down && viewerMouse.moved && viewerMouse.downPosition && viewerMouse.movedPosition
+
+        if (isClick) {
+            console.log("TODO 单击事件", target)
+        } else if (isDrag) {
+            // console.log("TODO 选中范围内的元素", viewerMouse.downPosition, viewerMouse.movedPosition)
+        }
+
+        const finalPosition = {
+            x: viewerEvent.x,
+            y: viewerEvent.y
+        }
+
+        if (isDrag) {
+            this.dragElement(target, viewerMouse.downPosition, finalPosition, viewerEvent.scaleFactor)
+        }
+
+        this.setState({
+            viewerMouse: this.buildDefaultMouse(),
+            shadowElement: null
+        })
+
+        this.props.refresh()
+    }
+
+    dragElement(target, downPosition, movedPosition, scaleFactor) {
         if (!target) {
             return
         }
@@ -414,32 +491,24 @@ export default class CircuitDiagram extends React.Component {
             return
         }
 
-        const movedPosition = {
-            x: viewerEvent.x,
-            y: viewerEvent.y
-        }
-
-        this.setState({
-            viewerMouse: this.buildDefaultMouse(),
-            shadowElement: null
-        })
-
         const element = this.getDragramElementById(elementId)
         if (!element) {
             return
         }
 
+        if (element.type === "connectingLine") {
+            console.log("todo 拖动连接线")
+            return
+        }
+
         const finalPosition = this.calculateFinalPosition(
             element.position,
-            viewerMouse.downPosition,
+            downPosition,
             movedPosition,
-            viewerEvent.scaleFactor
+            scaleFactor
         )
 
-        // TODO 直接改变原值将导致后续无法添加撤销操作, 最好不要这样做
         element.position = finalPosition
-
-        this.props.refresh()
     }
 
     // 计算最终的落点坐标
@@ -466,47 +535,16 @@ export default class CircuitDiagram extends React.Component {
         return elements.find((element) => element.identifier === elementId) || null
     }
 
-    renderDragramLinks({ elementsMap, symbolsMap }) {
+    calculateElementPointPosition(elementId, point, elementsMap, symbolsMap) {
+        if (!elementId) {
+            return null
+        }
 
-        const { links } = this.props.dragram
-
-        const rendLinks = links.map(({ from, to, style }, index) => {
-
-            const fromElement = elementsMap[from.identifier]
-            const toElement = elementsMap[to.identifier]
-            if (!fromElement || !toElement) {
-                return null
-            }
-
-            const fromPosition = this.calculateLinkPosition(fromElement, from.point, symbolsMap)
-            const toPosition = this.calculateLinkPosition(toElement, to.point, symbolsMap)
-            if (!fromPosition || !toPosition) {
-                return null
-            }
-
-            const stroke = style.color || "rgba(0, 0, 0, 1)"
-
-            return (
-                <line
-                    key={index}
-                    x1={fromPosition.x}
-                    y1={fromPosition.y}
-                    x2={toPosition.x}
-                    y2={toPosition.y}
-                    strokeWidth="1"
-                    stroke={stroke}
-                    strokeOpacity="1"
-                    strokeLinecap='square'
-                />
-            )
-        })
-
-        // 
-        return (
-            <React.Fragment>
-                {rendLinks}
-            </React.Fragment>
-        )
+        const element = elementsMap[elementId]
+        if (!element) {
+            return null
+        }
+        return this.calculateLinkPosition(element, point, symbolsMap)
     }
 
     setZoomValue(value) {
@@ -630,8 +668,7 @@ export default class CircuitDiagram extends React.Component {
                         xmlnsXlink="http://www.w3.org/1999/xlink"
                         preserveAspectRatio="none"
                     >
-                        {this.renderDragramLinks({ elementsMap, symbolsMap })}
-                        {this.renderDragramElements({ symbolsMap })}
+                        {this.renderDragramElements({ symbolsMap, elementsMap })}
 
                         {this.renderShadowElement()}
                     </svg>

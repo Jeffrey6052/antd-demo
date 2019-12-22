@@ -22,7 +22,7 @@ export default class CircuitDiagramPage extends React.Component {
     }
 
     componentDidMount() {
-        this.animate()
+        // this.animate()
     }
 
     componentWillUnmount() {
@@ -37,13 +37,9 @@ export default class CircuitDiagramPage extends React.Component {
         // 电路图 成员数据
         const elements = this.initDragramElements()
 
-        // 电路图 连线数据
-        const links = this.initDragramLinks()
-
         return {
             symbols,
-            elements,
-            links
+            elements
         }
     }
 
@@ -75,7 +71,8 @@ export default class CircuitDiagramPage extends React.Component {
     }
 
     initDragramElements() {
-        return [
+
+        const symbols = [
             {
                 identifier: "隔离开关1",
                 type: "symbol",
@@ -102,7 +99,10 @@ export default class CircuitDiagramPage extends React.Component {
                     x: 200,
                     y: 40
                 }
-            },
+            }
+        ]
+
+        const points = [
             {
                 identifier: "点1",
                 type: "point",
@@ -184,11 +184,44 @@ export default class CircuitDiagramPage extends React.Component {
                 }
             }
         ]
-    }
 
-    initDragramLinks() {
-        return [
+        const connectingLines = [
             {
+                identifier: "l1",
+                type: "connectingLine",
+                from: {
+                    position: {
+                        x: 50,
+                        y: 300
+                    }
+                },
+                to: {
+                    position: {
+                        x: 500,
+                        y: 300
+                    }
+                },
+                points: [
+                    {
+                        x: 300,
+                        y: 300
+                    },
+                    {
+                        x: 350,
+                        y: 350
+                    },
+                    {
+                        x: 400,
+                        y: 350
+                    }
+                ],
+                style: {
+
+                }
+            },
+            {
+                identifier: "l2",
+                type: "connectingLine",
                 from: {
                     identifier: "点1"
                 },
@@ -196,11 +229,14 @@ export default class CircuitDiagramPage extends React.Component {
                     identifier: "隔离开关3",
                     point: "left"
                 },
+                points: [],
                 style: {
                     // color: "rgba(255, 0, 0, 1)"
                 }
             },
             {
+                identifier: "l3",
+                type: "connectingLine",
                 from: {
                     identifier: "隔离开关3",
                     point: "right"
@@ -208,11 +244,14 @@ export default class CircuitDiagramPage extends React.Component {
                 to: {
                     identifier: "点2"
                 },
+                points: [],
                 style: {
                     // color: "rgba(255, 0, 0, 1)"
                 }
             },
             {
+                identifier: "l4",
+                type: "connectingLine",
                 from: {
                     identifier: "点2"
                 },
@@ -220,11 +259,14 @@ export default class CircuitDiagramPage extends React.Component {
                     identifier: "隔离开关1",
                     point: "up"
                 },
+                points: [],
                 style: {
                     // color: "rgba(255, 255, 0, 1)"
                 }
             },
             {
+                identifier: "l5",
+                type: "connectingLine",
                 from: {
                     identifier: "隔离开关1",
                     point: "down",
@@ -232,11 +274,14 @@ export default class CircuitDiagramPage extends React.Component {
                 to: {
                     identifier: "点3"
                 },
+                points: [],
                 style: {
                     // color: "rgba(255, 0, 255, 1)"
                 }
             },
             {
+                identifier: "l6",
+                type: "connectingLine",
                 from: {
                     identifier: "点3"
                 },
@@ -244,11 +289,14 @@ export default class CircuitDiagramPage extends React.Component {
                     identifier: "隔离开关2",
                     point: "right"
                 },
+                points: [],
                 style: {
                     // color: "rgba(0, 255, 0, 1)"
                 }
             },
             {
+                identifier: "l7",
+                type: "connectingLine",
                 from: {
                     identifier: "隔离开关2",
                     point: "left",
@@ -256,22 +304,28 @@ export default class CircuitDiagramPage extends React.Component {
                 to: {
                     identifier: "点4"
                 },
+                points: [],
                 style: {
                     // color: "rgba(255, 255, 0, 1)"
                 }
             },
             {
+                identifier: "l8",
+                type: "connectingLine",
                 from: {
                     identifier: "点4"
                 },
                 to: {
                     identifier: "点1"
                 },
+                points: [],
                 style: {
                     // color: "rgba(0, 255, 255, 1)"
                 }
             }
         ]
+
+        return [...symbols, ...points, ...connectingLines]
     }
 
     animate() {
