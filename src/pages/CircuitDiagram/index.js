@@ -189,19 +189,13 @@ export default class CircuitDiagramPage extends React.Component {
             {
                 identifier: "l1",
                 type: "connectingLine",
-                from: {
-                    position: {
+                from: null,
+                to: null,
+                points: [
+                    {
                         x: 50,
                         y: 300
-                    }
-                },
-                to: {
-                    position: {
-                        x: 500,
-                        y: 300
-                    }
-                },
-                points: [
+                    },
                     {
                         x: 300,
                         y: 300
@@ -213,6 +207,10 @@ export default class CircuitDiagramPage extends React.Component {
                     {
                         x: 400,
                         y: 350
+                    },
+                    {
+                        x: 500,
+                        y: 300
                     }
                 ],
                 style: {
@@ -325,7 +323,7 @@ export default class CircuitDiagramPage extends React.Component {
             }
         ]
 
-        return [...symbols, ...points, ...connectingLines]
+        return [...connectingLines, ...points, ...symbols]
     }
 
     animate() {

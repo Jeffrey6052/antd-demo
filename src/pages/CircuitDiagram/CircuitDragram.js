@@ -24,6 +24,9 @@ export default class CircuitDiagram extends React.Component {
             shiftDown: isShiftDown(),
             altDown: isAltDown()
         }
+
+        this.elementsMap = this.generateElementsMap()
+        this.symbolsMap = this.generateSymbolsMap()
     }
 
     buildDefaultMouse() {
@@ -196,24 +199,32 @@ export default class CircuitDiagram extends React.Component {
     renderConnectingLine(element, symbolsMap, elementsMap) {
         const { identifier, from, to, style } = element
 
-        const fromPosition = from.position || this.calculateElementPointPosition(from.identifier, from.point, elementsMap, symbolsMap)
+        const fromPosition = from && this.calculateElementPointPosition(from.identifier, from.point, elementsMap, symbolsMap)
 
-        const toPosition = to.position || this.calculateElementPointPosition(to.identifier, to.point, elementsMap, symbolsMap)
+        const toPosition = to && this.calculateElementPointPosition(to.identifier, to.point, elementsMap, symbolsMap)
 
-        if (!fromPosition || !toPosition) {
-            return null
-        }
+        // if (!fromPosition || !toPosition) {
+        //     return null
+        // }
 
         const stroke = style.color || "rgba(0, 0, 0, 1)"
 
-        const linePoints = [fromPosition, ...element.points, toPosition].map((position) => {
+        let points = []
+
+        fromPosition && points.push(fromPosition)
+
+        element.points.forEach((point) => points.push(point))
+
+        toPosition && points.push(toPosition)
+
+        const attrPoints = points.map((position) => {
             return `${position.x},${position.y}`
         }).join(" ")
 
         return (
             < polyline
                 key={identifier}
-                points={linePoints}
+                points={attrPoints}
                 strokeWidth="1"
                 stroke={stroke}
                 strokeOpacity="1"
@@ -225,13 +236,13 @@ export default class CircuitDiagram extends React.Component {
         )
     }
 
-    renderDragramElements({ symbolsMap, elementsMap }) {
+    renderDragramElements(symbolsMap, elementsMap) {
 
         const { elements } = this.props.dragram
 
         const rendElements = elements.map((element) => {
             // console.log("renderDragramElement", element)
-            return this.renderDragramElement({ element, symbolsMap, elementsMap })
+            return this.renderDragramElement(element, symbolsMap, elementsMap)
         })
 
         return (
@@ -241,7 +252,7 @@ export default class CircuitDiagram extends React.Component {
         )
     }
 
-    renderDragramElement({ element, symbolsMap, elementsMap }) {
+    renderDragramElement(element, symbolsMap, elementsMap) {
         if (!element) {
             return null
         }
@@ -264,7 +275,7 @@ export default class CircuitDiagram extends React.Component {
     }
 
     // 拖动元素时，跟随鼠标显示该元素的镜像
-    renderShadowElement() {
+    renderShadowElement(symbolsMap, elementsMap) {
 
         const { shadowElement, viewerMouse } = this.state
 
@@ -276,19 +287,7 @@ export default class CircuitDiagram extends React.Component {
             return null
         }
 
-        const { symbols } = this.props.dragram
-
-        const symbolId = shadowElement.type === "symbol" && shadowElement.typeId
-        const findSymbol = symbolId && symbols.find((symbol) => symbol.identifier === symbolId)
-
-        const symbolsMap = {}
-        if (findSymbol) {
-            symbolsMap[symbolId] = findSymbol
-        }
-
-        const elementsMap = {}
-
-        return this.renderDragramElement({ element: shadowElement, symbolsMap, elementsMap })
+        return this.renderDragramElement(shadowElement, symbolsMap, elementsMap)
     }
 
     /**鼠标按下 */
@@ -408,6 +407,11 @@ export default class CircuitDiagram extends React.Component {
             return
         }
 
+        const { shadowElement } = this.state
+        if (!shadowElement) {
+            return
+        }
+
         const elementId = target.getAttribute("dragram-element-id")
         if (!elementId) {
             return
@@ -419,31 +423,36 @@ export default class CircuitDiagram extends React.Component {
             return
         }
 
+        const { elementsMap, symbolsMap } = this
+        
+        const offset = this.calculateOffset(downPosition, movedPosition, scaleFactor)
+
         if (element.type === "connectingLine") {
-            console.log("todo 拖动连接线")
-            return
+
+            const { from, to } = element
+            const fromPosition = from && this.calculateElementPointPosition(from.identifier, from.point, elementsMap, symbolsMap)
+            const toPosition = to && this.calculateElementPointPosition(to.identifier, to.point, elementsMap, symbolsMap)
+
+            let points = []
+
+            fromPosition && points.push(fromPosition)
+            element.points.forEach((point) => points.push(point))
+            toPosition && points.push(toPosition)
+
+            shadowElement.from = null
+            shadowElement.to = null
+            shadowElement.points = points.map((p) => ({
+                x: p.x + offset.x,
+                y: p.y + offset.y
+            }))
+
+            // console.log("todo 拖动连接线shadow", shadowElement)
+        } else {
+            const finalPosition = this.calculateFinalPosition(element.position, offset)
+            shadowElement.position = finalPosition
         }
 
-        const finalPosition = this.calculateFinalPosition(
-            element.position,
-            downPosition,
-            movedPosition,
-            scaleFactor
-        )
-
-        this.setState((prevState) => {
-            const { shadowElement } = prevState
-            if (!shadowElement) {
-                return prevState
-            }
-
-            return {
-                shadowElement: {
-                    ...shadowElement,
-                    position: finalPosition
-                }
-            }
-        })
+        this.props.refresh()
     }
 
     handleViewerMouseUp(viewerEvent) {
@@ -496,31 +505,51 @@ export default class CircuitDiagram extends React.Component {
             return
         }
 
+        const { elementsMap, symbolsMap } = this
+
+        const offset = this.calculateOffset(downPosition, movedPosition, scaleFactor)
+
         if (element.type === "connectingLine") {
-            console.log("todo 拖动连接线")
-            return
+
+            console.log("todo 拖动连接线", element)
+
+            const { from, to } = element
+            const fromPosition = from && this.calculateElementPointPosition(from.identifier, from.point, elementsMap, symbolsMap)
+            const toPosition = to && this.calculateElementPointPosition(to.identifier, to.point, elementsMap, symbolsMap)
+
+            let points = []
+
+            fromPosition && points.push(fromPosition)
+            element.points.forEach((point) => points.push(point))
+            toPosition && points.push(toPosition)
+
+            element.from = null
+            element.to = null
+            element.points = points.map((p) => ({
+                x: p.x + offset.x,
+                y: p.y + offset.y
+            }))
+
+        } else {
+            const finalPosition = this.calculateFinalPosition(element.position, offset)
+            element.position = finalPosition
         }
-
-        const finalPosition = this.calculateFinalPosition(
-            element.position,
-            downPosition,
-            movedPosition,
-            scaleFactor
-        )
-
-        element.position = finalPosition
     }
 
-    // 计算最终的落点坐标
-    calculateFinalPosition(originPosition, mouseDownPosition, mouseMovedPosition, scaleFactor) {
-
-        // 纠正padding以及放大倍率的影响
+    // 计算位移的坐标
+    calculateOffset(mouseDownPosition, mouseMovedPosition, scaleFactor) {
         const offsetX = (mouseMovedPosition.x - mouseDownPosition.x) / scaleFactor
         const offsetY = (mouseMovedPosition.y - mouseDownPosition.y) / scaleFactor
 
+        return { x: offsetX, y: offsetY }
+    }
+
+    // 计算最终的落点坐标
+    calculateFinalPosition(originPosition, offset) {
+
         const finalPosition = {
-            x: originPosition.x + offsetX,
-            y: originPosition.y + offsetY,
+            x: originPosition.x + offset.x,
+            y: originPosition.y + offset.y,
         }
 
         return finalPosition
@@ -531,8 +560,12 @@ export default class CircuitDiagram extends React.Component {
             return null
         }
 
-        const { elements } = this.props.dragram
-        return elements.find((element) => element.identifier === elementId) || null
+        const { elementsMap } = this
+
+        // const { elements } = this.props.dragram
+        // return elements.find((element) => element.identifier === elementId) || null
+
+        return elementsMap[elementId] || null
     }
 
     calculateElementPointPosition(elementId, point, elementsMap, symbolsMap) {
@@ -598,8 +631,7 @@ export default class CircuitDiagram extends React.Component {
 
     render() {
 
-        const elementsMap = this.generateElementsMap()
-        const symbolsMap = this.generateSymbolsMap()
+        const { elementsMap, symbolsMap } = this
 
         const wrapWidth = this.getPropWidth()
         const wrapHeight = this.getPropHeight()
@@ -668,9 +700,9 @@ export default class CircuitDiagram extends React.Component {
                         xmlnsXlink="http://www.w3.org/1999/xlink"
                         preserveAspectRatio="none"
                     >
-                        {this.renderDragramElements({ symbolsMap, elementsMap })}
+                        {this.renderDragramElements(symbolsMap, elementsMap)}
 
-                        {this.renderShadowElement()}
+                        {this.renderShadowElement(symbolsMap, elementsMap)}
                     </svg>
                 </ReactSVGPanZoom>
                 {this.renderMouseArea()}
