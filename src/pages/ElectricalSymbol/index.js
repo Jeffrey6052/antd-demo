@@ -4,6 +4,9 @@ import { Button } from 'antd'
 
 import Layout from '../../components/Layout'
 
+import curveLineIcons from '../../assets/svg/jowo0115_icons/curve_line.svg'
+import switchIcons from '../../assets/svg/jowo0115_icons/switch.svg'
+
 import exampleIcons from '../../assets/svg/example_icons.svg'
 import electricalSymbols from '../../assets/svg/electrical_symbols.svg'
 
@@ -39,7 +42,7 @@ class ElectricalSymbol extends React.Component {
         const width = 81
         const height = 81
         const stroke = "black"
-        const strokeOpacity = "0.8"
+        const strokeOpacity = "1"
         const symbolName = this.state.dis1Open ? "Dis_V_D_Open" : "Dis_V_D_Close"
 
         return (
@@ -58,7 +61,118 @@ class ElectricalSymbol extends React.Component {
     render() {
         return (
             <div>
-                <h1>ElectricalSymbol</h1>
+                <h1>电路图元件</h1>
+
+                <h3>弯线</h3>
+
+                <div>
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 81, height: 81 }}
+                            viewBox="0 0 81 81"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                            preserveAspectRatio="none"
+                        >
+                            <use
+                                xlinkHref={`${curveLineIcons}#CurveLine-L`}
+                                stroke="black"
+                                strokeWidth={81 / 81}
+                            />
+                        </svg>
+                    </div>
+
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 81, height: 81 }}
+                            viewBox="0 0 81 81"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                            strokeWidth={81 / 81}
+                        >
+                            <use xlinkHref={`${curveLineIcons}#CurveLine-R`} stroke="black" />
+                        </svg>
+                    </div>
+                </div>
+
+                <hr />
+
+                <h3>抽屉式断路器</h3>
+                <div>
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 81, height: 81 }}
+                            viewBox="0 0 81 81"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            <use xlinkHref={`${switchIcons}#Switch_V_D_Open`} stroke="black" />
+                        </svg>
+                    </div>
+
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 81, height: 81 }}
+                            viewBox="0 0 81 81"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            <use xlinkHref={`${switchIcons}#Switch_V_D_Close`} stroke="black" />
+                        </svg>
+                    </div>
+                </div>
+
+                <hr />
+
+                <h3>测试</h3>
+                <div>
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 81, height: 81 }}
+                            viewBox="0 0 81 81"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            <use xlinkHref={`${exampleIcons}#YWinding`} stroke="black" />
+                        </svg>
+                    </div>
+
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 81, height: 81 }}
+                            viewBox="0 0 81 81"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            <use xlinkHref={`${electricalSymbols}#Dis_V_D_Open`} stroke="black" />
+                        </svg>
+                    </div>
+
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 81, height: 81 }}
+                            viewBox="0 0 81 81"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            <use xlinkHref={`${exampleIcons}#FuseBreaker_V_D_Open`} stroke="black" />
+                        </svg>
+                    </div>
+
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 81, height: 81 }}
+                            viewBox="0 0 81 81"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            <use xlinkHref={`${exampleIcons}#DrawoutDis_V_Close`} stroke="black" />
+                        </svg>
+                    </div>
+        
+                </div>
+
+                <hr />
 
                 <div style={{ margin: 20 }}>
                     {this.render_button()}
@@ -79,17 +193,6 @@ class ElectricalSymbol extends React.Component {
                         <line x1="40" y1="10" x2="400" y2="10" strokeWidth="1" stroke="black" strokeOpacity="0.8" />
                         <line x1="40" y1="300" x2="400" y2="300" strokeWidth="1" stroke="black" strokeOpacity="0.8" />
                         <line x1="400" y1="10" x2="400" y2="300" strokeWidth="1" stroke="black" strokeOpacity="0.8" />
-                    </svg>
-                </div>
-
-                <div style={{ margin: 20 }}>
-                    <svg
-                        style={{ width: 100, height: 100 }}
-                        viewBox="0 0 100 100"
-                        xmlns="http://www.w3.org/2000/svg"
-                        xmlnsXlink="http://www.w3.org/1999/xlink"
-                    >
-                        <use xlinkHref={`${exampleIcons}#YWinding`} stroke="black" />
                     </svg>
                 </div>
             </div >

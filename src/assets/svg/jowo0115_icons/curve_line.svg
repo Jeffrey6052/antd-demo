@@ -1,0 +1,16 @@
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <!-- 弯线-左  -->
+        <symbol id="CurveLine-L" viewBox="-40 -40 81 81">
+            <line x1="0" y1="30" x2="0" y2="20"/>
+            <line x1="0" y1="-30" x2="0" y2="-20"/>
+            <path d="M 0 20 q -30 -20 0 -40" fill="none" stroke-linecap="round" />
+        </symbol>
+        <!-- 弯线-右  -->
+        <symbol id="CurveLine-R" viewBox="-40 -40 81 81">
+            <line x1="0" y1="30" x2="0" y2="20"/>
+            <line x1="0" y1="-30" x2="0" y2="-20"/>
+            <path d="M 0 20 q 30 -20 0 -40" fill="none" stroke-linecap="round" />
+        </symbol>
+    </defs>
+</svg>
