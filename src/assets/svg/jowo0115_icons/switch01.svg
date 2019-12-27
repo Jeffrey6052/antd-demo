@@ -1,0 +1,54 @@
+<svg version="1.1" 
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+
+        <!-- 隔断开关_竖直_刀下_分 -->
+        <symbol id="Switch01_V_D_Open" viewBox="-48 -48 96 96">
+
+            <line x1="0" y1="-48" x2="0" y2="-24"/>
+            <line x1="0" y1="48" x2="0" y2="24"/>
+            <line x1="-4" y1="-24" x2="4" y2="-24"/>
+            <line x1="-4" y1="-24" x2="4" y2="-24"/>
+
+            <!-- 刀片 -->
+            <line x1="0.4" y1="21" x2="24" y2="-20" stroke="red" stroke-width="2" strokeLinecap='circle'/>
+            <circle cx="0" cy="22" r="2" stroke="red" fill-opacity="0"/>
+        </symbol>
+
+        <!-- 隔断开关_竖直_刀下_合 -->
+        <symbol id="Switch01_V_D_Close" viewBox="-40 -40 81 81">
+            
+        </symbol>
+
+        <!-- 隔断开关_竖直_刀上_分 -->
+        <symbol id="Switch01_V_U_Open" viewBox="-48 -48 96 96">
+
+        </symbol>
+
+        <!-- 隔断开关_竖直_刀上_合 -->
+        <symbol id="Switch01_V_U_Close" viewBox="-48 -48 96 96">
+
+        </symbol>
+
+        <!-- 隔断开关_水平_刀左_分 -->
+        <symbol id="Switch01_H_L_Open" viewBox="-48 -48 96 96">
+
+        </symbol>
+
+        <!-- 隔断开关_水平_刀左_合 -->
+        <symbol id="Switch01_H_L_Close" viewBox="-48 -48 96 96">
+
+        </symbol>
+
+        <!-- 隔断开关_水平_刀右_分 -->
+        <symbol id="Switch01_H_R_Open" viewBox="-48 -48 96 96">
+
+        </symbol>
+
+        <!-- 隔断开关_水平_刀右_合 -->
+        <symbol id="Switch01_H_R_Close" viewBox="-48 -48 96 96">
+
+        </symbol>
+
+    </defs>
+</svg>
