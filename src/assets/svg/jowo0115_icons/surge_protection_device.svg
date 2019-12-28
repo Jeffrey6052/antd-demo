@@ -1,0 +1,16 @@
+<svg version="1.1" 
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <!-- 浪涌保护器  -->
+        <symbol id="SurgeProtectionDevice" viewBox="-48 -48 96 96">
+            <line x1="0" y1="-48" x2="0" y2="-30" />
+            <line x1="0" y1="48" x2="0" y2="30" />
+
+            <g>
+                <line x1="0" y1="-30" x2="0" y2="30" />
+                <path d="M-20,30 L-20,20 L20,-20 L20,-30" fill="none" />                
+                <path d="M-14,-30 L-14,30 L14,30 L14,-30 Z" fill="none" />
+            </g>
+        </symbol>
+    </defs>
+</svg>

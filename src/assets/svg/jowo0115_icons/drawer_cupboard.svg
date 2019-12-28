@@ -1,0 +1,49 @@
+<svg version="1.1" 
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <symbol id="DrawerCupboard" viewBox="-48 -48 96 96">
+
+            <line x1="-48" y1="0" x2="-40" y2="0" />
+
+            <path d="M-36,-4 L-40,0 L-36,4" fill="none" />
+            <path d="M-33,-4 L-37,0 L-33,4" fill="none" />
+
+            <line x1="-40" y1="0" x2="-20" y2="0" />
+
+            <line x1="-22" y1="-2" x2="-18" y2="2" />
+            <line x1="-18" y1="-2" x2="-22" y2="2" />
+
+            <line x1="4" y1="0" x2="34" y2="0" />
+
+            <g>
+
+            </g>
+
+            <g>
+                <line x1="19" y1="-17" x2="25" y2="15" />
+
+                <line x1="22" y1="-15" x2="22" y2="-21" stroke-linecap="rect" />
+                <circle cx="22" cy="-12" r="3" fill="none" />
+
+                <line x1="22" y1="-3" x2="22" y2="-9" stroke-linecap="rect" />
+                <circle cx="22" cy="0" r="3" fill="none" />
+
+                <line x1="22" y1="9" x2="22" y2="3" stroke-linecap="rect" />
+                <circle cx="22" cy="12" r="3" fill="none" />
+            </g>
+            
+
+
+            <path d="M30,-4 L34,0 L30,4" fill="none" />
+            <path d="M33,-4 L37,0 L33,4" fill="none" />
+
+            <line x1="37" y1="0" x2="42" y2="0" />
+
+            <path d="M48,0 L42,-3 L42,3 Z" fill="none" />
+
+
+
+
+        </symbol>
+    </defs>
+</svg>

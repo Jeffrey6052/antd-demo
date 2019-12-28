@@ -10,6 +10,13 @@ import switch02Icons from '../../assets/svg/jowo0115_icons/switch02.svg'
 import groundIcons from '../../assets/svg/jowo0115_icons/ground.svg'
 import currentTransformerIcons from '../../assets/svg/jowo0115_icons/current_transformer.svg'
 import capacitorBankIcons from '../../assets/svg/jowo0115_icons/capacitor_bank.svg'
+import fuseIcons from '../../assets/svg/jowo0115_icons/fuse.svg'
+import SurgeProtectionDeviceIcons from '../../assets/svg/jowo0115_icons/surge_protection_device.svg'
+import DoubleWindingTransformerIcons from '../../assets/svg/jowo0115_icons/double_winding_transformer.svg'
+import PotentialTransformerIcons from '../../assets/svg/jowo0115_icons/potential_transformer.svg'
+import TriacIcons from '../../assets/svg/jowo0115_icons/triac.svg'
+import BusDuctIcons from '../../assets/svg/jowo0115_icons/bus_duct.svg'
+import DrawerCupboardIcons from '../../assets/svg/jowo0115_icons/drawer_cupboard.svg'
 
 import exampleIcons from '../../assets/svg/example_icons.svg'
 import electricalSymbols from '../../assets/svg/electrical_symbols.svg'
@@ -73,7 +80,7 @@ class ElectricalSymbol extends React.Component {
                             xmlns="http://www.w3.org/2000/svg"
                             xmlnsXlink="http://www.w3.org/1999/xlink"
                         >
-                            <use xlinkHref={`${switch01Icons}#Switch01_V_D_Open`} stroke="black" />
+                            <use xlinkHref={`${switch01Icons}#Switch01_D_R_Open`} stroke="black" />
                         </svg>
                     </div>
                     <div style={{ margin: 20, display: "inline-block" }}>
@@ -83,7 +90,7 @@ class ElectricalSymbol extends React.Component {
                             xmlns="http://www.w3.org/2000/svg"
                             xmlnsXlink="http://www.w3.org/1999/xlink"
                         >
-                            <use xlinkHref={`${switch01Icons}#Switch01_V_U_Open`} stroke="black" />
+                            <use xlinkHref={`${switch01Icons}#Switch01_U_R_Open`} stroke="black" />
                         </svg>
                     </div>
                     <div style={{ margin: 20, display: "inline-block" }}>
@@ -93,7 +100,7 @@ class ElectricalSymbol extends React.Component {
                             xmlns="http://www.w3.org/2000/svg"
                             xmlnsXlink="http://www.w3.org/1999/xlink"
                         >
-                            <use xlinkHref={`${switch01Icons}#Switch01_H_L_Open`} stroke="black" />
+                            <use xlinkHref={`${switch01Icons}#Switch01_D_L_Open`} stroke="black" />
                         </svg>
                     </div>
                     <div style={{ margin: 20, display: "inline-block" }}>
@@ -103,7 +110,7 @@ class ElectricalSymbol extends React.Component {
                             xmlns="http://www.w3.org/2000/svg"
                             xmlnsXlink="http://www.w3.org/1999/xlink"
                         >
-                            <use xlinkHref={`${switch01Icons}#Switch01_H_R_Open`} stroke="black" />
+                            <use xlinkHref={`${switch01Icons}#Switch01_U_L_Open`} stroke="black" />
                         </svg>
                     </div>
                 </div>
@@ -115,7 +122,7 @@ class ElectricalSymbol extends React.Component {
                             xmlns="http://www.w3.org/2000/svg"
                             xmlnsXlink="http://www.w3.org/1999/xlink"
                         >
-                            <use xlinkHref={`${switch01Icons}#Switch01_V_D_Close`} stroke="black" />
+                            <use xlinkHref={`${switch01Icons}#Switch01_D_Close`} stroke="black" />
                         </svg>
                     </div>
                     <div style={{ margin: 20, display: "inline-block" }}>
@@ -125,27 +132,7 @@ class ElectricalSymbol extends React.Component {
                             xmlns="http://www.w3.org/2000/svg"
                             xmlnsXlink="http://www.w3.org/1999/xlink"
                         >
-                            <use xlinkHref={`${switch01Icons}#Switch01_V_U_Close`} stroke="black" />
-                        </svg>
-                    </div>
-                    <div style={{ margin: 20, display: "inline-block" }}>
-                        <svg
-                            style={{ width: 96, height: 96, background: "#eee" }}
-                            viewBox="0 0 96 96"
-                            xmlns="http://www.w3.org/2000/svg"
-                            xmlnsXlink="http://www.w3.org/1999/xlink"
-                        >
-                            <use xlinkHref={`${switch01Icons}#Switch01_H_L_Close`} stroke="black" />
-                        </svg>
-                    </div>
-                    <div style={{ margin: 20, display: "inline-block" }}>
-                        <svg
-                            style={{ width: 96, height: 96, background: "#eee" }}
-                            viewBox="0 0 96 96"
-                            xmlns="http://www.w3.org/2000/svg"
-                            xmlnsXlink="http://www.w3.org/1999/xlink"
-                        >
-                            <use xlinkHref={`${switch01Icons}#Switch01_H_R_Close`} stroke="black" />
+                            <use xlinkHref={`${switch01Icons}#Switch01_U_Close`} stroke="black" />
                         </svg>
                     </div>
                 </div>
@@ -164,7 +151,7 @@ class ElectricalSymbol extends React.Component {
                             xmlns="http://www.w3.org/2000/svg"
                             xmlnsXlink="http://www.w3.org/1999/xlink"
                         >
-                            <use xlinkHref={`${switch02Icons}#Switch02_V_D_Open`} stroke="black" />
+                            <use xlinkHref={`${switch02Icons}#Switch02_D_R_Open`} stroke="black" />
                         </svg>
                     </div>
                     <div style={{ margin: 20, display: "inline-block" }}>
@@ -174,7 +161,7 @@ class ElectricalSymbol extends React.Component {
                             xmlns="http://www.w3.org/2000/svg"
                             xmlnsXlink="http://www.w3.org/1999/xlink"
                         >
-                            <use xlinkHref={`${switch02Icons}#Switch02_V_U_Open`} stroke="black" />
+                            <use xlinkHref={`${switch02Icons}#Switch02_U_R_Open`} stroke="black" />
                         </svg>
                     </div>
                     <div style={{ margin: 20, display: "inline-block" }}>
@@ -184,7 +171,7 @@ class ElectricalSymbol extends React.Component {
                             xmlns="http://www.w3.org/2000/svg"
                             xmlnsXlink="http://www.w3.org/1999/xlink"
                         >
-                            <use xlinkHref={`${switch02Icons}#Switch02_H_L_Open`} stroke="black" />
+                            <use xlinkHref={`${switch02Icons}#Switch02_D_L_Open`} stroke="black" />
                         </svg>
                     </div>
                     <div style={{ margin: 20, display: "inline-block" }}>
@@ -194,7 +181,7 @@ class ElectricalSymbol extends React.Component {
                             xmlns="http://www.w3.org/2000/svg"
                             xmlnsXlink="http://www.w3.org/1999/xlink"
                         >
-                            <use xlinkHref={`${switch02Icons}#Switch02_H_R_Open`} stroke="black" />
+                            <use xlinkHref={`${switch02Icons}#Switch02_U_L_Open`} stroke="black" />
                         </svg>
                     </div>
                 </div>
@@ -206,7 +193,7 @@ class ElectricalSymbol extends React.Component {
                             xmlns="http://www.w3.org/2000/svg"
                             xmlnsXlink="http://www.w3.org/1999/xlink"
                         >
-                            <use xlinkHref={`${switch02Icons}#Switch02_V_D_Close`} stroke="black" />
+                            <use xlinkHref={`${switch02Icons}#Switch02_D_Close`} stroke="black" />
                         </svg>
                     </div>
                     <div style={{ margin: 20, display: "inline-block" }}>
@@ -216,27 +203,7 @@ class ElectricalSymbol extends React.Component {
                             xmlns="http://www.w3.org/2000/svg"
                             xmlnsXlink="http://www.w3.org/1999/xlink"
                         >
-                            <use xlinkHref={`${switch02Icons}#Switch02_V_U_Close`} stroke="black" />
-                        </svg>
-                    </div>
-                    <div style={{ margin: 20, display: "inline-block" }}>
-                        <svg
-                            style={{ width: 96, height: 96, background: "#eee" }}
-                            viewBox="0 0 96 96"
-                            xmlns="http://www.w3.org/2000/svg"
-                            xmlnsXlink="http://www.w3.org/1999/xlink"
-                        >
-                            <use xlinkHref={`${switch02Icons}#Switch02_H_L_Close`} stroke="black" />
-                        </svg>
-                    </div>
-                    <div style={{ margin: 20, display: "inline-block" }}>
-                        <svg
-                            style={{ width: 96, height: 96, background: "#eee" }}
-                            viewBox="0 0 96 96"
-                            xmlns="http://www.w3.org/2000/svg"
-                            xmlnsXlink="http://www.w3.org/1999/xlink"
-                        >
-                            <use xlinkHref={`${switch02Icons}#Switch02_H_R_Close`} stroke="black" />
+                            <use xlinkHref={`${switch02Icons}#Switch02_U_Close`} stroke="black" />
                         </svg>
                     </div>
                 </div>
@@ -336,7 +303,161 @@ class ElectricalSymbol extends React.Component {
                     </div>
                 </div>
 
-                <h3>测试</h3>
+                <h3>熔断器</h3>
+                <div>
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 96, height: 96, background: "#eee" }}
+                            viewBox="0 0 96 96"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            <use xlinkHref={`${fuseIcons}#Fuse-Connect`} stroke="black" />
+                        </svg>
+                    </div>
+
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 96, height: 96, background: "#eee" }}
+                            viewBox="0 0 96 96"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            <use xlinkHref={`${fuseIcons}#Fuse-Disconnect`} stroke="black" />
+                        </svg>
+                    </div>
+
+                </div>
+
+                <h3>浪涌保护器</h3>
+                <div>
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 96, height: 96, background: "#eee" }}
+                            viewBox="0 0 96 96"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            <use xlinkHref={`${SurgeProtectionDeviceIcons}#SurgeProtectionDevice`} stroke="black" />
+                        </svg>
+                    </div>
+                </div>
+
+                <h3>双绕组变压器</h3>
+                <div>
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 96, height: 96, background: "#eee" }}
+                            viewBox="0 0 96 96"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            <use xlinkHref={`${DoubleWindingTransformerIcons}#DoubleWindingTransformer-DY`} stroke="black" strokeWidth="1" />
+                        </svg>
+                    </div>
+
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 96, height: 96, background: "#eee" }}
+                            viewBox="0 0 96 96"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            <use xlinkHref={`${DoubleWindingTransformerIcons}#DoubleWindingTransformer-DD`} stroke="black" />
+                        </svg>
+                    </div>
+
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 96, height: 96, background: "#eee" }}
+                            viewBox="0 0 96 96"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            <use xlinkHref={`${DoubleWindingTransformerIcons}#DoubleWindingTransformer-YY`} stroke="black" />
+                        </svg>
+                    </div>
+
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 96, height: 96, background: "#eee" }}
+                            viewBox="0 0 96 96"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            <use xlinkHref={`${DoubleWindingTransformerIcons}#DoubleWindingTransformer-YD`} stroke="black" />
+                        </svg>
+                    </div>
+                </div>
+
+                <h3>电压互感器</h3>
+                <div>
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 96, height: 96, background: "#eee" }}
+                            viewBox="0 0 96 96"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            <use xlinkHref={`${PotentialTransformerIcons}#PotentialTransformer`} stroke="black" strokeWidth="1" />
+                        </svg>
+                    </div>
+                </div>
+
+                <h3>双向可控硅</h3>
+                <div>
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 96, height: 96, background: "#eee" }}
+                            viewBox="0 0 96 96"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            <use xlinkHref={`${TriacIcons}#Triac-HasBoard`} stroke="black" strokeWidth="1" />
+                        </svg>
+                    </div>
+
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 96, height: 96, background: "#eee" }}
+                            viewBox="0 0 96 96"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            <use xlinkHref={`${TriacIcons}#Triac-NoBorder`} stroke="black" strokeWidth="1" />
+                        </svg>
+                    </div>
+                </div>
+
+                <h3>母线槽</h3>
+                <div>
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 96, height: 96, background: "#eee" }}
+                            viewBox="0 0 96 96"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            <use xlinkHref={`${BusDuctIcons}#BusDuct`} stroke="black" strokeWidth="1" />
+                        </svg>
+                    </div>
+                </div>
+
+                <h3>抽屉柜</h3>
+                <div>
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 96, height: 96, background: "#eee" }}
+                            viewBox="0 0 96 96"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            <use xlinkHref={`${DrawerCupboardIcons}#DrawerCupboard`} stroke="black" strokeWidth="1" />
+                        </svg>
+                    </div>
+                </div>
+
+                <h3>其它测试</h3>
                 <div>
                     <div style={{ margin: 20, display: "inline-block" }}>
                         <svg

@@ -1,0 +1,16 @@
+<svg version="1.1" 
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <symbol id="BusDuct" viewBox="-48 -48 96 96">
+
+            <line x1="-48" y1="-4" x2="48" y2="-4" />
+            <line x1="-48" y1="4" x2="48" y2="4" />
+
+            <g>
+                <circle cx="-24" cy="0" r="3" stroke-width="1" fill="none" />
+                <circle cx="0" cy="0" r="3" stroke-width="1" fill="none" />
+                <circle cx="24" cy="0" r="3" stroke-width="1" fill="none" />
+            </g>
+        </symbol>
+    </defs>
+</svg>

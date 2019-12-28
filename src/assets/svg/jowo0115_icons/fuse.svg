@@ -1,0 +1,30 @@
+<svg version="1.1" 
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <!-- 熔断器-通路  -->
+        <symbol id="Fuse-Connect" viewBox="-48 -48 96 96">
+            <line x1="0" y1="-48" x2="0" y2="-30" />
+            <line x1="0" y1="48" x2="0" y2="30" />
+
+            <g>
+                <line x1="0" y1="-30" x2="0" y2="30" />
+                <path d="M-14,-30 L-14,30 L14,30 L14,-30 Z" fill="none" />
+            </g>
+        </symbol>
+
+        <!-- 熔断器-断路  -->
+        <symbol id="Fuse-Disconnect" viewBox="-48 -48 96 96">
+            <line x1="0" y1="-48" x2="0" y2="-30" />
+            <line x1="0" y1="48" x2="0" y2="30" />
+
+            <g>
+                <line x1="0" y1="-30" x2="0" y2="-10" />
+                <line x1="0" y1="30" x2="0" y2="10" />
+
+                <line x1="0" y1="10" x2="10" y2="0" />
+
+                <path d="M-14,-30 L-14,30 L14,30 L14,-30 Z" fill="none" />
+            </g>
+        </symbol>
+    </defs>
+</svg>

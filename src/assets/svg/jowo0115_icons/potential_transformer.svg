@@ -1,0 +1,18 @@
+<svg version="1.1" 
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <!-- 电压互感器  -->
+        <symbol id="PotentialTransformer" viewBox="-48 -48 96 96">
+            <line x1="0" y1="-48" x2="0" y2="-36"/>
+            <line x1="0" y1="48" x2="0" y2="36"/>
+
+            <g>
+                <circle cx="0" cy="-16" r="20" fill="none" />
+                <path d="M-9,-24 L0,-7 L9,-24" fill="none" />
+
+                <circle cx="0" cy="16" r="20" fill="none" />
+                <path d="M-9,8 L0,25 L9,8" fill="none" />
+            </g>
+        </symbol>
+    </defs>
+</svg>
