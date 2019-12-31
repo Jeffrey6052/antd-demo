@@ -6,7 +6,7 @@
             <line x1="-48" y1="-4" x2="48" y2="-4" />
             <line x1="-48" y1="4" x2="48" y2="4" />
 
-            <g>
+            <g stroke="red">
                 <circle cx="-24" cy="0" r="3" stroke-width="1" fill="none" />
                 <circle cx="0" cy="0" r="3" stroke-width="1" fill="none" />
                 <circle cx="24" cy="0" r="3" stroke-width="1" fill="none" />

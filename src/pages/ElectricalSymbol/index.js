@@ -452,7 +452,29 @@ class ElectricalSymbol extends React.Component {
                             xmlns="http://www.w3.org/2000/svg"
                             xmlnsXlink="http://www.w3.org/1999/xlink"
                         >
-                            <use xlinkHref={`${DrawerCupboardIcons}#DrawerCupboard`} stroke="black" strokeWidth="1" />
+                            <use xlinkHref={`${DrawerCupboardIcons}#DrawerCupboard-U-Open`} stroke="black" strokeWidth="1" />
+                        </svg>
+                    </div>
+
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 96, height: 96, background: "#eee" }}
+                            viewBox="0 0 96 96"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            <use xlinkHref={`${DrawerCupboardIcons}#DrawerCupboard-D-Open`} stroke="black" strokeWidth="1" />
+                        </svg>
+                    </div>
+
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 96, height: 96, background: "#eee" }}
+                            viewBox="0 0 96 96"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            <use xlinkHref={`${DrawerCupboardIcons}#DrawerCupboard-Close`} stroke="black" strokeWidth="1" />
                         </svg>
                     </div>
                 </div>
