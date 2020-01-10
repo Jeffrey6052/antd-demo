@@ -23,10 +23,16 @@
 // const newUrl = `${parsed.url}?${queryString.stringify(parsed.query)}`
 // console.log(newUrl)
 
-const arr = [1, 2, 3]
+// const arr = [1, 2, 3]
 
-arr.map((item, index) => {
-    console.log(item, index)
-})
+// arr.map((item, index) => {
+//     console.log(item, index)
+// })
+
+var crypto = require('crypto')
+
+const hashcode = crypto.randomBytes(3).toString('hex');
+
+console.log(hashcode)
 
 console.log("finish...")

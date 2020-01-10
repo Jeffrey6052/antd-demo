@@ -284,7 +284,27 @@ class ElectricalSymbol extends React.Component {
                             xmlns="http://www.w3.org/2000/svg"
                             xmlnsXlink="http://www.w3.org/1999/xlink"
                         >
-                            <use xlinkHref={`${currentTransformerIcons}#CurrentTransformer`} stroke="black" />
+                            <use xlinkHref={`${currentTransformerIcons}#CurrentTransformer-3`} stroke="black" />
+                        </svg>
+                    </div>
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 96, height: 96, background: "#eee" }}
+                            viewBox="0 0 96 96"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            <use xlinkHref={`${currentTransformerIcons}#CurrentTransformer-2`} stroke="black" />
+                        </svg>
+                    </div>
+                    <div style={{ margin: 20, display: "inline-block" }}>
+                        <svg
+                            style={{ width: 96, height: 96, background: "#eee" }}
+                            viewBox="0 0 96 96"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                            <use xlinkHref={`${currentTransformerIcons}#CurrentTransformer-1`} stroke="black" />
                         </svg>
                     </div>
                 </div>

@@ -1,0 +1,33 @@
+
+.list_wrap {
+    padding: 8px 16px;
+}
+
+.list {
+    color: #5C6677;
+    font-size: 12px;
+}
+
+.item {
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    flex-direction: column;
+    -webkit-box-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    align-items: center;
+    cursor: pointer;
+    border: 1px dashed rgba(0, 0, 0, 0.2);
+    padding: 10px 0;
+}
+
+.item:hover {
+    border: 1px dashed #1890ff;
+}
+
+.item_text {
+    font-size: 10px;
+    padding-top: 4px;
+    user-select: "none"
+}

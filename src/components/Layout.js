@@ -70,6 +70,9 @@ class Layout extends React.Component {
                     <span className="layout-link">
                         <Link to="/svg_js">svg_js</Link>
                     </span>
+                    <span className="layout-link">
+                        <Link to="/web_maker">web_maker</Link>
+                    </span>
                 </div>
 
                 {this.props.children}
