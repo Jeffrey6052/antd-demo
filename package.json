@@ -24,6 +24,7 @@
     "jest-environment-jsdom-fourteen": "0.1.0",
     "jest-resolve": "24.9.0",
     "jest-watch-typeahead": "0.4.0",
+    "memoize-one": "^5.1.1",
     "mini-css-extract-plugin": "0.8.0",
     "moment": "^2.24.0",
     "object-inspect": "^1.7.0",

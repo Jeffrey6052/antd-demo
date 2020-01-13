@@ -1,0 +1,10 @@
+.text {
+    color: #FFFFFF;
+    font-size: 20;
+    user-select: none;
+    cursor: pointer;
+}
+
+.text:hover {
+    color: #00FF00;
+}

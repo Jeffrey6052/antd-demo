@@ -1,10 +1,10 @@
 
 import React from "react"
 import PropTypes from 'prop-types'
-
 import crypto from 'crypto'
 
-import { getComponent } from "../../componentLoader"
+import MeshComponent from "./meshComponent";
+import { getComponent, loadComponent } from "../../componentLoader"
 
 class Stage extends React.PureComponent {
 
@@ -12,64 +12,90 @@ class Stage extends React.PureComponent {
         super(props)
 
         this.state = {
-            meshes: null
+            meshes: this.getDefaultMeshes()
         }
     }
 
-    static getDerivedStateFromProps(props, prevState) {
-
-        console.log("getDerivedStateFromProps")
-
+    getDefaultMeshes() {
         const meshes = [
             {
                 componentKey: "icon",
                 specs: {
-                    $id: "fewu2i2312io21n4i321ojo4213",
-                    $name: "icon-t8w2fv",
-                    $x: 20,
-                    $y: 20,
-                    $width: 300,
-                    $height: 180,
-                    $rotate: 45
+                    properties: {
+                        $id: "fewu2i2312io21n4i321ojo4213",
+                        $name: "icon-t8w2fv",
+                        $x: 20,
+                        $y: 20,
+                        $width: 300,
+                        $height: 180,
+                        $rotate: 45
+                    }
                 }
             },
             {
                 componentKey: "text",
                 specs: {
-                    $id: "fqwjgojp2412n5ionqwn312podw",
-                    $name: "text-t8w2fv",
-                    $x: 400,
-                    $y: 20,
-                    $width: 100,
-                    $height: 200,
-                    $rotate: 0
+                    properties: {
+                        $id: "fqwjgojp2412n5ionqwn312podw",
+                        $name: "text-t8w2fv",
+                        $x: 360,
+                        $y: 20,
+                        $width: 200,
+                        $height: 80,
+                        $rotate: 0
+                    }
+                }
+            },
+            {
+                componentKey: "image",
+                specs: {
+                    properties: {
+                        $id: "gfw12n5ionqwn312pcd2",
+                        $name: "image-fksdj3",
+                        $x: 360,
+                        $y: 140,
+                        $width: 160,
+                        $height: 160,
+                        $rotate: 0
+                    }
                 }
             }
         ]
 
-        return {
-            meshes: meshes
-        }
+        return meshes
     }
 
     renderMesh(mesh) {
 
         const { componentKey, specs } = mesh
 
+        const { properties } = specs
+
         const meshStyle = {
             backgroundColor: "white",
             position: "absolute",
-            width: specs.$width,
-            height: specs.$height,
-            left: specs.$x,
-            top: specs.$y
+            width: properties.$width,
+            height: properties.$height,
+            left: properties.$x,
+            top: properties.$y
+        }
+
+        const meshProps = {
+            style: meshStyle,
+            key: properties.$id
         }
 
         return (
-            <div style={meshStyle} key={specs.$id}>
-                {componentKey}
-            </div>
+            <MeshComponent {...meshProps} >
+                {this.renderComponent(componentKey, properties)}
+            </MeshComponent>
         )
+    }
+
+    renderComponent(componentKey, properties) {
+        const Component = loadComponent(componentKey)
+
+        return <Component {...properties} />
     }
 
     onMouseEnter(event) {
@@ -95,9 +121,6 @@ class Stage extends React.PureComponent {
         const { pageX, pageY } = event
         const { left, top } = event.target.getBoundingClientRect();
 
-        console.log("onDrop", componentKey)
-        console.log("pageX", pageX, "pageY", pageY, "left", left, "top", top)
-
         const x = pageX - left
         const y = pageY - top
 
@@ -106,11 +129,7 @@ class Stage extends React.PureComponent {
 
     addMesh(componentKey, x, y) {
 
-        console.log("componentKey", componentKey)
-
-        const component = getComponent[componentKey]
-
-        console.log("component", component)
+        const component = getComponent(componentKey)
 
         if (!component) {
             return
@@ -119,17 +138,28 @@ class Stage extends React.PureComponent {
         const idcode = crypto.randomBytes(10).toString('hex')
         const namecode = crypto.randomBytes(3).toString('hex')
 
+        const defaultName = componentKey
+        const defaultWidth = 100
+        const defaultHeight = 100
+        const defaultRotate = 0
+
+        const properties = {
+            $id: idcode,
+            $name: `${defaultName}-${namecode}`,
+            $x: Math.floor(x - defaultWidth * 0.5),
+            $y: Math.floor(y - defaultHeight * 0.5),
+            $width: defaultWidth,
+            $height: defaultHeight,
+            $rotate: defaultRotate
+        }
+
+        const specs = {
+            properties: properties
+        }
+
         const mesh = {
-            componentKey: "icon",
-            specs: {
-                $id: idcode,
-                $name: `${componentKey}-${namecode}`,
-                $x: x,
-                $y: y,
-                $width: 100,
-                $height: 100,
-                $rotate: 0
-            }
+            componentKey: componentKey,
+            specs: specs
         }
 
         this.setState((preState) => ({

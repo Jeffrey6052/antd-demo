@@ -1,5 +1,6 @@
 
 import React from "react"
+import styles from "./styles.module.css"
 
 class Image extends React.PureComponent {
 
@@ -8,9 +9,22 @@ class Image extends React.PureComponent {
     }
 
     render() {
+
+        const { $width, $height } = this.props
+
+        const style = {
+            width: $width,
+            height: $height,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "#12c2e9",
+            background: "linear-gradient(to top, #12c2e9, #c471ed, #f64f59)"
+        }
+
         return (
-            <div>
-                <h1 style={{ color: "red" }}>Image</h1>
+            <div style={style}>
+                <h1 className={styles.text}>Image</h1>
             </div>
         )
     }

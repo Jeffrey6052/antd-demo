@@ -1,7 +1,7 @@
 
 import Icon from "./icon"
 import Image from "./image"
-import Text from "./icon"
+import Text from "./text"
 
 export const Components = {
     "icon": Icon,
