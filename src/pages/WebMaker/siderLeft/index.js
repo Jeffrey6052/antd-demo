@@ -7,8 +7,15 @@ import ComponentList from "./componentList"
 class WebMakerSiderLeft extends React.PureComponent {
 
     render() {
+
+        const siderStyle = {
+            borderRight: '1px solid #dadada',
+            overflowY: 'auto',
+            background: '#fff'
+        }
+
         return (
-            <Layout.Sider width={224} style={{ borderRight: '1px solid rgba(0,0,0,.1)', overflowY: 'auto', background: '#fff' }}>
+            <Layout.Sider width={224} style={siderStyle}>
 
                 <ComponentList />
 
