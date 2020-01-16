@@ -17,7 +17,7 @@ class WebMaker extends React.PureComponent {
             width: props.width,
             height: props.height,
             backgroundColor: props.backgroundColor,
-            meshes: props.meshes
+            defaultMeshes: props.defaultMeshes || []
         }
 
         this.clock = 0
@@ -25,7 +25,7 @@ class WebMaker extends React.PureComponent {
     }
 
     componentDidMount() {
-        this.startAnimation()
+        // this.startAnimation()
     }
 
     componentWillUnmount() {
@@ -50,14 +50,14 @@ class WebMaker extends React.PureComponent {
 
     render() {
 
-        const { mode, width, height, backgroundColor, meshes } = this.state
+        const { mode, width, height, backgroundColor, defaultMeshes } = this.state
 
         const contextValue = {
             mode,
             width,
             height,
             backgroundColor,
-            meshes
+            defaultMeshes
         }
 
         return (
@@ -74,7 +74,7 @@ WebMaker.propTypes = {
     height: PropTypes.number.isRequired,
     backgroundColor: PropTypes.string.isRequired,
     mode: PropTypes.oneOf([EditorMode.Writeable, EditorMode.ReadOnly]).isRequired,
-    meshes: PropTypes.arrayOf(PropTypes.object).isRequired
+    defaultMeshes: PropTypes.arrayOf(PropTypes.object)
 }
 
 export {

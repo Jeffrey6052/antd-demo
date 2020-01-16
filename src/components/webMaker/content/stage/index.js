@@ -1,21 +1,38 @@
 
 import React from "react"
-import PropTypes from 'prop-types'
 import crypto from 'crypto'
 
+import WebMakerContext from "../../context"
 import { EditorMode } from "../../constants"
 
 import MeshComponent from "./meshComponent";
 import { getComponent, loadComponent } from "../../componentLoader"
+import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
 
 class Stage extends React.PureComponent {
+
+    static contextType = WebMakerContext;
 
     constructor(props) {
         super(props)
 
         this.state = {
-            meshes: props.meshes
+            meshes: []
         }
+
+        this.onMouseEnter = this.onMouseEnter.bind(this)
+        this.onMouseLeave = this.onMouseLeave.bind(this)
+        this.onDragOver = this.onDragOver.bind(this)
+        this.onDrop = this.onDrop.bind(this)
+    }
+
+    componentWillMount() {
+
+        const { defaultMeshes } = this.context
+
+        this.setState({
+            meshes: defaultMeshes
+        })
     }
 
     renderMesh(mesh) {
@@ -73,9 +90,14 @@ class Stage extends React.PureComponent {
 
         const { pageX, pageY } = event
         const { left, top } = event.target.getBoundingClientRect();
+        const { scale } = this.props
 
-        const x = pageX - left
-        const y = pageY - top
+        console.log("pageX", pageX)
+        console.log("left", left)
+        console.log("scale", scale)
+
+        const x = pageX - left * scale
+        const y = pageY - top * scale
 
         this.addMesh(componentKey, x, y)
     }
@@ -122,25 +144,27 @@ class Stage extends React.PureComponent {
 
     render() {
 
-        const { props, state } = this
-        const { meshes } = state
+        console.log("render: stage")
+
+        const { mode, backgroundColor } = this.context
+        const { meshes } = this.state
 
         const stageStyle = {
             position: "relative",
             width: "100%",
             height: "100%",
-            backgroundColor: props.backgroundColor,
+            backgroundColor: backgroundColor,
         }
 
         const stageProps = {
             style: stageStyle
         }
 
-        if (props.mode === EditorMode.Writeable) {
-            stageProps.onMouseEnter = (e) => this.onMouseEnter(e)
-            stageProps.onMouseLeave = (e) => this.onMouseLeave(e)
-            stageProps.onDragOver = (e) => this.onDragOver(e)
-            stageProps.onDrop = (e) => this.onDrop(e)
+        if (mode === EditorMode.Writeable) {
+            stageProps.onMouseEnter = this.onMouseEnter
+            stageProps.onMouseLeave = this.onMouseLeave
+            stageProps.onDragOver = this.onDragOver
+            stageProps.onDrop = this.onDrop
         }
 
         return (
@@ -149,14 +173,6 @@ class Stage extends React.PureComponent {
             </div>
         )
     }
-}
-
-Stage.propTypes = {
-    width: PropTypes.number.isRequired,
-    height: PropTypes.number.isRequired,
-    backgroundColor: PropTypes.string.isRequired,
-    mode: PropTypes.oneOf([EditorMode.Writeable, EditorMode.ReadOnly]).isRequired,
-    meshes: PropTypes.arrayOf(PropTypes.object).isRequired,
 }
 
 export default Stage

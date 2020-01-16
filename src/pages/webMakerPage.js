@@ -64,7 +64,7 @@ class WebMakerPage extends React.PureComponent {
             width: 1024,
             height: 768,
             backgroundColor: "#FFFFFF",
-            meshes: this.generateDefaultMeshes()
+            defaultMeshes: this.generateDefaultMeshes()
         }
 
         return (

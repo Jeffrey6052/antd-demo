@@ -14,7 +14,7 @@ class WebMakerSiderRight extends React.PureComponent {
 
         return (
             <Layout.Sider width={224} style={siderStyle}>
-                <div className="demo-title-box" style={{ height: 1000 }}>SiderRight</div>
+                <div className="demo-title-box">SiderRight</div>
             </Layout.Sider>
         )
     }
