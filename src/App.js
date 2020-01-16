@@ -34,7 +34,7 @@ import ProxyPage from "./pages/ProxyPage"
 import ElectricalSymbolPage from "./pages/ElectricalSymbol"
 import CircuitDiagramPage from "./pages/CircuitDiagram"
 import SvgJsPage from "./pages/SvgJs"
-import WebMakerPage from "./pages/WebMaker"
+import WebMakerPage from "./pages/webMakerPage"
 
 import "./utils/KeyboardWatch"
 
