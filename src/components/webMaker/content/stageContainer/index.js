@@ -71,11 +71,11 @@ class StageContainer extends React.PureComponent {
     }
 
     handleKeydown() {
-        // const shortCut = getShortCut()
+        const shortCut = getShortCut()
         // console.log("shortCut", shortCut)
 
-        // const press_Ctrl_C = matchShortCut("command+c", shortCut)
-        // console.log("press_Ctrl_C", press_Ctrl_C)
+        const press_Ctrl_C = matchShortCut("command+c", shortCut)
+        console.log("press_Ctrl_C", press_Ctrl_C)
     }
 
     handleResize() {

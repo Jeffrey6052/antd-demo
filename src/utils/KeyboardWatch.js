@@ -98,12 +98,10 @@ export const matchShortCut = (matchString, shortCut) => {
 }
 
 const updateDownKeysfromMouseEvent = (e) => {
-
-    // console.log("updateDownKeysfromMouseEvent", new Date().toLocaleTimeString())
-
-    (e.ctrlKey || e.metaKey) ? DownKeys.add(Keys.ctrl) : DownKeys.delete(Keys.ctrl)
+    e.ctrlKey ? DownKeys.add(Keys.ctrl) : DownKeys.delete(Keys.ctrl)
     e.altKey ? DownKeys.add(Keys.alt) : DownKeys.delete(Keys.alt)
     e.shiftKey ? DownKeys.add(Keys.shift) : DownKeys.delete(Keys.shift)
+    e.metaKey ? DownKeys.add(Keys.meta) : DownKeys.delete(Keys.meta)
 }
 
 const throttleUpdateDownKeysfromMouseEvent = lodash.throttle((e) => updateDownKeysfromMouseEvent(e), 100)
