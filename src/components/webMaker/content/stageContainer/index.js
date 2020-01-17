@@ -4,7 +4,7 @@ import React from "react"
 import WebMakerContext from "../../context"
 import Stage from "../stage"
 
-import { isCtrlDown } from "../../../../utils/KeyboardWatch"
+import { isCtrlDown, DownKeys, getBasicShortCut, matchBasicShortCut, getShortCut, matchShortCut } from "../../../../utils/KeyboardWatch"
 
 class StageContainer extends React.PureComponent {
 
@@ -19,7 +19,7 @@ class StageContainer extends React.PureComponent {
             translateY: 0,
             containerWidth: 0,
             containerHeight: 0,
-            pageLoaded: false
+            containerReady: false
         }
 
         this.containerStyle = {
@@ -33,27 +33,22 @@ class StageContainer extends React.PureComponent {
         this.componentRef = React.createRef()
 
         this.handleWheel = this.handleWheel.bind(this)
-        this.handlePageLoad = this.handlePageLoad.bind(this)
+        this.handleKeydown = this.handleKeydown.bind(this)
         this.handleResize = this.handleResize.bind(this)
     }
 
-    // componentDidUpdate() {
-    //     const { body } = window.document
-    //     const element = this.componentRef.current
-    //     const { containerWidth, containerHeight } = this.state
-
-    //     console.log("bodyWidth", body.clientWidth, "bodyHeight", body.clientHeight)
-    //     console.log("elementWidth", element.clientWidth, "elementHeight", element.clientHeight)
-    //     console.log("containerWidth", containerWidth, "containerHeight", containerHeight)
-    // }
-
     componentDidMount() {
         if (this.componentRef.current) {
-            this.componentRef.current.addEventListener('wheel', this.handleWheel)
+            this.componentRef.current.addEventListener('wheel', this.handleWheel, { passive: false })
         }
 
-        window.addEventListener('load', this.handlePageLoad)
         window.addEventListener('resize', this.handleResize)
+        window.addEventListener('keydown', this.handleKeydown)
+
+        // initialize依赖container的元素宽高, 需要先让页面完成渲染再执行
+        window.setTimeout(() => {
+            this.initialize()
+        }, 0)
     }
 
     componentWillUnmount() {
@@ -61,25 +56,29 @@ class StageContainer extends React.PureComponent {
             this.componentRef.current.removeEventListener('wheel', this.handleWheel)
         }
 
-        window.removeEventListener('load', this.updateContainerSize)
-        window.removeEventListener('resize', this.updateContainerSize)
+        window.removeEventListener('resize', this.handleResize)
+        window.removeEventListener('keydown', this.handleKeydown)
     }
 
-    handlePageLoad() {
-        // console.log("handle page load")
-
+    initialize() {
         const { width, height } = this.context
         this.setState((prevState) => ({
             translateX: width * prevState.scale * -0.5,
-            translateY: height * prevState.scale * -0.5,
-            pageLoaded: true
+            translateY: height * prevState.scale * -0.5
         }))
 
         this.updateContainerSize()
     }
 
+    handleKeydown() {
+        // const shortCut = getShortCut()
+        // console.log("shortCut", shortCut)
+
+        // const press_Ctrl_C = matchShortCut("command+c", shortCut)
+        // console.log("press_Ctrl_C", press_Ctrl_C)
+    }
+
     handleResize() {
-        // console.log("handle resize")
         this.updateContainerSize()
     }
 
@@ -121,15 +120,16 @@ class StageContainer extends React.PureComponent {
 
         this.setState({
             containerWidth: containerElement.clientWidth,
-            containerHeight: containerElement.clientHeight
+            containerHeight: containerElement.clientHeight,
+            containerReady: true
         })
     }
 
     renderContent() {
 
-        const { pageLoaded, translateX, translateY, scale } = this.state
+        const { containerReady, translateX, translateY, scale } = this.state
 
-        if (!pageLoaded) {
+        if (!containerReady) {
             return null
         }
 

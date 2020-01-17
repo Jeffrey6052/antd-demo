@@ -29,10 +29,20 @@
 //     console.log(item, index)
 // })
 
-var crypto = require('crypto')
+// var crypto = require('crypto')
 
-const hashcode = crypto.randomBytes(3).toString('hex');
+// const hashcode = crypto.randomBytes(3).toString('hex');
 
-console.log(hashcode)
+// console.log(hashcode)
 
-console.log("finish...")
+const nums = [3, 1, 2]
+
+const some = nums.some((n) => n > 3)
+console.log("some", some)
+
+const every = nums.every((n) => n < 4)
+console.log("every", every)
+
+
+
+// console.log("finish...")

@@ -98,7 +98,7 @@
     "require-context.macro": "^1.2.2",
     "storybook-react-router": "^1.0.8",
     "styled-components": "^4.4.1",
-    "typescript": "^3.7.2"
+    "typescript": "^3.7.5"
   },
   "bit": {
     "env": {},

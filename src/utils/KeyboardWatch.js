@@ -1,12 +1,14 @@
 // 全局键盘监听, 判断某个按键是否按下
 
-const DownKeys = new Set([])
+import lodash from "lodash"
 
-const Keys = {
+export const DownKeys = new Set([])
+
+export const Keys = {
     backspace: 8,
     del: 46,
     delete: 46,
-    tab: 9,
+    // tab: 9, // tab有bug
     enter: 13,
     esc: 27,
     space: 32,
@@ -34,7 +36,6 @@ const Keys = {
     ']': 221
 };
 
-
 // Add uppercase versions of keys above for backwards compatibility
 Object.keys(Keys).forEach(key => Keys[key.toUpperCase()] = Keys[key]);
 
@@ -46,47 +47,9 @@ Object.keys(Keys).forEach(key => Keys[key.toUpperCase()] = Keys[key]);
 });
 
 // fn keys
-[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].forEach((item, index) => Keys[`f${index}`] = 111 + index);
+// [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].forEach((num, index) => Keys[`f${num}`] = 111 + index);
 
-// 当鼠标移入窗口时，同步按键状态 alt ctrl shift
-document.body.addEventListener("mouseenter", (e) => {
-
-    if (e.altKey) {
-        DownKeys.add(Keys.alt)
-    } else {
-        DownKeys.delete(Keys.alt)
-    }
-
-    if (e.ctrlKey) {
-        DownKeys.add(Keys.ctrl)
-    } else {
-        DownKeys.delete(Keys.ctrl)
-    }
-
-    if (e.shiftKey) {
-        DownKeys.add(Keys.shift)
-    } else {
-        DownKeys.delete(Keys.shift)
-    }
-
-    if (e.metaKey) {
-        DownKeys.add(Keys.meta)
-    } else {
-        DownKeys.delete(Keys.meta)
-    }
-})
-
-window.addEventListener("keydown", (e) => {
-    // console.log("down", e.keyCode)
-    DownKeys.add(e.keyCode)
-})
-
-window.addEventListener("keyup", (e) => {
-    // console.log("up", e.keyCode)
-    DownKeys.delete(e.keyCode)
-})
-
-
+const SupportKeyCodes = new Set(Object.values(Keys))
 
 export const isCtrlDown = () => DownKeys.has(Keys.ctrl) || DownKeys.has(Keys.meta)
 export const isShiftDown = () => DownKeys.has(Keys.shift)
@@ -103,22 +66,73 @@ export const Modifiers = {
     alt: 'alt'
 }
 
-export const getKeyCode = (keyName) => {
+export const getOriginKeyCode = (keyName) => {
     const realName = Modifiers[keyName] || keyName
     return Keys[realName]
 }
 
-export const getShortCut = () => Array.from(DownKeys)
-
-export const isShortCut = (input) => {
-
-    const inShortCut = input.split("+").map(getKeyCode)
-
-    const matchShortCut = getShortCut()
-
-    if (inShortCut.length !== matchShortCut.length) {
+export const getOriginShortCut = () => Array.from(DownKeys)
+export const matchOriginShortCut = (matchString, originShortCut) => {
+    const inShortCut = matchString.split("+").map(getOriginKeyCode)
+    if (inShortCut.length !== originShortCut.length) {
         return false
     }
 
-    return matchShortCut.every((keyName, i) => keyName === inShortCut[i])
+    return originShortCut.every((keyName, i) => keyName === inShortCut[i])
+}
+
+// 兼容处理, 使 meta = ctrl
+export const getKeyCode = (keyName) => {
+    const originKeyCode = getOriginKeyCode(keyName)
+    return originKeyCode === Keys.meta ? Keys.ctrl : originKeyCode
+}
+export const getShortCut = () => getOriginShortCut().map((code) => code === Keys.meta ? Keys.ctrl : code)
+export const matchShortCut = (matchString, shortCut) => {
+
+    const inShortCut = matchString.split("+").map(getKeyCode)
+    if (inShortCut.length !== shortCut.length) {
+        return false
+    }
+
+    return shortCut.every((keyName, i) => keyName === inShortCut[i])
+}
+
+const updateDownKeysfromMouseEvent = (e) => {
+
+    // console.log("updateDownKeysfromMouseEvent", new Date().toLocaleTimeString())
+
+    (e.ctrlKey || e.metaKey) ? DownKeys.add(Keys.ctrl) : DownKeys.delete(Keys.ctrl)
+    e.altKey ? DownKeys.add(Keys.alt) : DownKeys.delete(Keys.alt)
+    e.shiftKey ? DownKeys.add(Keys.shift) : DownKeys.delete(Keys.shift)
+}
+
+const throttleUpdateDownKeysfromMouseEvent = lodash.throttle((e) => updateDownKeysfromMouseEvent(e), 100)
+
+// 监听按键按下事件
+window.onkeydown = (e) => {
+
+    const keyCode = e.keyCode
+
+    if (!SupportKeyCodes.has(keyCode)) {
+        return
+    }
+
+    DownKeys.add(keyCode)
+    // console.log("down", keyCode)
+    console.log(DownKeys)
+}
+
+// 监听按键弹起事件
+window.onkeyup = (e) => {
+    DownKeys.delete(e.keyCode)
+}
+
+// 鼠标移动时同步Ctrl Alt Shift按键状态
+window.onmousemove = (e) => {
+    throttleUpdateDownKeysfromMouseEvent(e)
+}
+
+// 鼠标进入时同步Ctrl Alt Shift按键状态
+window.onmouseenter = (e) => {
+    updateDownKeysfromMouseEvent(e)
 }

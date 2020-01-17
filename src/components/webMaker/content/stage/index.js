@@ -26,7 +26,7 @@ class Stage extends React.PureComponent {
         this.onDrop = this.onDrop.bind(this)
     }
 
-    componentWillMount() {
+    componentDidMount() {
 
         const { defaultMeshes } = this.context
 
