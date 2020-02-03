@@ -117,7 +117,7 @@ window.onkeydown = (e) => {
 
     DownKeys.add(keyCode)
     // console.log("down", keyCode)
-    console.log(DownKeys)
+    // console.log(DownKeys)
 }
 
 // 监听按键弹起事件

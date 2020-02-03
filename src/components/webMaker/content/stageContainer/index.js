@@ -38,9 +38,7 @@ class StageContainer extends React.PureComponent {
     }
 
     componentDidMount() {
-        if (this.componentRef.current) {
-            this.componentRef.current.addEventListener('wheel', this.handleWheel, { passive: false })
-        }
+        this.componentRef.current.addEventListener('mousewheel', this.handleWheel, { passive: false })
 
         window.addEventListener('resize', this.handleResize)
         window.addEventListener('keydown', this.handleKeydown)
@@ -52,9 +50,7 @@ class StageContainer extends React.PureComponent {
     }
 
     componentWillUnmount() {
-        if (this.componentRef.current) {
-            this.componentRef.current.removeEventListener('wheel', this.handleWheel)
-        }
+        this.componentRef.current.removeEventListener('mousewheel', this.handleWheel)
 
         window.removeEventListener('resize', this.handleResize)
         window.removeEventListener('keydown', this.handleKeydown)
@@ -74,8 +70,8 @@ class StageContainer extends React.PureComponent {
         const shortCut = getShortCut()
         // console.log("shortCut", shortCut)
 
-        const press_Ctrl_C = matchShortCut("command+c", shortCut)
-        console.log("press_Ctrl_C", press_Ctrl_C)
+        // const press_Ctrl_C = matchShortCut("command+c", shortCut)
+        // console.log("press_Ctrl_C", press_Ctrl_C)
     }
 
     handleResize() {
@@ -87,18 +83,55 @@ class StageContainer extends React.PureComponent {
         event.stopPropagation()
         event.preventDefault()
 
+        // console.log("event", event)
+
         const deltaX = event.deltaX
         const deltaY = event.deltaY
 
         const ctrlDown = isCtrlDown()
+        const componentElement = this.componentRef.current
 
-        if (ctrlDown) { // 缩放Stage
-            if (deltaY != 0) {
-                const modScale = deltaY > 0 ? 0.1 : -0.1
-                this.setState((prevState) => ({
-                    scale: prevState.scale + modScale
-                }))
-            }
+        if (ctrlDown && deltaY != 0 && componentElement) { // 缩放Stage
+            const step = 0.05
+            const modScale = deltaY > 0 ? step : step * -1
+            this.setState((prevState) => {
+
+                let newScale = prevState.scale + modScale
+
+                if (newScale < 0.3 || newScale > 2) {
+                    return null
+                }
+
+                // 鼠标相对于外层窗口左上角坐标
+                // console.log("event.offsetX", event.offsetX)
+                // console.log("event.offsetY", event.offsetY)
+
+                // 外层窗口大小
+                // const { containerWidth, containerHeight } = this.state
+                // console.log("containerWidth", containerWidth)
+                // console.log("containerHeight", containerHeight)
+
+                const componentRect = componentElement.getBoundingClientRect()
+                // console.log("componentRect", componentRect)
+                // console.log("clientXY", event.clientX, event.clientY)
+
+                // console.log("offsetXY", event.offsetX, event.offsetY)
+
+                const offsetX = Math.round((event.clientX - componentRect.x - prevState.translateX) / prevState.scale)
+                const offsetY = Math.round((event.clientY - componentRect.y - prevState.translateY) / prevState.scale)
+                // console.log("calculate offsetXY", offsetX, offsetY)
+
+                const newTranslateX = prevState.translateX - offsetX * modScale
+                const newTranslateY = prevState.translateY - offsetY * modScale
+
+                // return null
+
+                return {
+                    scale: newScale,
+                    translateX: newTranslateX,
+                    translateY: newTranslateY
+                }
+            })
         } else { // 移动Stage
             if (deltaX != 0) {
                 this.setState((prevState) => ({
@@ -145,7 +178,8 @@ class StageContainer extends React.PureComponent {
         const fullLayerStyle = {
             width: width * 3,
             height: height * 3,
-            overflow: "hidden"
+            overflow: "hidden",
+            backgroundColor: "rgb(242, 242, 242)"
         }
 
         const wrapperStyle = {
