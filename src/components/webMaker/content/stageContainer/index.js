@@ -4,7 +4,7 @@ import React from "react"
 import WebMakerContext from "../../context"
 import Stage from "../stage"
 
-import { isCtrlDown, DownKeys, getBasicShortCut, matchBasicShortCut, getShortCut, matchShortCut } from "../../../../utils/KeyboardWatch"
+import { isCtrlDown, getShortCut, matchShortCut } from "../../../../utils/KeyboardWatch"
 
 class StageContainer extends React.PureComponent {
 
@@ -14,7 +14,7 @@ class StageContainer extends React.PureComponent {
         super(props)
 
         this.state = {
-            scale: 1,
+            scale: 0.8,
             translateX: 0,
             translateY: 0,
             containerWidth: 0,
@@ -30,7 +30,7 @@ class StageContainer extends React.PureComponent {
             touchAction: "none"
         }
 
-        this.componentRef = React.createRef()
+        this.containerRef = React.createRef()
 
         this.handleWheel = this.handleWheel.bind(this)
         this.handleKeydown = this.handleKeydown.bind(this)
@@ -38,7 +38,7 @@ class StageContainer extends React.PureComponent {
     }
 
     componentDidMount() {
-        this.componentRef.current.addEventListener('mousewheel', this.handleWheel, { passive: false })
+        this.containerRef.current.addEventListener('mousewheel', this.handleWheel, { passive: false })
 
         window.addEventListener('resize', this.handleResize)
         window.addEventListener('keydown', this.handleKeydown)
@@ -50,7 +50,7 @@ class StageContainer extends React.PureComponent {
     }
 
     componentWillUnmount() {
-        this.componentRef.current.removeEventListener('mousewheel', this.handleWheel)
+        this.containerRef.current.removeEventListener('mousewheel', this.handleWheel)
 
         window.removeEventListener('resize', this.handleResize)
         window.removeEventListener('keydown', this.handleKeydown)
@@ -59,8 +59,8 @@ class StageContainer extends React.PureComponent {
     initialize() {
         const { width, height } = this.context
         this.setState((prevState) => ({
-            translateX: width * prevState.scale * -0.5,
-            translateY: height * prevState.scale * -0.5
+            translateX: (width - 1) * prevState.scale * -1,
+            translateY: (height - 1) * prevState.scale * -1
         }))
 
         this.updateContainerSize()
@@ -70,7 +70,7 @@ class StageContainer extends React.PureComponent {
         const shortCut = getShortCut()
         // console.log("shortCut", shortCut)
 
-        // const press_Ctrl_C = matchShortCut("command+c", shortCut)
+        const press_Ctrl_C = matchShortCut("command+c", shortCut)
         // console.log("press_Ctrl_C", press_Ctrl_C)
     }
 
@@ -89,7 +89,7 @@ class StageContainer extends React.PureComponent {
         const deltaY = event.deltaY
 
         const ctrlDown = isCtrlDown()
-        const componentElement = this.componentRef.current
+        const componentElement = this.containerRef.current
 
         if (ctrlDown && deltaY != 0 && componentElement) { // 缩放Stage
             const step = 0.05
@@ -102,29 +102,13 @@ class StageContainer extends React.PureComponent {
                     return null
                 }
 
-                // 鼠标相对于外层窗口左上角坐标
-                // console.log("event.offsetX", event.offsetX)
-                // console.log("event.offsetY", event.offsetY)
-
-                // 外层窗口大小
-                // const { containerWidth, containerHeight } = this.state
-                // console.log("containerWidth", containerWidth)
-                // console.log("containerHeight", containerHeight)
-
                 const componentRect = componentElement.getBoundingClientRect()
-                // console.log("componentRect", componentRect)
-                // console.log("clientXY", event.clientX, event.clientY)
-
-                // console.log("offsetXY", event.offsetX, event.offsetY)
 
                 const offsetX = Math.round((event.clientX - componentRect.x - prevState.translateX) / prevState.scale)
                 const offsetY = Math.round((event.clientY - componentRect.y - prevState.translateY) / prevState.scale)
-                // console.log("calculate offsetXY", offsetX, offsetY)
 
                 const newTranslateX = prevState.translateX - offsetX * modScale
                 const newTranslateY = prevState.translateY - offsetY * modScale
-
-                // return null
 
                 return {
                     scale: newScale,
@@ -149,7 +133,7 @@ class StageContainer extends React.PureComponent {
 
     updateContainerSize() {
         // 页面结构加载完成时，重新获取元素宽度和高度
-        const containerElement = this.componentRef.current
+        const containerElement = this.containerRef.current
 
         this.setState({
             containerWidth: containerElement.clientWidth,
@@ -207,7 +191,7 @@ class StageContainer extends React.PureComponent {
         const content = this.renderContent()
 
         return (
-            <div style={this.containerStyle} ref={this.componentRef}>
+            <div style={this.containerStyle} ref={this.containerRef}>
                 {content}
             </div>
         )

@@ -7,7 +7,6 @@ import { EditorMode } from "../../constants"
 
 import MeshComponent from "./meshComponent";
 import { getComponent, loadComponent } from "../../componentLoader"
-import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
 
 class Stage extends React.PureComponent {
 
@@ -19,6 +18,8 @@ class Stage extends React.PureComponent {
         this.state = {
             meshes: []
         }
+
+        this.stageRef = React.createRef()
 
         this.onMouseEnter = this.onMouseEnter.bind(this)
         this.onMouseLeave = this.onMouseLeave.bind(this)
@@ -83,21 +84,22 @@ class Stage extends React.PureComponent {
     onDrop(event) {
         event.preventDefault()
 
+        const stageTarget = this.stageRef.current
+        if (!stageTarget) {
+            return
+        }
+
         const componentKey = event.dataTransfer.getData('componentKey')
         if (!componentKey) {
             return
         }
 
-        const { pageX, pageY } = event
-        const { left, top } = event.target.getBoundingClientRect();
+        const { clientX, clientY } = event
+        const targetRect = stageTarget.getBoundingClientRect()
         const { scale } = this.props
 
-        console.log("pageX", pageX)
-        console.log("left", left)
-        console.log("scale", scale)
-
-        const x = pageX - left * scale
-        const y = pageY - top * scale
+        const x = (clientX - targetRect.x) / scale
+        const y = (clientY - targetRect.y) / scale
 
         this.addMesh(componentKey, x, y)
     }
@@ -168,7 +170,7 @@ class Stage extends React.PureComponent {
         }
 
         return (
-            <div {...stageProps}>
+            <div {...stageProps} ref={this.stageRef}>
                 {meshes.map((mesh) => this.renderMesh(mesh))}
             </div>
         )
