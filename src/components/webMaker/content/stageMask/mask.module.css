@@ -1,0 +1,81 @@
+
+.container {
+    display: block;
+    height: 100%;
+    width: 100%;
+}
+
+.container:hover,
+.container.selected {
+    box-shadow: 0 0 0 0.5px #0070cc, inset 0 0 0 0.5px #0070cc;
+}
+
+.top-left,
+.top,
+.top-right,
+.right,
+.bottom-right,
+.bottom,
+.bottom-left,
+.left {
+    display: none;
+    position: absolute;
+    box-sizing: border-box;
+    width: 8px;
+    height: 8px;
+    background-color: #fff;
+    border: 1px solid #0070cc;
+    pointer-events: all;
+    transform: translate(-50%,-50%);
+}
+
+.container.selected .top-left,
+.container.selected .top,
+.container.selected .top-right,
+.container.selected .right,
+.container.selected .bottom-right,
+.container.selected .bottom,
+.container.selected .bottom-left,
+.container.selected .left {
+    display: block;
+}
+
+.top-left {
+    top: 0;
+    left: 0;
+}
+
+.top {
+    top: 0;
+    left: 50%;
+}
+
+.top-right {
+    top: 0;
+    left: 100%;
+}
+
+.right {
+    top: 50%;
+    left: 100%;
+}
+
+.bottom-right {
+    top: 100%;
+    left: 100%;
+}
+
+.bottom {
+    top: 100%;
+    left: 50%;
+}
+
+.bottom-left {
+    top: 100%;
+    left: 0;
+}
+
+.left {
+    top: 50%;
+    left: 0
+}

@@ -1,7 +1,7 @@
 
 import React from "react"
 
-class MeshComponent extends React.PureComponent {
+class Mesh extends React.PureComponent {
 
     render() {
         const { style } = this.props
@@ -15,4 +15,4 @@ class MeshComponent extends React.PureComponent {
 
 }
 
-export default MeshComponent
+export default Mesh

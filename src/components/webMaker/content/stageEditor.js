@@ -1,7 +1,7 @@
 
 import React from "react"
 
-import StageContainer from "../stageContainer"
+import StageContainer from "./stageContainer"
 
 class StageEditor extends React.PureComponent {
 

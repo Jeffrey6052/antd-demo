@@ -35,6 +35,7 @@ class StageContainer extends React.PureComponent {
         this.handleWheel = this.handleWheel.bind(this)
         this.handleKeydown = this.handleKeydown.bind(this)
         this.handleResize = this.handleResize.bind(this)
+        this.handleDrop = this.handleDrop.bind(this)
     }
 
     componentDidMount() {
@@ -132,7 +133,7 @@ class StageContainer extends React.PureComponent {
     }
 
     updateContainerSize() {
-        // 页面结构加载完成时，重新获取元素宽度和高度
+        // 页面结构加载完成后，重新获取元素宽度和高度
         const containerElement = this.containerRef.current
 
         this.setState({
@@ -140,6 +141,19 @@ class StageContainer extends React.PureComponent {
             containerHeight: containerElement.clientHeight,
             containerReady: true
         })
+    }
+
+    handleDrop(componentKey, x, y) {
+
+        const { scale } = this.state
+
+        // 通过scale修正坐标
+        const posX = x / scale
+        const posY = y / scale
+
+        const { addMesh } = this.context
+
+        addMesh(componentKey, posX, posY)
     }
 
     renderContent() {
@@ -177,7 +191,7 @@ class StageContainer extends React.PureComponent {
             <div style={scaleLayerStyle}>
                 <div style={fullLayerStyle}>
                     <div style={wrapperStyle}>
-                        <Stage scale={scale} />
+                        <Stage handleDrop={this.handleDrop} />
                     </div>
                 </div>
             </div>

@@ -1,12 +1,11 @@
 
 import React from "react"
-import crypto from 'crypto'
 
 import WebMakerContext from "../../context"
 import { EditorMode } from "../../constants"
 
-import MeshComponent from "./meshComponent";
-import { getComponent, loadComponent } from "../../componentLoader"
+import Mesh from "./mesh"
+import { loadComponent } from "../../componentLoader"
 
 class Stage extends React.PureComponent {
 
@@ -14,10 +13,6 @@ class Stage extends React.PureComponent {
 
     constructor(props) {
         super(props)
-
-        this.state = {
-            meshes: []
-        }
 
         this.stageRef = React.createRef()
 
@@ -29,11 +24,6 @@ class Stage extends React.PureComponent {
 
     componentDidMount() {
 
-        const { defaultMeshes } = this.context
-
-        this.setState({
-            meshes: defaultMeshes
-        })
     }
 
     renderMesh(mesh) {
@@ -43,7 +33,6 @@ class Stage extends React.PureComponent {
         const { properties } = specs
 
         const meshStyle = {
-            backgroundColor: "white",
             position: "absolute",
             width: properties.$width,
             height: properties.$height,
@@ -57,9 +46,9 @@ class Stage extends React.PureComponent {
         }
 
         return (
-            <MeshComponent {...meshProps} >
+            <Mesh {...meshProps} >
                 {this.renderComponent(componentKey, properties)}
-            </MeshComponent>
+            </Mesh>
         )
     }
 
@@ -94,68 +83,85 @@ class Stage extends React.PureComponent {
             return
         }
 
+        const { addMesh } = this.context
+
         const { clientX, clientY } = event
         const targetRect = stageTarget.getBoundingClientRect()
-        const { scale } = this.props
+        const { handleDrop } = this.props
 
-        const x = (clientX - targetRect.x) / scale
-        const y = (clientY - targetRect.y) / scale
+        const x = clientX - targetRect.x
+        const y = clientY - targetRect.y
 
-        this.addMesh(componentKey, x, y)
+        handleDrop(componentKey, x, y)
     }
 
-    addMesh(componentKey, x, y) {
+    // renderStageMask() {
+    //     const { mode } = this.context
+    //     if (mode === EditorMode.Readonly) {
+    //         return null
+    //     }
 
-        const component = getComponent(componentKey)
+    //     const { meshes } = this.state
 
-        if (!component) {
-            return
-        }
+    //     const layerStyle = {
+    //         position: "relative",
+    //         width: "100%",
+    //         height: "100%",
+    //         zIndex: 100
+    //     }
 
-        const idcode = crypto.randomBytes(10).toString('hex')
-        const namecode = crypto.randomBytes(3).toString('hex')
+    //     return (
+    //         <div style={layerStyle} id="stage-mask">
+    //             {meshes.map((mesh) => this.renderMeshMask(mesh))}
+    //         </div>
+    //     )
+    // }
 
-        const defaultName = componentKey
-        const defaultWidth = 100
-        const defaultHeight = 100
-        const defaultRotate = 0
+    // renderMeshMask(mesh) {
 
-        const properties = {
-            $id: idcode,
-            $name: `${defaultName}-${namecode}`,
-            $x: Math.floor(x - defaultWidth * 0.5),
-            $y: Math.floor(y - defaultHeight * 0.5),
-            $width: defaultWidth,
-            $height: defaultHeight,
-            $rotate: defaultRotate
-        }
+    //     const { componentKey, specs } = mesh
+    //     const { properties } = specs
 
-        const specs = {
-            properties: properties
-        }
+    //     const wrapStyle = {
+    //         position: "absolute",
+    //         width: properties.$width,
+    //         height: properties.$height,
+    //         left: properties.$x,
+    //         top: properties.$y
+    //     }
 
-        const mesh = {
-            componentKey: componentKey,
-            specs: specs
-        }
+    //     const wrapProps = {
+    //         style: wrapStyle,
+    //         key: properties.$id
+    //     }
 
-        this.setState((preState) => ({
-            meshes: [...preState.meshes, mesh]
-        }))
-    }
+    //     const { selectedMeshes } = this.state
+
+    //     const maskProps = {
+    //         meshId: properties.$id,
+    //         selected: selectedMeshes.has(properties.$id),
+    //         addSelectedMeshes: this.addSelectedMeshes,
+    //         setSelectedMeshes: this.setSelectedMeshes
+    //     }
+
+    //     return (
+    //         <div {...wrapProps}>
+    //             <MeshMask {...maskProps} />
+    //         </div>
+    //     )
+    // }
 
     render() {
 
         console.log("render: stage")
 
-        const { mode, backgroundColor } = this.context
-        const { meshes } = this.state
+        const { mode, backgroundColor, meshes } = this.context
 
         const stageStyle = {
             position: "relative",
             width: "100%",
             height: "100%",
-            backgroundColor: backgroundColor,
+            backgroundColor: backgroundColor
         }
 
         const stageProps = {
@@ -170,8 +176,9 @@ class Stage extends React.PureComponent {
         }
 
         return (
-            <div {...stageProps} ref={this.stageRef}>
+            <div {...stageProps} id="stage" ref={this.stageRef}>
                 {meshes.map((mesh) => this.renderMesh(mesh))}
+                {/* {this.renderStageMask()} */}
             </div>
         )
     }

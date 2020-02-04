@@ -35,14 +35,28 @@
 
 // console.log(hashcode)
 
-const nums = [3, 1, 2]
+// const nums = [3, 1, 2]
 
-const some = nums.some((n) => n > 3)
-console.log("some", some)
+// const some = nums.some((n) => n > 3)
+// console.log("some", some)
 
-const every = nums.every((n) => n < 4)
-console.log("every", every)
+// const every = nums.every((n) => n < 4)
+// console.log("every", every)
 
+const keys = new Set([1, 2, 3])
 
+console.log(keys)
+
+const tKeys = new Set(keys)
+
+console.log(tKeys)
+
+console.log(keys === tKeys)
+
+// keys.add(1)
+
+// keys.add([2, 3])
+
+// console.log(keys)
 
 // console.log("finish...")

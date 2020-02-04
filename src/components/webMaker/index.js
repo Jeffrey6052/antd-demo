@@ -1,11 +1,14 @@
 
 import React from "react"
+import crypto from 'crypto'
 import PropTypes from 'prop-types'
 
 import WebMakerContext from "./context"
 import { EditorMode } from "./constants"
 
 import WebMakerLayout from "./layout"
+
+import { getComponent } from "./componentLoader"
 
 class WebMaker extends React.PureComponent {
 
@@ -17,7 +20,8 @@ class WebMaker extends React.PureComponent {
             width: props.width,
             height: props.height,
             backgroundColor: props.backgroundColor,
-            defaultMeshes: props.defaultMeshes || []
+            meshes: props.defaultMeshes || [],
+            selectedMeshes: new Set([])
         }
 
         this.clock = 0
@@ -48,16 +52,97 @@ class WebMaker extends React.PureComponent {
         window.clearInterval(this.timer)
     }
 
+    setSelectedMeshes(meshIds) {
+        this.setState({
+            selectedMeshes: new Set(meshIds)
+        })
+    }
+
+    addMesh(componentKey, x, y) {
+
+        const component = getComponent(componentKey)
+
+        if (!component) {
+            return
+        }
+
+        const idcode = crypto.randomBytes(10).toString('hex')
+        const namecode = crypto.randomBytes(3).toString('hex')
+
+        const defaultName = componentKey
+        const defaultWidth = 100
+        const defaultHeight = 100
+        const defaultRotate = 0
+
+        const properties = {
+            $id: idcode,
+            $name: `${defaultName}-${namecode}`,
+            $x: Math.floor(x - defaultWidth * 0.5),
+            $y: Math.floor(y - defaultHeight * 0.5),
+            $width: defaultWidth,
+            $height: defaultHeight,
+            $rotate: defaultRotate
+        }
+
+        const specs = {
+            properties: properties
+        }
+
+        const mesh = {
+            componentKey: componentKey,
+            specs: specs
+        }
+
+        this.setState((preState) => ({
+            meshes: [...preState.meshes, mesh]
+        }))
+    }
+
+    addSelectedMeshes(meshIds) {
+
+        if (!meshIds.length) {
+            return
+        }
+
+        this.setState((prevState) => {
+            const newSet = new Set(prevState.selectedMeshes)
+            meshIds.forEach(meshId => newSet.add(meshId))
+            return {
+                selectedMeshes: newSet
+            }
+        })
+    }
+
+    deleteSelectedMeshes(meshIds) {
+
+        if (!meshIds.length) {
+            return
+        }
+
+        this.setState((prevState) => {
+            const newSet = new Set(prevState.selectedMeshes)
+            meshIds.forEach(meshId => newSet.delete(meshId))
+            return {
+                selectedMeshes: newSet
+            }
+        })
+    }
+
     render() {
 
-        const { mode, width, height, backgroundColor, defaultMeshes } = this.state
+        const { mode, width, height, backgroundColor, meshes, selectedMeshes } = this.state
 
         const contextValue = {
             mode,
             width,
             height,
             backgroundColor,
-            defaultMeshes
+            meshes,
+            selectedMeshes,
+            addMesh: this.addMesh.bind(this),
+            setSelectedMeshes: this.setSelectedMeshes.bind(this),
+            addSelectedMeshes: this.addSelectedMeshes.bind(this),
+            deleteSelectedMeshes: this.deleteSelectedMeshes.bind(this)
         }
 
         return (
