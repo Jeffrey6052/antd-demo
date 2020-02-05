@@ -24,6 +24,11 @@ class WebMaker extends React.PureComponent {
             selectedMeshes: new Set([])
         }
 
+        this.addMesh = this.addMesh.bind(this)
+        this.setSelectedMeshes = this.setSelectedMeshes.bind(this)
+        this.addSelectedMeshes = this.addSelectedMeshes.bind(this)
+        this.deleteSelectedMeshes = this.deleteSelectedMeshes.bind(this)
+
         this.clock = 0
         this.timer = null
     }
@@ -130,19 +135,12 @@ class WebMaker extends React.PureComponent {
 
     render() {
 
-        const { mode, width, height, backgroundColor, meshes, selectedMeshes } = this.state
-
         const contextValue = {
-            mode,
-            width,
-            height,
-            backgroundColor,
-            meshes,
-            selectedMeshes,
-            addMesh: this.addMesh.bind(this),
-            setSelectedMeshes: this.setSelectedMeshes.bind(this),
-            addSelectedMeshes: this.addSelectedMeshes.bind(this),
-            deleteSelectedMeshes: this.deleteSelectedMeshes.bind(this)
+            ...this.state,
+            addMesh: this.addMesh,
+            setSelectedMeshes: this.setSelectedMeshes,
+            addSelectedMeshes: this.addSelectedMeshes,
+            deleteSelectedMeshes: this.deleteSelectedMeshes
         }
 
         return (

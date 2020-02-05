@@ -1,8 +1,10 @@
 
 import React from "react"
+import lodash from "lodash"
 
 import WebMakerContext from "../../context"
 import Stage from "../stage"
+import StageMask from "../stageMask"
 
 import { isCtrlDown, getShortCut, matchShortCut } from "../../../../utils/KeyboardWatch"
 
@@ -19,23 +21,24 @@ class StageContainer extends React.PureComponent {
             translateY: 0,
             containerWidth: 0,
             containerHeight: 0,
-            containerReady: false
-        }
-
-        this.containerStyle = {
-            position: "relative",
-            width: "100%",
-            height: "100%",
-            overflow: "hidden",
-            touchAction: "none"
+            containerReady: false,
+            mouse: this.buildDefaultMouse(),
         }
 
         this.containerRef = React.createRef()
+        this.stageAreaRef = React.createRef()
 
         this.handleWheel = this.handleWheel.bind(this)
         this.handleKeydown = this.handleKeydown.bind(this)
         this.handleResize = this.handleResize.bind(this)
-        this.handleDrop = this.handleDrop.bind(this)
+
+        this.onMouseEnter = this.onMouseEnter.bind(this)
+        this.onMouseLeave = this.onMouseLeave.bind(this)
+        this.onDragOver = this.onDragOver.bind(this)
+        this.onDrop = this.onDrop.bind(this)
+        this.onMouseDown = this.onMouseDown.bind(this)
+        this.onMouseMove = this.onMouseMove.bind(this)
+        this.onMouseUp = this.onMouseUp.bind(this)
     }
 
     componentDidMount() {
@@ -65,6 +68,115 @@ class StageContainer extends React.PureComponent {
         }))
 
         this.updateContainerSize()
+    }
+
+    buildDefaultMouse() {
+        return {
+            down: false,
+            moved: false,
+            downPosition: null,
+            movedPosition: null
+        }
+    }
+
+    /**鼠标按下 */
+    onMouseDown(e) {
+
+        const x = e.clientX
+        const y = e.clientY
+
+        this.setState((prevState) => ({
+            mouse: {
+                ...prevState.mouse,
+                down: true,
+                downPosition: { x: x, y: y },
+                moved: false,
+                movedPosition: null
+            }
+        }))
+    }
+
+    /**鼠标移动 */
+    onMouseMove(e) {
+
+        const { mouse } = this.state
+
+        if (!mouse.down) {
+            return
+        }
+
+        const x = e.clientX
+        const y = e.clientY
+
+        this.setState((prevState) => ({
+            mouse: {
+                ...prevState.mouse,
+                moved: true,
+                movedPosition: { x: x, y: y }
+            }
+        }))
+    }
+
+    /**鼠标松开 */
+    onMouseUp(e) {
+
+        const { mouse } = this.state
+
+        const isClick = mouse.down && !mouse.moved
+        const isAreaSelect = mouse.down && mouse.moved && mouse.downPosition && mouse.movedPosition
+
+        if (isClick) {
+
+            if (!isCtrlDown()) {
+                const { setSelectedMeshes } = this.context
+                setSelectedMeshes([])
+            }
+        } else if (isAreaSelect) {
+
+            const s1Position = this.calculateStagePosition(mouse.downPosition.x, mouse.downPosition.y)
+            const s2Position = this.calculateStagePosition(mouse.movedPosition.x, mouse.movedPosition.y)
+
+            const [left, right] = [s1Position.x, s2Position.x].sort()
+            const [top, bottom] = [s1Position.y, s2Position.y].sort()
+
+            const area = { left, right, top, bottom }
+
+            const { meshes, selectedMeshes, addSelectedMeshes, setSelectedMeshes, deleteSelectedMeshes } = this.context
+            const filterMeshes = meshes.filter(mesh => this.isMeshInArea(mesh, area))
+            const areaMeshIds = filterMeshes.map(mesh => mesh.specs.properties.$id)
+
+            if (isCtrlDown()) {
+                const addMeshIds = areaMeshIds.filter(meshId => !selectedMeshes.has(meshId))
+                if (addMeshIds.length) {
+                    addSelectedMeshes(addMeshIds)
+                }
+
+                const delMeshIds = lodash.difference(areaMeshIds, addMeshIds)
+                if (delMeshIds.length) {
+                    deleteSelectedMeshes(delMeshIds)
+                }
+            } else {
+                if (areaMeshIds.length) {
+                    setSelectedMeshes(areaMeshIds)
+                } else if (selectedMeshes.size) {
+                    setSelectedMeshes([])
+                }
+            }
+        }
+
+        this.setState({ mouse: this.buildDefaultMouse() })
+    }
+
+    isMeshInArea(mesh, area) {
+
+        const { $x, $y, $width, $height } = mesh.specs.properties
+
+        const fitLeft = $x >= area.left
+        const fitTop = $y >= area.top
+        const fitRight = ($x + $width) <= area.right
+        const fitBottom = ($y + $height) <= area.bottom
+
+        return fitLeft && fitTop && fitRight && fitBottom
     }
 
     handleKeydown() {
@@ -143,17 +255,83 @@ class StageContainer extends React.PureComponent {
         })
     }
 
-    handleDrop(componentKey, x, y) {
+    onMouseEnter(event) {
 
-        const { scale } = this.state
+    }
 
-        // 通过scale修正坐标
-        const posX = x / scale
-        const posY = y / scale
+    onMouseLeave(event) {
+
+    }
+
+    onDragOver(event) {
+        event.preventDefault()
+    }
+
+    onDrop(event) {
+        event.preventDefault()
+
+        const componentKey = event.dataTransfer.getData('componentKey')
+        if (!componentKey) {
+            return
+        }
+
+        const { clientX, clientY } = event
+
+        const stagePosition = this.calculateStagePosition(clientX, clientY)
+        if (!stagePosition) {
+            return
+        }
 
         const { addMesh } = this.context
 
-        addMesh(componentKey, posX, posY)
+        addMesh(componentKey, stagePosition.x, stagePosition.y)
+    }
+
+    calculateStagePosition(clientX, clientY) {
+        const stageArea = this.stageAreaRef.current
+        if (!stageArea) {
+            return
+        }
+
+        const areaRect = stageArea.getBoundingClientRect()
+        const { scale } = this.state
+
+        const x = (clientX - areaRect.x) / scale
+        const y = (clientY - areaRect.y) / scale
+
+        return { x, y }
+    }
+
+    renderMouseArea() {
+
+        const { mouse } = this.state
+
+        const toRender = mouse.down && mouse.moved
+        if (!toRender) {
+            return null
+        }
+
+        const { downPosition, movedPosition } = mouse
+
+        const width = Math.abs(movedPosition.x - downPosition.x) || 1
+        const height = Math.abs(movedPosition.y - downPosition.y) || 1
+
+        const left = Math.min(movedPosition.x, downPosition.x)
+        const top = Math.min(movedPosition.y, downPosition.y)
+
+        const areaStyle = {
+            position: "fixed",
+            backgroundColor: 'rgba(0,0,0,0.05)',
+            left: left,
+            top: top,
+            width: width,
+            height: height,
+            zIndex: 1000
+        }
+
+        return (
+            <div style={areaStyle} />
+        )
     }
 
     renderContent() {
@@ -181,17 +359,26 @@ class StageContainer extends React.PureComponent {
         }
 
         const wrapperStyle = {
-            marginLeft: width,
-            marginTop: height,
             width: width,
             height: height
+        }
+
+        const wrapperProps = {
+            style: wrapperStyle,
+            onMouseEnter: this.onMouseEnter,
+            onMouseLeave: this.onMouseLeave,
+            onDragOver: this.onDragOver,
+            onDrop: this.onDrop
         }
 
         return (
             <div style={scaleLayerStyle}>
                 <div style={fullLayerStyle}>
-                    <div style={wrapperStyle}>
-                        <Stage handleDrop={this.handleDrop} />
+                    <div style={{ marginLeft: width, marginTop: height }}>
+                        <div {...wrapperProps} id="stage-wrapper" ref={this.stageAreaRef}>
+                            <Stage />
+                            <StageMask />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -202,11 +389,24 @@ class StageContainer extends React.PureComponent {
 
         console.log("render: stageContainer")
 
-        const content = this.renderContent()
+        const containerStyle = {
+            width: "100%",
+            height: "100%",
+            overflow: "hidden",
+            touchAction: "none"
+        }
+
+        const containerProps = {
+            style: containerStyle,
+            onMouseDown: this.onMouseDown,
+            onMouseMove: this.onMouseMove,
+            onMouseUp: this.onMouseUp
+        }
 
         return (
-            <div style={this.containerStyle} ref={this.containerRef}>
-                {content}
+            <div {...containerProps} id="stage-container" ref={this.containerRef}>
+                {this.renderContent()}
+                {this.renderMouseArea()}
             </div>
         )
     }

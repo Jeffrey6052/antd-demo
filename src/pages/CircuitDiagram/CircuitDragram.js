@@ -34,7 +34,7 @@ export default class CircuitDiagram extends React.Component {
             down: false,
             moved: false,
             downPosition: null,
-            upPosition: null
+            movedPosition: null
         }
     }
 

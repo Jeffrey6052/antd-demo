@@ -1,33 +1,42 @@
 import React from "react"
 import PropTypes from 'prop-types'
 
+import WebMakerContext from "../../context"
+import { isCtrlDown } from "../../../../utils/KeyboardWatch"
+
 import maskStyles from "./mask.module.css"
 
 class MeshMask extends React.PureComponent {
 
+    static contextType = WebMakerContext;
+
     constructor(props) {
         super(props)
-
-        console.log("MeshMask", props)
-
         this.handleMouseDown = this.handleMouseDown.bind(this)
     }
 
     handleMouseDown(event) {
-        console.log("handleMouseDown", event)
 
-        this.setSelected()
-    }
+        const isLock = false
+        if (isLock) {
+            return
+        }
 
-    setSelected() {
+        event.stopPropagation()
 
-        const { meshId, addSelectedMeshes, setSelectedMeshes } = this.props
+        const { meshId, selected } = this.props
 
-        addSelectedMeshes([meshId])
+        const { selectedMeshes, addSelectedMeshes, setSelectedMeshes, deleteSelectedMeshes } = this.context
 
-        // meshId
-        // addSelectedMeshes
-        // setSelectedMeshes
+        if (isCtrlDown()) {
+            if (selectedMeshes.has(meshId)) {
+                deleteSelectedMeshes([meshId])
+            } else {
+                addSelectedMeshes([meshId])
+            }
+        } else {
+            setSelectedMeshes([meshId])
+        }
     }
 
     render() {
@@ -59,9 +68,7 @@ class MeshMask extends React.PureComponent {
 
 MeshMask.propTypes = {
     meshId: PropTypes.string.isRequired,
-    selected: PropTypes.bool.isRequired,
-    addSelectedMeshes: PropTypes.func.isRequired,
-    setSelectedMeshes: PropTypes.func.isRequired
+    selected: PropTypes.bool.isRequired
 }
 
 export default MeshMask
