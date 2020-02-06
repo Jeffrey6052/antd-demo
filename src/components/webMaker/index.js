@@ -25,6 +25,8 @@ class WebMaker extends React.PureComponent {
         }
 
         this.addMesh = this.addMesh.bind(this)
+        this.setMeshes = this.setMeshes.bind(this)
+
         this.setSelectedMeshes = this.setSelectedMeshes.bind(this)
         this.addSelectedMeshes = this.addSelectedMeshes.bind(this)
         this.deleteSelectedMeshes = this.deleteSelectedMeshes.bind(this)
@@ -41,7 +43,7 @@ class WebMaker extends React.PureComponent {
         this.stopAnimation()
     }
 
-    startAnimation(){
+    startAnimation() {
         this.timer = window.setInterval(() => {
 
             this.setState({
@@ -53,7 +55,7 @@ class WebMaker extends React.PureComponent {
         }, 50)
     }
 
-    stopAnimation(){
+    stopAnimation() {
         window.clearInterval(this.timer)
     }
 
@@ -103,6 +105,10 @@ class WebMaker extends React.PureComponent {
         }))
     }
 
+    setMeshes(newMeshes) {
+        this.setState({ meshes: newMeshes })
+    }
+
     addSelectedMeshes(meshIds) {
 
         if (!meshIds.length) {
@@ -138,6 +144,7 @@ class WebMaker extends React.PureComponent {
         const contextValue = {
             ...this.state,
             addMesh: this.addMesh,
+            setMeshes: this.setMeshes,
             setSelectedMeshes: this.setSelectedMeshes,
             addSelectedMeshes: this.addSelectedMeshes,
             deleteSelectedMeshes: this.deleteSelectedMeshes

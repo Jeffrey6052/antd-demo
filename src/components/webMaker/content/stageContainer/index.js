@@ -23,10 +23,13 @@ class StageContainer extends React.PureComponent {
             containerHeight: 0,
             containerReady: false,
             mouse: this.buildDefaultMouse(),
+            mouseCapture: null
         }
 
         this.containerRef = React.createRef()
         this.stageAreaRef = React.createRef()
+
+        this.setMouseCapture = this.setMouseCapture.bind(this)
 
         this.handleWheel = this.handleWheel.bind(this)
         this.handleKeydown = this.handleKeydown.bind(this)
@@ -46,6 +49,8 @@ class StageContainer extends React.PureComponent {
 
         window.addEventListener('resize', this.handleResize)
         window.addEventListener('keydown', this.handleKeydown)
+        window.addEventListener('mousemove', this.onMouseMove)
+        window.addEventListener('mouseup', this.onMouseUp)
 
         // initialize依赖container的元素宽高, 需要先让页面完成渲染再执行
         window.setTimeout(() => {
@@ -58,6 +63,8 @@ class StageContainer extends React.PureComponent {
 
         window.removeEventListener('resize', this.handleResize)
         window.removeEventListener('keydown', this.handleKeydown)
+        window.removeEventListener('mousemove', this.onMouseMove)
+        window.removeEventListener('mouseup', this.onMouseUp)
     }
 
     initialize() {
@@ -85,21 +92,23 @@ class StageContainer extends React.PureComponent {
         const x = e.clientX
         const y = e.clientY
 
-        this.setState((prevState) => ({
-            mouse: {
-                ...prevState.mouse,
-                down: true,
-                downPosition: { x: x, y: y },
-                moved: false,
-                movedPosition: null
+        this.setState((prevState) => {
+            return {
+                mouse: {
+                    ...prevState.mouse,
+                    down: true,
+                    downPosition: { x: x, y: y },
+                    moved: false,
+                    movedPosition: null
+                }
             }
-        }))
+        })
     }
 
     /**鼠标移动 */
     onMouseMove(e) {
 
-        const { mouse } = this.state
+        const { mouse, mouseCapture } = this.state
 
         if (!mouse.down) {
             return
@@ -108,17 +117,68 @@ class StageContainer extends React.PureComponent {
         const x = e.clientX
         const y = e.clientY
 
+        const movedPosition = { x, y }
+
+        if (mouseCapture && mouseCapture.type === "mesh") {
+            this.moveMesh(mouseCapture.data, mouse.downPosition, movedPosition)
+        }
+
         this.setState((prevState) => ({
             mouse: {
                 ...prevState.mouse,
                 moved: true,
-                movedPosition: { x: x, y: y }
+                movedPosition: movedPosition
             }
         }))
     }
 
+    // 拖动组件
+    moveMesh(downProperties, downPosition, movedPosition) {
+
+        const { meshes, setMeshes } = this.context
+        const { scale } = this.state
+
+        const newMeshes = meshes.map((mesh) => {
+
+            const { properties } = mesh.specs
+
+            if (properties.$id === downProperties.$id) {
+
+                // 修改组件坐标
+                const dx = Math.round((movedPosition.x - downPosition.x) / scale)
+                const dy = Math.round((movedPosition.y - downPosition.y) / scale)
+
+                const newMesh = lodash.cloneDeep(mesh)
+                const newProperties = newMesh.specs.properties
+
+                newProperties.$x = downProperties.$x + dx
+                newProperties.$y = downProperties.$y + dy
+
+                return newMesh
+            } else {
+                return mesh
+            }
+        })
+
+        setMeshes(newMeshes)
+    }
+
     /**鼠标松开 */
     onMouseUp(e) {
+
+        const { mouseCapture } = this.state
+
+        if (!mouseCapture) {
+            this.handleClickOrAreaSelect()
+        }
+
+        this.setState({
+            mouse: this.buildDefaultMouse(),
+            mouseCapture: null
+        })
+    }
+
+    handleClickOrAreaSelect() {
 
         const { mouse } = this.state
 
@@ -133,13 +193,7 @@ class StageContainer extends React.PureComponent {
             }
         } else if (isAreaSelect) {
 
-            const s1Position = this.calculateStagePosition(mouse.downPosition.x, mouse.downPosition.y)
-            const s2Position = this.calculateStagePosition(mouse.movedPosition.x, mouse.movedPosition.y)
-
-            const [left, right] = [s1Position.x, s2Position.x].sort()
-            const [top, bottom] = [s1Position.y, s2Position.y].sort()
-
-            const area = { left, right, top, bottom }
+            const area = this.calculateMouseArea(mouse.downPosition, mouse.movedPosition)
 
             const { meshes, selectedMeshes, addSelectedMeshes, setSelectedMeshes, deleteSelectedMeshes } = this.context
             const filterMeshes = meshes.filter(mesh => this.isMeshInArea(mesh, area))
@@ -163,8 +217,24 @@ class StageContainer extends React.PureComponent {
                 }
             }
         }
+    }
 
-        this.setState({ mouse: this.buildDefaultMouse() })
+    setMouseCapture(captureData) {
+        this.setState({
+            mouseCapture: captureData
+        })
+    }
+
+    calculateMouseArea(downPosition, movedPosition) {
+        const s1Position = this.calculateStagePosition(downPosition.x, downPosition.y)
+        const s2Position = this.calculateStagePosition(movedPosition.x, movedPosition.y)
+
+        const [left, right] = [s1Position.x, s2Position.x].sort()
+        const [top, bottom] = [s1Position.y, s2Position.y].sort()
+
+        const area = { left, right, top, bottom }
+
+        return area
     }
 
     isMeshInArea(mesh, area) {
@@ -195,8 +265,6 @@ class StageContainer extends React.PureComponent {
 
         event.stopPropagation()
         event.preventDefault()
-
-        // console.log("event", event)
 
         const deltaX = event.deltaX
         const deltaY = event.deltaY
@@ -304,9 +372,9 @@ class StageContainer extends React.PureComponent {
 
     renderMouseArea() {
 
-        const { mouse } = this.state
+        const { mouse, mouseCapture } = this.state
 
-        const toRender = mouse.down && mouse.moved
+        const toRender = mouse.down && mouse.moved && !mouseCapture
         if (!toRender) {
             return null
         }
@@ -377,7 +445,7 @@ class StageContainer extends React.PureComponent {
                     <div style={{ marginLeft: width, marginTop: height }}>
                         <div {...wrapperProps} id="stage-wrapper" ref={this.stageAreaRef}>
                             <Stage />
-                            <StageMask />
+                            <StageMask setMouseCapture={this.setMouseCapture} />
                         </div>
                     </div>
                 </div>
@@ -398,9 +466,7 @@ class StageContainer extends React.PureComponent {
 
         const containerProps = {
             style: containerStyle,
-            onMouseDown: this.onMouseDown,
-            onMouseMove: this.onMouseMove,
-            onMouseUp: this.onMouseUp
+            onMouseDown: this.onMouseDown
         }
 
         return (

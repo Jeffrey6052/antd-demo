@@ -1,4 +1,5 @@
 import React from "react"
+import PropTypes from 'prop-types'
 
 import WebMakerContext from "../../context"
 import MeshMask from "./meshMask"
@@ -27,10 +28,14 @@ class StageMask extends React.PureComponent {
 
         const { selectedMeshes } = this.context
 
+        const { setMouseCapture } = this.props
+
         const maskProps = {
-            meshId: properties.$id,
-            selected: selectedMeshes.has(properties.$id)
+            selected: selectedMeshes.has(properties.$id),
+            meshProperties: properties,
+            setMouseCapture: setMouseCapture
         }
+
 
         return (
             <div {...wrapProps}>
@@ -56,5 +61,10 @@ class StageMask extends React.PureComponent {
         )
     }
 }
+
+StageMask.propTypes = {
+    setMouseCapture: PropTypes.func.isRequired
+}
+
 
 export default StageMask

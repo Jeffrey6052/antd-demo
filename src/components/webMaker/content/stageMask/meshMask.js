@@ -12,19 +12,56 @@ class MeshMask extends React.PureComponent {
 
     constructor(props) {
         super(props)
+
         this.handleMouseDown = this.handleMouseDown.bind(this)
+        this.handleClick = this.handleClick.bind(this)
+
+        this.updateMouseDownPosition(null, null)
+    }
+
+    updateMouseDownPosition(x, y) {
+        this.mouseDownX = x
+        this.mouseDownY = y
     }
 
     handleMouseDown(event) {
 
-        const isLock = false
-        if (isLock) {
+        const { meshProperties, setMouseCapture } = this.props
+
+        const ctrlDown = isCtrlDown()
+
+        if (!ctrlDown) {
+            setMouseCapture({
+                type: "mesh",
+                data: meshProperties
+            })
+        }
+
+        const meshId = meshProperties.$id
+
+        const { selectedMeshes, addSelectedMeshes, setSelectedMeshes, deleteSelectedMeshes } = this.context
+
+        if (!selectedMeshes.has(meshId) && !ctrlDown) {
+            setSelectedMeshes([meshId])
+        }
+
+        this.updateMouseDownPosition(event.clientX, event.clientY)
+    }
+
+    handleClick(event) {
+
+        const { mouseDownX, mouseDownY } = this
+
+        this.updateMouseDownPosition(null, null)
+
+        // 如果鼠标发生位移，则不认为是点击事件
+        if (mouseDownX !== event.clientX || mouseDownY != event.clientY) {
             return
         }
 
-        event.stopPropagation()
+        const { meshProperties } = this.props
 
-        const { meshId, selected } = this.props
+        const meshId = meshProperties.$id
 
         const { selectedMeshes, addSelectedMeshes, setSelectedMeshes, deleteSelectedMeshes } = this.context
 
@@ -47,7 +84,8 @@ class MeshMask extends React.PureComponent {
 
         const maskProps = {
             className: `${maskStyles.container} ${selectedClass}`,
-            onMouseDown: this.handleMouseDown
+            onMouseDown: this.handleMouseDown,
+            onClick: this.handleClick
         }
 
         return (
@@ -67,8 +105,9 @@ class MeshMask extends React.PureComponent {
 }
 
 MeshMask.propTypes = {
-    meshId: PropTypes.string.isRequired,
-    selected: PropTypes.bool.isRequired
+    meshProperties: PropTypes.object.isRequired,
+    selected: PropTypes.bool.isRequired,
+    setMouseCapture: PropTypes.func.isRequired
 }
 
 export default MeshMask
