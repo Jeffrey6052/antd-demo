@@ -1,5 +1,6 @@
 
 import React from "react"
+import lodash from "lodash"
 import crypto from 'crypto'
 import PropTypes from 'prop-types'
 
@@ -59,12 +60,6 @@ class WebMaker extends React.PureComponent {
         window.clearInterval(this.timer)
     }
 
-    setSelectedMeshes(meshIds) {
-        this.setState({
-            selectedMeshes: new Set(meshIds)
-        })
-    }
-
     addMesh(componentKey, x, y) {
 
         const component = getComponent(componentKey)
@@ -107,6 +102,21 @@ class WebMaker extends React.PureComponent {
 
     setMeshes(newMeshes) {
         this.setState({ meshes: newMeshes })
+    }
+
+    setSelectedMeshes(meshIds) {
+
+        const { selectedMeshes } = this.state
+
+        const addMeshes = meshIds.filter(meshId => !selectedMeshes.has(meshId))
+        if (addMeshes.length) {
+            this.addSelectedMeshes(addMeshes)
+        }
+
+        const delMeshes = lodash.difference(Array.from(selectedMeshes), meshIds)
+        if (delMeshes.length) {
+            this.deleteSelectedMeshes(delMeshes)
+        }
     }
 
     addSelectedMeshes(meshIds) {

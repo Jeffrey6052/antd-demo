@@ -6,7 +6,7 @@ import WebMakerContext from "../../context"
 import Stage from "../stage"
 import StageMask from "../stageMask"
 
-import { isCtrlDown, getShortCut, matchShortCut } from "../../../../utils/KeyboardWatch"
+import { isCtrlDown, isShiftDown, getShortCut, matchShortCut } from "../../../../utils/KeyboardWatch"
 
 class StageContainer extends React.PureComponent {
 
@@ -25,6 +25,11 @@ class StageContainer extends React.PureComponent {
             mouse: this.buildDefaultMouse(),
             mouseCapture: null
         }
+
+        // 记录鼠标按下瞬间的一些状态
+        this.mouseDownSelectedMeshIds = new Set([])
+        this.mouseDownCtrlDown = false
+        this.mouseDownShiftDown = false
 
         this.containerRef = React.createRef()
         this.stageAreaRef = React.createRef()
@@ -89,6 +94,12 @@ class StageContainer extends React.PureComponent {
     /**鼠标按下 */
     onMouseDown(e) {
 
+        const { selectedMeshes } = this.context
+
+        this.mouseDownSelectedMeshIds = selectedMeshes // 鼠标按下时，记录当前组件选中的组件
+        this.mouseDownCtrlDown = isCtrlDown() // 鼠标按下时，记录当前ctrl键是否按下
+        this.mouseDownShiftDown = isShiftDown() // 鼠标按下时，记录当前shift键是否按下
+
         const x = e.clientX
         const y = e.clientY
 
@@ -129,7 +140,20 @@ class StageContainer extends React.PureComponent {
                 moved: true,
                 movedPosition: movedPosition
             }
-        }))
+        }), () => {
+            this.checkMouseAreaSelect()
+        })
+    }
+
+    /**鼠标松开 */
+    onMouseUp(e) {
+
+        this.checkMouseClick()
+
+        this.setState({
+            mouse: this.buildDefaultMouse(),
+            mouseCapture: null
+        })
     }
 
     // 拖动组件
@@ -163,52 +187,72 @@ class StageContainer extends React.PureComponent {
         setMeshes(newMeshes)
     }
 
-    /**鼠标松开 */
-    onMouseUp(e) {
+    checkMouseClick() {
 
         const { mouseCapture } = this.state
 
-        if (!mouseCapture) {
-            this.handleClickOrAreaSelect()
+        if (mouseCapture) { // 鼠标点到内部元素时不执行
+            return
         }
-
-        this.setState({
-            mouse: this.buildDefaultMouse(),
-            mouseCapture: null
-        })
-    }
-
-    handleClickOrAreaSelect() {
 
         const { mouse } = this.state
 
         const isClick = mouse.down && !mouse.moved
+
+        if (!isClick) {
+            return
+        }
+
+        const ctrlDown = isCtrlDown()
+        const shiftDown = isShiftDown()
+
+        const ctrlOrShiftDown = ctrlDown || shiftDown
+
+        if (!ctrlOrShiftDown) {
+            const { setSelectedMeshes } = this.context
+            setSelectedMeshes([])
+        }
+    }
+
+    checkMouseAreaSelect() {
+
+        const { mouseCapture } = this.state
+
+        if (mouseCapture) { // 当鼠标点到内部元素时不执行这个方法
+            return
+        }
+
+        const { mouse } = this.state
+
         const isAreaSelect = mouse.down && mouse.moved && mouse.downPosition && mouse.movedPosition
 
-        if (isClick) {
+        const ctrlDown = this.mouseDownCtrlDown
+        const shiftDown = this.mouseDownShiftDown
 
-            if (!isCtrlDown()) {
-                const { setSelectedMeshes } = this.context
-                setSelectedMeshes([])
-            }
-        } else if (isAreaSelect) {
+        if (isAreaSelect) {
 
-            const area = this.calculateMouseArea(mouse.downPosition, mouse.movedPosition)
+            const area = this.calculateStageMouseArea(mouse.downPosition, mouse.movedPosition)
 
             const { meshes, selectedMeshes, addSelectedMeshes, setSelectedMeshes, deleteSelectedMeshes } = this.context
             const filterMeshes = meshes.filter(mesh => this.isMeshInArea(mesh, area))
             const areaMeshIds = filterMeshes.map(mesh => mesh.specs.properties.$id)
 
-            if (isCtrlDown()) {
-                const addMeshIds = areaMeshIds.filter(meshId => !selectedMeshes.has(meshId))
-                if (addMeshIds.length) {
-                    addSelectedMeshes(addMeshIds)
-                }
+            if (shiftDown) { // shift追加
 
-                const delMeshIds = lodash.difference(areaMeshIds, addMeshIds)
-                if (delMeshIds.length) {
-                    deleteSelectedMeshes(delMeshIds)
-                }
+                const { mouseDownSelectedMeshIds } = this
+
+                const nowSelectMeshIds = lodash.union(Array.from(mouseDownSelectedMeshIds), areaMeshIds)
+
+                setSelectedMeshes(nowSelectMeshIds)
+
+            } else if (ctrlDown) { // ctrl反选
+
+                const { mouseDownSelectedMeshIds } = this
+
+                const nowSelectMeshIds = lodash.xor(Array.from(mouseDownSelectedMeshIds), areaMeshIds)
+
+                setSelectedMeshes(nowSelectMeshIds)
+
             } else {
                 if (areaMeshIds.length) {
                     setSelectedMeshes(areaMeshIds)
@@ -225,12 +269,12 @@ class StageContainer extends React.PureComponent {
         })
     }
 
-    calculateMouseArea(downPosition, movedPosition) {
+    calculateStageMouseArea(downPosition, movedPosition) {
         const s1Position = this.calculateStagePosition(downPosition.x, downPosition.y)
         const s2Position = this.calculateStagePosition(movedPosition.x, movedPosition.y)
 
-        const [left, right] = [s1Position.x, s2Position.x].sort()
-        const [top, bottom] = [s1Position.y, s2Position.y].sort()
+        const [left, right] = [s1Position.x, s2Position.x].sort((i, j) => i <= j)
+        const [top, bottom] = [s1Position.y, s2Position.y].sort((i, j) => i <= j)
 
         const area = { left, right, top, bottom }
 
@@ -364,8 +408,8 @@ class StageContainer extends React.PureComponent {
         const areaRect = stageArea.getBoundingClientRect()
         const { scale } = this.state
 
-        const x = (clientX - areaRect.x) / scale
-        const y = (clientY - areaRect.y) / scale
+        const x = Math.round((clientX - areaRect.x) / scale)
+        const y = Math.round((clientY - areaRect.y) / scale)
 
         return { x, y }
     }
@@ -389,7 +433,8 @@ class StageContainer extends React.PureComponent {
 
         const areaStyle = {
             position: "fixed",
-            backgroundColor: 'rgba(0,0,0,0.05)',
+            backgroundColor: 'rgba(0,0,0,0.1)',
+            border: "1px dotted rgb(102,102,102)",
             left: left,
             top: top,
             width: width,

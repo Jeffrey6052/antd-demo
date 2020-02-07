@@ -2,7 +2,7 @@ import React from "react"
 import PropTypes from 'prop-types'
 
 import WebMakerContext from "../../context"
-import { isCtrlDown } from "../../../../utils/KeyboardWatch"
+import { isCtrlDown, isShiftDown } from "../../../../utils/KeyboardWatch"
 
 import maskStyles from "./mask.module.css"
 
@@ -15,13 +15,12 @@ class MeshMask extends React.PureComponent {
 
         this.handleMouseDown = this.handleMouseDown.bind(this)
         this.handleClick = this.handleClick.bind(this)
-
-        this.updateMouseDownPosition(null, null)
     }
 
-    updateMouseDownPosition(x, y) {
+    updateMouseDownData(x, y, time) {
         this.mouseDownX = x
         this.mouseDownY = y
+        this.mouseDownTime = time
     }
 
     handleMouseDown(event) {
@@ -29,8 +28,11 @@ class MeshMask extends React.PureComponent {
         const { meshProperties, setMouseCapture } = this.props
 
         const ctrlDown = isCtrlDown()
+        const shiftDown = isShiftDown()
 
-        if (!ctrlDown) {
+        const ctrlOrShiftDown = ctrlDown || shiftDown
+
+        if (!ctrlOrShiftDown) {
             setMouseCapture({
                 type: "mesh",
                 data: meshProperties
@@ -39,22 +41,23 @@ class MeshMask extends React.PureComponent {
 
         const meshId = meshProperties.$id
 
-        const { selectedMeshes, addSelectedMeshes, setSelectedMeshes, deleteSelectedMeshes } = this.context
+        const { selectedMeshes, setSelectedMeshes } = this.context
 
-        if (!selectedMeshes.has(meshId) && !ctrlDown) {
+        if (!selectedMeshes.has(meshId) && !ctrlOrShiftDown) {
             setSelectedMeshes([meshId])
         }
 
-        this.updateMouseDownPosition(event.clientX, event.clientY)
+        this.updateMouseDownData(event.clientX, event.clientY, new Date().getTime())
     }
 
     handleClick(event) {
 
-        const { mouseDownX, mouseDownY } = this
+        const { mouseDownX, mouseDownY, mouseDownTime } = this
 
-        this.updateMouseDownPosition(null, null)
+        this.updateMouseDownData(null, null, 0)
 
         // 如果鼠标发生位移，则不认为是点击事件
+        // 体验改进1: 避免误操作，如果鼠标按下和抬起的事件很短并且期间移动的距离不长时，认为是点击事件
         if (mouseDownX !== event.clientX || mouseDownY != event.clientY) {
             return
         }
@@ -65,13 +68,17 @@ class MeshMask extends React.PureComponent {
 
         const { selectedMeshes, addSelectedMeshes, setSelectedMeshes, deleteSelectedMeshes } = this.context
 
-        if (isCtrlDown()) {
+        if (isShiftDown()) { // shift追加
+            if (!selectedMeshes.has(meshId)) {
+                addSelectedMeshes([meshId])
+            }
+        } else if (isCtrlDown()) { // ctrl反选
             if (selectedMeshes.has(meshId)) {
                 deleteSelectedMeshes([meshId])
             } else {
                 addSelectedMeshes([meshId])
             }
-        } else {
+        } else { // 默认点击
             setSelectedMeshes([meshId])
         }
     }
