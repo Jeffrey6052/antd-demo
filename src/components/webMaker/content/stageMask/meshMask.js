@@ -13,17 +13,21 @@ class MeshMask extends React.PureComponent {
     constructor(props) {
         super(props)
 
-        this.handleMouseDown = this.handleMouseDown.bind(this)
-        this.handleClick = this.handleClick.bind(this)
+        // 记录鼠标按下瞬间的一些状态
+        this.mouseDownX = null
+        this.mouseDownY = null
+        this.mouseDownTime = 0
+
+        this.onMouseDown = this.onMouseDown.bind(this)
+        this.onClick = this.onClick.bind(this)
+
     }
 
-    updateMouseDownData(x, y, time) {
-        this.mouseDownX = x
-        this.mouseDownY = y
-        this.mouseDownTime = time
-    }
+    onMouseDown(event) {
 
-    handleMouseDown(event) {
+        this.mouseDownX = event.clientX
+        this.mouseDownY = event.clientY
+        this.mouseDownTime = new Date().getTime()
 
         const { meshProperties, setMouseCapture } = this.props
 
@@ -46,19 +50,20 @@ class MeshMask extends React.PureComponent {
         if (!selectedMeshes.has(meshId) && !ctrlOrShiftDown) {
             setSelectedMeshes([meshId])
         }
-
-        this.updateMouseDownData(event.clientX, event.clientY, new Date().getTime())
     }
 
-    handleClick(event) {
+    onClick(event) {
 
         const { mouseDownX, mouseDownY, mouseDownTime } = this
 
-        this.updateMouseDownData(null, null, 0)
+        const clickTime = new Date().getTime()
+        const clickDuration = clickTime - mouseDownTime
+
+        const mouseMoved = mouseDownX !== event.clientX || mouseDownY !== event.clientY
 
         // 如果鼠标发生位移，则不认为是点击事件
-        // 体验改进1: 避免误操作，如果鼠标按下和抬起的事件很短并且期间移动的距离不长时，认为是点击事件
-        if (mouseDownX !== event.clientX || mouseDownY != event.clientY) {
+        // 体验改进1: 如果鼠标按下和抬起的间隔很短, 小于500毫秒，则认为是点击事件
+        if (mouseMoved && clickDuration > 500) {
             return
         }
 
@@ -91,8 +96,8 @@ class MeshMask extends React.PureComponent {
 
         const maskProps = {
             className: `${maskStyles.container} ${selectedClass}`,
-            onMouseDown: this.handleMouseDown,
-            onClick: this.handleClick
+            onMouseDown: this.onMouseDown,
+            onClick: this.onClick
         }
 
         return (

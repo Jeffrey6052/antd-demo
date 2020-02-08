@@ -109,11 +109,11 @@ class WebMaker extends React.PureComponent {
         const { selectedMeshes } = this.state
 
         const addMeshes = meshIds.filter(meshId => !selectedMeshes.has(meshId))
+        const delMeshes = lodash.difference(Array.from(selectedMeshes), meshIds)
+
         if (addMeshes.length) {
             this.addSelectedMeshes(addMeshes)
         }
-
-        const delMeshes = lodash.difference(Array.from(selectedMeshes), meshIds)
         if (delMeshes.length) {
             this.deleteSelectedMeshes(delMeshes)
         }

@@ -22,38 +22,39 @@ class StageContainer extends React.PureComponent {
             containerWidth: 0,
             containerHeight: 0,
             containerReady: false,
-            mouse: this.buildDefaultMouse(),
-            mouseCapture: null
+            mouse: this.buildDefaultMouse()
         }
 
         // 记录鼠标按下瞬间的一些状态
         this.mouseDownSelectedMeshIds = new Set([])
         this.mouseDownCtrlDown = false
         this.mouseDownShiftDown = false
+        this.mouseCapture = null
 
         this.containerRef = React.createRef()
         this.stageAreaRef = React.createRef()
 
         this.setMouseCapture = this.setMouseCapture.bind(this)
 
-        this.handleWheel = this.handleWheel.bind(this)
-        this.handleKeydown = this.handleKeydown.bind(this)
-        this.handleResize = this.handleResize.bind(this)
+        this.onMouseWheel = this.onMouseWheel.bind(this)
+        this.onKeydown = this.onKeydown.bind(this)
+        this.onResize = this.onResize.bind(this)
 
         this.onMouseEnter = this.onMouseEnter.bind(this)
         this.onMouseLeave = this.onMouseLeave.bind(this)
         this.onDragOver = this.onDragOver.bind(this)
         this.onDrop = this.onDrop.bind(this)
         this.onMouseDown = this.onMouseDown.bind(this)
-        this.onMouseMove = this.onMouseMove.bind(this)
+        this.onMouseMove = lodash.throttle(this.onMouseMove.bind(this), 25) // 执行帧数限制
         this.onMouseUp = this.onMouseUp.bind(this)
     }
 
     componentDidMount() {
-        this.containerRef.current.addEventListener('mousewheel', this.handleWheel, { passive: false })
 
-        window.addEventListener('resize', this.handleResize)
-        window.addEventListener('keydown', this.handleKeydown)
+        this.containerRef.current.addEventListener('mousewheel', this.onMouseWheel, { passive: false })
+
+        window.addEventListener('resize', this.onResize)
+        window.addEventListener('keydown', this.onKeydown)
         window.addEventListener('mousemove', this.onMouseMove)
         window.addEventListener('mouseup', this.onMouseUp)
 
@@ -64,10 +65,11 @@ class StageContainer extends React.PureComponent {
     }
 
     componentWillUnmount() {
-        this.containerRef.current.removeEventListener('mousewheel', this.handleWheel)
 
-        window.removeEventListener('resize', this.handleResize)
-        window.removeEventListener('keydown', this.handleKeydown)
+        this.containerRef.current.removeEventListener('mousewheel', this.onMouseWheel)
+
+        window.removeEventListener('resize', this.onResize)
+        window.removeEventListener('keydown', this.onKeydown)
         window.removeEventListener('mousemove', this.onMouseMove)
         window.removeEventListener('mouseup', this.onMouseUp)
     }
@@ -93,12 +95,18 @@ class StageContainer extends React.PureComponent {
 
     /**鼠标按下 */
     onMouseDown(e) {
-
         const { selectedMeshes } = this.context
 
-        this.mouseDownSelectedMeshIds = selectedMeshes // 鼠标按下时，记录当前组件选中的组件
-        this.mouseDownCtrlDown = isCtrlDown() // 鼠标按下时，记录当前ctrl键是否按下
-        this.mouseDownShiftDown = isShiftDown() // 鼠标按下时，记录当前shift键是否按下
+        const ctrlDown = isCtrlDown()
+        const shiftDown = isShiftDown()
+
+        this.mouseDownCtrlDown = ctrlDown // 记录当前ctrl键是否按下
+        this.mouseDownShiftDown = shiftDown // 记录当前shift键是否按下
+        this.mouseDownSelectedMeshIds = selectedMeshes // 记住当前已选中的组件
+
+        if (!this.mouseCapture) {
+            this.doContainerMouseDown()
+        }
 
         const x = e.clientX
         const y = e.clientY
@@ -119,7 +127,8 @@ class StageContainer extends React.PureComponent {
     /**鼠标移动 */
     onMouseMove(e) {
 
-        const { mouse, mouseCapture } = this.state
+        const { mouseCapture } = this
+        const { mouse } = this.state
 
         if (!mouse.down) {
             return
@@ -141,18 +150,24 @@ class StageContainer extends React.PureComponent {
                 movedPosition: movedPosition
             }
         }), () => {
-            this.checkMouseAreaSelect()
+            this.doMouseAreaSelect()
         })
     }
 
     /**鼠标松开 */
     onMouseUp(e) {
 
-        this.checkMouseClick()
+        const { mouse } = this.state
+        const isContainerClick = !this.mouseCapture && mouse.down && !mouse.moved
+
+        if (isContainerClick) {
+            this.doContainerMouseClick()
+        }
 
         this.setState({
-            mouse: this.buildDefaultMouse(),
-            mouseCapture: null
+            mouse: this.buildDefaultMouse()
+        }, () => {
+            this.mouseCapture = null
         })
     }
 
@@ -187,22 +202,7 @@ class StageContainer extends React.PureComponent {
         setMeshes(newMeshes)
     }
 
-    checkMouseClick() {
-
-        const { mouseCapture } = this.state
-
-        if (mouseCapture) { // 鼠标点到内部元素时不执行
-            return
-        }
-
-        const { mouse } = this.state
-
-        const isClick = mouse.down && !mouse.moved
-
-        if (!isClick) {
-            return
-        }
-
+    doContainerMouseDown() {
         const ctrlDown = isCtrlDown()
         const shiftDown = isShiftDown()
 
@@ -214,67 +214,99 @@ class StageContainer extends React.PureComponent {
         }
     }
 
-    checkMouseAreaSelect() {
+    doContainerMouseClick() {
+        // nothing
+    }
 
-        const { mouseCapture } = this.state
+    isMouseAreaSelect() {
+        const { mouse } = this.state
 
-        if (mouseCapture) { // 当鼠标点到内部元素时不执行这个方法
+        const isMouseAreaSelect = !this.mouseCapture && mouse.down && mouse.moved && mouse.downPosition && mouse.movedPosition
+
+        return isMouseAreaSelect
+    }
+
+    doMouseAreaSelect() {
+
+        const isMouseAreaSelect = this.isMouseAreaSelect()
+        if (!isMouseAreaSelect) {
             return
         }
 
         const { mouse } = this.state
 
-        const isAreaSelect = mouse.down && mouse.moved && mouse.downPosition && mouse.movedPosition
-
         const ctrlDown = this.mouseDownCtrlDown
         const shiftDown = this.mouseDownShiftDown
 
-        if (isAreaSelect) {
+        const area = this.calculateStageMouseArea(mouse.downPosition, mouse.movedPosition)
 
-            const area = this.calculateStageMouseArea(mouse.downPosition, mouse.movedPosition)
+        const { meshes, selectedMeshes, setSelectedMeshes } = this.context
+        const filterMeshes = meshes.filter(mesh => this.isMeshInArea(mesh, area))
+        const areaMeshIds = filterMeshes.map(mesh => mesh.specs.properties.$id)
 
-            const { meshes, selectedMeshes, addSelectedMeshes, setSelectedMeshes, deleteSelectedMeshes } = this.context
-            const filterMeshes = meshes.filter(mesh => this.isMeshInArea(mesh, area))
-            const areaMeshIds = filterMeshes.map(mesh => mesh.specs.properties.$id)
+        if (shiftDown) { // shift追加
 
-            if (shiftDown) { // shift追加
+            const { mouseDownSelectedMeshIds } = this
 
-                const { mouseDownSelectedMeshIds } = this
+            const nowSelectMeshIds = lodash.union(Array.from(mouseDownSelectedMeshIds), areaMeshIds)
 
-                const nowSelectMeshIds = lodash.union(Array.from(mouseDownSelectedMeshIds), areaMeshIds)
+            setSelectedMeshes(nowSelectMeshIds)
 
-                setSelectedMeshes(nowSelectMeshIds)
+        } else if (ctrlDown) { // ctrl反选
 
-            } else if (ctrlDown) { // ctrl反选
+            const { mouseDownSelectedMeshIds } = this
 
-                const { mouseDownSelectedMeshIds } = this
+            const nowSelectMeshIds = lodash.xor(Array.from(mouseDownSelectedMeshIds), areaMeshIds)
 
-                const nowSelectMeshIds = lodash.xor(Array.from(mouseDownSelectedMeshIds), areaMeshIds)
+            setSelectedMeshes(nowSelectMeshIds)
 
-                setSelectedMeshes(nowSelectMeshIds)
-
-            } else {
-                if (areaMeshIds.length) {
-                    setSelectedMeshes(areaMeshIds)
-                } else if (selectedMeshes.size) {
-                    setSelectedMeshes([])
-                }
+        } else {
+            if (areaMeshIds.length) {
+                setSelectedMeshes(areaMeshIds)
+            } else if (selectedMeshes.size) {
+                setSelectedMeshes([])
             }
         }
     }
 
-    setMouseCapture(captureData) {
+    isContainerMouseDown() {
+        const { mouse } = this.state
+        const isMouseDown = mouse.down && !this.mouseCapture
+
+        return isMouseDown
+    }
+
+    undoContainerMouseDown() {
+
+        const isContainerMouseDown = this.isContainerMouseDown()
+        if (!isContainerMouseDown) {
+            return
+        }
+
+        const { setSelectedMeshes } = this.context
+
+        // 如果ctrl或者shift是按下状态，则恢复鼠标按下之前的状态，否则清空
+        if (this.mouseDownCtrlDown || this.mouseDownShiftDown) {
+            setSelectedMeshes(Array.from(this.mouseDownSelectedMeshIds))
+        } else {
+            setSelectedMeshes([])
+        }
+
         this.setState({
-            mouseCapture: captureData
+            mouse: this.buildDefaultMouse()
         })
+    }
+
+    setMouseCapture(captureData) {
+        this.mouseCapture = captureData
     }
 
     calculateStageMouseArea(downPosition, movedPosition) {
         const s1Position = this.calculateStagePosition(downPosition.x, downPosition.y)
         const s2Position = this.calculateStagePosition(movedPosition.x, movedPosition.y)
 
-        const [left, right] = [s1Position.x, s2Position.x].sort((i, j) => i <= j)
-        const [top, bottom] = [s1Position.y, s2Position.y].sort((i, j) => i <= j)
+        const [left, right] = [s1Position.x, s2Position.x].sort((a, b) => a - b)
+        const [top, bottom] = [s1Position.y, s2Position.y].sort((a, b) => a - b)
 
         const area = { left, right, top, bottom }
 
@@ -293,19 +325,27 @@ class StageContainer extends React.PureComponent {
         return fitLeft && fitTop && fitRight && fitBottom
     }
 
-    handleKeydown() {
+    onKeydown() {
         const shortCut = getShortCut()
         // console.log("shortCut", shortCut)
 
-        const press_Ctrl_C = matchShortCut("command+c", shortCut)
-        // console.log("press_Ctrl_C", press_Ctrl_C)
+        if (matchShortCut("esc", shortCut)) {
+            console.log("esc pressed")
+
+            this.undoContainerMouseDown()
+
+        } else if (matchShortCut("ctrl+c", shortCut)) {
+            console.log("ctrl+c pressed")
+        } else if (matchShortCut("ctrl+v", shortCut)) {
+            console.log("ctrl+v pressed")
+        }
     }
 
-    handleResize() {
+    onResize() {
         this.updateContainerSize()
     }
 
-    handleWheel(event) {
+    onMouseWheel(event) {
 
         event.stopPropagation()
         event.preventDefault()
@@ -416,9 +456,9 @@ class StageContainer extends React.PureComponent {
 
     renderMouseArea() {
 
-        const { mouse, mouseCapture } = this.state
+        const { mouse } = this.state
 
-        const toRender = mouse.down && mouse.moved && !mouseCapture
+        const toRender = mouse.down && mouse.moved && !this.mouseCapture
         if (!toRender) {
             return null
         }
