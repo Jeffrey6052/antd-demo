@@ -1,0 +1,14 @@
+.wrap {
+    position: relative;
+    box-sizing: border-box;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    margin-left: -4px;
+}
+
+.color {
+    height: 100%;
+    width: 100%;
+    border: 1px solid #dcdcdc;
+}

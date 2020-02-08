@@ -31,6 +31,7 @@ class WebMaker extends React.PureComponent {
         this.setSelectedMeshes = this.setSelectedMeshes.bind(this)
         this.addSelectedMeshes = this.addSelectedMeshes.bind(this)
         this.deleteSelectedMeshes = this.deleteSelectedMeshes.bind(this)
+        this.setBackgroundColor = this.setBackgroundColor.bind(this)
 
         this.clock = 0
         this.timer = null
@@ -149,6 +150,10 @@ class WebMaker extends React.PureComponent {
         })
     }
 
+    setBackgroundColor(color) {
+        this.setState({ backgroundColor: color })
+    }
+
     render() {
 
         const contextValue = {
@@ -157,7 +162,8 @@ class WebMaker extends React.PureComponent {
             setMeshes: this.setMeshes,
             setSelectedMeshes: this.setSelectedMeshes,
             addSelectedMeshes: this.addSelectedMeshes,
-            deleteSelectedMeshes: this.deleteSelectedMeshes
+            deleteSelectedMeshes: this.deleteSelectedMeshes,
+            setBackgroundColor: this.setBackgroundColor
         }
 
         return (
@@ -172,7 +178,7 @@ class WebMaker extends React.PureComponent {
 WebMaker.propTypes = {
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
-    backgroundColor: PropTypes.string.isRequired,
+    backgroundColor: PropTypes.object.isRequired,
     mode: PropTypes.oneOf([EditorMode.Writeable, EditorMode.ReadOnly]).isRequired,
     defaultMeshes: PropTypes.arrayOf(PropTypes.object)
 }

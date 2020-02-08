@@ -1,0 +1,35 @@
+.title {
+    display: flex;
+    justify-content: center;
+    padding: 0 12px;
+    height: 32px;
+    font-size: 14px;
+    line-height: 32px;
+    text-align: center;
+    color: #666;
+    border-bottom: 1px solid #ecedee;
+}
+
+.scroller {
+    position: absolute;
+    top: 32px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    overflow-y: auto;
+}
+
+.group {
+    padding: 12px 12px 0;
+}
+
+.group.hasBorder {
+    border-top: 1px solid #ecedee;
+}
+
+.row {
+    margin-bottom: 12px;
+    height: 32px;
+    line-height: 32px;
+    vertical-align: middle;
+}

@@ -63,7 +63,12 @@ class WebMakerPage extends React.PureComponent {
             mode: EditorMode.Writeable,
             width: 1024,
             height: 768,
-            backgroundColor: "#FFFFFF",
+            backgroundColor: {
+                r: 255,
+                g: 255,
+                b: 255,
+                a: 1.0
+            },
             defaultMeshes: this.generateDefaultMeshes()
         }
 

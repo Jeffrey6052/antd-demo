@@ -1,5 +1,6 @@
 
 import React from "react"
+import tinycolor from "tinycolor2"
 
 import WebMakerContext from "../../context"
 import { EditorMode } from "../../constants"
@@ -64,7 +65,7 @@ class Stage extends React.PureComponent {
             position: "absolute",
             width: width,
             height: height,
-            backgroundColor: backgroundColor
+            backgroundColor: tinycolor(backgroundColor).toString()
         }
 
         const stageProps = {
