@@ -7,8 +7,6 @@ import tinycolor from "tinycolor2"
 
 import styles from "./picker.module.css"
 
-const HexColorRegex = /^#([0-9A-F]{3}){1,2}$/i
-
 class ColorPicker extends React.PureComponent {
 
     constructor(props) {
