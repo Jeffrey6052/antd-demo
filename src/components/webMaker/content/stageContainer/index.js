@@ -145,10 +145,10 @@ class StageContainer extends React.PureComponent {
         const currentTime = new Date().getTime()
 
         // 体验改进1: 鼠标按下的前200毫秒，作为点击容错判定阶段，不移动组件
-        const allowMove = (currentTime - mouseDownTime) >= 200
+        const allowDrag = (currentTime - mouseDownTime) >= 200
 
-        if (mouseCapture && mouseCapture.type === "mesh" && allowMove) {
-            this.moveMesh(mouseCapture.data, mouse.downPosition, movedPosition)
+        if (mouseCapture && mouseCapture.type === "mesh" && allowDrag) {
+            this.dragMesh(mouseCapture.data, mouse.downPosition, movedPosition)
         }
 
         this.setState((prevState) => ({
@@ -180,7 +180,7 @@ class StageContainer extends React.PureComponent {
     }
 
     // 拖动组件
-    moveMesh(downProperties, downPosition, movedPosition) {
+    dragMesh(downProperties, downPosition, movedPosition) {
 
         const { meshes, setMeshes } = this.context
         const { scale } = this.state
@@ -209,6 +209,36 @@ class StageContainer extends React.PureComponent {
 
         setMeshes(newMeshes)
     }
+
+    moveSelectedMeshes(dx, dy) {
+
+        const { meshes, setMeshes, selectedMeshes } = this.context
+
+        if (!selectedMeshes.size) {
+            return
+        }
+
+        const newMeshes = meshes.map((mesh) => {
+
+            const { properties } = mesh.specs
+
+            if (selectedMeshes.has(properties.$id)) {
+
+                const newMesh = lodash.cloneDeep(mesh)
+                const newProperties = newMesh.specs.properties
+
+                newProperties.$x = properties.$x + dx
+                newProperties.$y = properties.$y + dy
+
+                return newMesh
+            } else {
+                return mesh
+            }
+        })
+
+        setMeshes(newMeshes)
+    }
+
 
     doContainerMouseDown() {
         const ctrlDown = isCtrlDown()
@@ -343,15 +373,38 @@ class StageContainer extends React.PureComponent {
         const shortCut = getShortCut()
         // console.log("shortCut", shortCut)
 
+        // TODO 优化键盘判定逻辑，提升性能
+
         if (matchShortCut("esc", shortCut)) {
-            console.log("esc pressed")
-
             this.undoContainerMouseDown()
-
         } else if (matchShortCut("ctrl+c", shortCut)) {
-            console.log("ctrl+c pressed")
+            console.log("ctrl+c")
         } else if (matchShortCut("ctrl+v", shortCut)) {
-            console.log("ctrl+v pressed")
+            console.log("ctrl+v")
+        } else if (matchShortCut("left", shortCut)) {
+            this.moveSelectedMeshes(-10, 0)
+        } else if (matchShortCut("right", shortCut)) {
+            this.moveSelectedMeshes(10, 0)
+        } else if (matchShortCut("up", shortCut)) {
+            this.moveSelectedMeshes(0, -10)
+        } else if (matchShortCut("down", shortCut)) {
+            this.moveSelectedMeshes(0, 10)
+        } else if (matchShortCut("ctrl+left", shortCut)) {
+            this.moveSelectedMeshes(-1, 0)
+        } else if (matchShortCut("ctrl+right", shortCut)) {
+            this.moveSelectedMeshes(1, 0)
+        } else if (matchShortCut("ctrl+up", shortCut)) {
+            this.moveSelectedMeshes(0, -1)
+        } else if (matchShortCut("ctrl+down", shortCut)) {
+            this.moveSelectedMeshes(0, 1)
+        } else if (matchShortCut("shift+left", shortCut)) {
+            this.moveSelectedMeshes(-100, 0)
+        } else if (matchShortCut("shift+right", shortCut)) {
+            this.moveSelectedMeshes(100, 0)
+        } else if (matchShortCut("shift+up", shortCut)) {
+            this.moveSelectedMeshes(0, -100)
+        } else if (matchShortCut("shift+down", shortCut)) {
+            this.moveSelectedMeshes(0, 100)
         }
     }
 

@@ -89,13 +89,15 @@ export const getKeyCode = (keyName) => {
 export const getShortCut = () => getOriginShortCut().map((code) => code === Keys.meta ? Keys.ctrl : code)
 export const matchShortCut = (matchString, shortCut) => {
 
-    const inShortCut = matchString.split("+").map(getKeyCode)
+    const inShortCut = parseShortCut(matchString)
     if (inShortCut.length !== shortCut.length) {
         return false
     }
 
     return shortCut.every((keyName, i) => keyName === inShortCut[i])
 }
+
+export const parseShortCut = (matchString) => matchString.split("+").map(getKeyCode)
 
 const updateDownKeysfromMouseEvent = (e) => {
     e.ctrlKey ? DownKeys.add(Keys.ctrl) : DownKeys.delete(Keys.ctrl)
