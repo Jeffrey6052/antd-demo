@@ -13,7 +13,8 @@ class WebMakerLayout extends React.PureComponent {
         super(props)
 
         this.layoutStyle = {
-            height: "100%"
+            height: "100%",
+            userSelect: "none"
         }
     }
 

@@ -10,7 +10,7 @@ class StageMask extends React.PureComponent {
 
     renderMeshMask(mesh) {
 
-        const { componentKey, specs } = mesh
+        const { specs } = mesh
         const { properties } = specs
 
         const wrapStyle = {

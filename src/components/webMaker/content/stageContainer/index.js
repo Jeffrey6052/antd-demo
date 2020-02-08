@@ -317,12 +317,18 @@ class StageContainer extends React.PureComponent {
 
         const { $x, $y, $width, $height } = mesh.specs.properties
 
-        const fitLeft = $x >= area.left
-        const fitTop = $y >= area.top
-        const fitRight = ($x + $width) <= area.right
-        const fitBottom = ($y + $height) <= area.bottom
+        // 2020.02.08 优化框选判定，只要元素的两条垂直边任意一个被框住，即认为是选中
+        const left = $x
+        const right = $x + $width
+        const top = $y
+        const bottom = $y + $height
 
-        return fitLeft && fitTop && fitRight && fitBottom
+        const fitLeft = area.left <= left && area.right >= left
+        const fitRight = area.left <= right && area.right >= right
+        const fitTop = area.top <= top
+        const fitBottom = area.bottom >= bottom
+
+        return (fitLeft || fitRight) && fitTop && fitBottom
     }
 
     onKeydown() {
