@@ -56,14 +56,14 @@ class MeshMask extends React.PureComponent {
 
         const { mouseDownX, mouseDownY, mouseDownTime } = this
 
-        const clickTime = new Date().getTime()
-        const clickDuration = clickTime - mouseDownTime
+        const currentTime = new Date().getTime()
+        const clickDuration = currentTime - mouseDownTime
 
         const mouseMoved = mouseDownX !== event.clientX || mouseDownY !== event.clientY
 
         // 如果鼠标发生位移，则不认为是点击事件
-        // 体验改进1: 如果鼠标按下和抬起的间隔很短, 小于500毫秒，则认为是点击事件
-        if (mouseMoved && clickDuration > 500) {
+        // 体验改进1: 如果鼠标按下和抬起的间隔很短, 小于200毫秒，则认为是点击事件
+        if (mouseMoved && clickDuration >= 200) {
             return
         }
 

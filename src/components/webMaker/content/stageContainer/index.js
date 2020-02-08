@@ -29,6 +29,7 @@ class StageContainer extends React.PureComponent {
         this.mouseDownSelectedMeshIds = new Set([])
         this.mouseDownCtrlDown = false
         this.mouseDownShiftDown = false
+        this.mouseDownTime = 0
         this.mouseCapture = null
 
         this.containerRef = React.createRef()
@@ -103,6 +104,7 @@ class StageContainer extends React.PureComponent {
         this.mouseDownCtrlDown = ctrlDown // 记录当前ctrl键是否按下
         this.mouseDownShiftDown = shiftDown // 记录当前shift键是否按下
         this.mouseDownSelectedMeshIds = selectedMeshes // 记住当前已选中的组件
+        this.mouseDownTime = new Date().getTime()
 
         if (!this.mouseCapture) {
             this.doContainerMouseDown()
@@ -127,19 +129,25 @@ class StageContainer extends React.PureComponent {
     /**鼠标移动 */
     onMouseMove(e) {
 
-        const { mouseCapture } = this
         const { mouse } = this.state
 
         if (!mouse.down) {
             return
         }
 
+        const { mouseCapture, mouseDownTime } = this
+
         const x = e.clientX
         const y = e.clientY
 
         const movedPosition = { x, y }
 
-        if (mouseCapture && mouseCapture.type === "mesh") {
+        const currentTime = new Date().getTime()
+
+        // 体验改进1: 鼠标按下的前200毫秒，作为点击容错判定阶段，不移动组件
+        const allowMove = (currentTime - mouseDownTime) >= 200
+
+        if (mouseCapture && mouseCapture.type === "mesh" && allowMove) {
             this.moveMesh(mouseCapture.data, mouse.downPosition, movedPosition)
         }
 
