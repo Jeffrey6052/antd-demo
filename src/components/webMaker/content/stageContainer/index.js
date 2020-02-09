@@ -6,7 +6,7 @@ import WebMakerContext from "../../context"
 import Stage from "../stage"
 import StageMask from "../stageMask"
 
-import { isCtrlDown, isShiftDown, getShortCut, matchShortCut } from "../../../../utils/KeyboardWatch"
+import { isCtrlDown, isShiftDown, getShortCut, parseShortCut } from "../../../../utils/KeyboardWatch"
 
 class StageContainer extends React.PureComponent {
 
@@ -16,7 +16,7 @@ class StageContainer extends React.PureComponent {
         super(props)
 
         this.state = {
-            scale: 0.8,
+            scale: 0.6,
             translateX: 0,
             translateY: 0,
             containerWidth: 0,
@@ -78,11 +78,13 @@ class StageContainer extends React.PureComponent {
     initialize() {
         const { width, height } = this.context
         this.setState((prevState) => ({
-            translateX: (width - 1) * prevState.scale * -1,
-            translateY: (height - 1) * prevState.scale * -1
+            translateX: (width - 1 - 50) * prevState.scale * -1,
+            translateY: (height - 1 - 50) * prevState.scale * -1
         }))
 
         this.updateContainerSize()
+
+        this.initShortCutEvents()
     }
 
     buildDefaultMouse() {
@@ -369,43 +371,55 @@ class StageContainer extends React.PureComponent {
         return (fitLeft || fitRight) && fitTop && fitBottom
     }
 
-    onKeydown() {
+    initShortCutEvents() {
+
+        this.shortCutEvents = {}
+
+        this.registerShortCut("ctrl+c", () => console.log("ctrl+c"))
+        this.registerShortCut("ctrl+v", () => console.log("ctrl+v"))
+
+        this.registerShortCut("left", () => this.moveSelectedMeshes(-10, 0))
+        this.registerShortCut("right", () => this.moveSelectedMeshes(10, 0))
+        this.registerShortCut("up", () => this.moveSelectedMeshes(0, -10))
+        this.registerShortCut("down", () => this.moveSelectedMeshes(0, 10))
+        this.registerShortCut("ctrl+left", () => this.moveSelectedMeshes(-1, 0))
+        this.registerShortCut("ctrl+right", () => this.moveSelectedMeshes(1, 0))
+        this.registerShortCut("ctrl+up", () => this.moveSelectedMeshes(0, -1))
+        this.registerShortCut("ctrl+down", () => this.moveSelectedMeshes(0, 1))
+        this.registerShortCut("shift+left", () => this.moveSelectedMeshes(-100, 0))
+        this.registerShortCut("shift+right", () => this.moveSelectedMeshes(100, 0))
+        this.registerShortCut("shift+up", () => this.moveSelectedMeshes(0, -100))
+        this.registerShortCut("shift+down", () => this.moveSelectedMeshes(0, 100))
+    }
+
+    registerShortCut(shortCutString, handleEvent) {
+        const shortCut = parseShortCut(shortCutString)
+        const eventKey = shortCut.join("_")
+
+        this.shortCutEvents[eventKey] = handleEvent
+    }
+
+    invokeShortCutEvent() {
+
+        const events = this.shortCutEvents
+        if (!events) {
+            return
+        }
+
         const shortCut = getShortCut()
         // console.log("shortCut", shortCut)
 
-        // TODO 优化键盘判定逻辑，提升性能
+        const eventKey = shortCut.join("_")
 
-        if (matchShortCut("esc", shortCut)) {
-            this.undoContainerMouseDown()
-        } else if (matchShortCut("ctrl+c", shortCut)) {
-            console.log("ctrl+c")
-        } else if (matchShortCut("ctrl+v", shortCut)) {
-            console.log("ctrl+v")
-        } else if (matchShortCut("left", shortCut)) {
-            this.moveSelectedMeshes(-10, 0)
-        } else if (matchShortCut("right", shortCut)) {
-            this.moveSelectedMeshes(10, 0)
-        } else if (matchShortCut("up", shortCut)) {
-            this.moveSelectedMeshes(0, -10)
-        } else if (matchShortCut("down", shortCut)) {
-            this.moveSelectedMeshes(0, 10)
-        } else if (matchShortCut("ctrl+left", shortCut)) {
-            this.moveSelectedMeshes(-1, 0)
-        } else if (matchShortCut("ctrl+right", shortCut)) {
-            this.moveSelectedMeshes(1, 0)
-        } else if (matchShortCut("ctrl+up", shortCut)) {
-            this.moveSelectedMeshes(0, -1)
-        } else if (matchShortCut("ctrl+down", shortCut)) {
-            this.moveSelectedMeshes(0, 1)
-        } else if (matchShortCut("shift+left", shortCut)) {
-            this.moveSelectedMeshes(-100, 0)
-        } else if (matchShortCut("shift+right", shortCut)) {
-            this.moveSelectedMeshes(100, 0)
-        } else if (matchShortCut("shift+up", shortCut)) {
-            this.moveSelectedMeshes(0, -100)
-        } else if (matchShortCut("shift+down", shortCut)) {
-            this.moveSelectedMeshes(0, 100)
+        const event = events[eventKey]
+
+        if (event) {
+            event.call()
         }
+    }
+
+    onKeydown() {
+        this.invokeShortCutEvent()
     }
 
     onResize() {
