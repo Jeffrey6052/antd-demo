@@ -40,9 +40,10 @@ class WebMaker extends React.PureComponent {
 
     componentDidMount() {
 
-        window.setTimeout(() => {
-            this.setRandomMeshes(50)
-        }, 10)
+        // 添加随机组件，测试性能
+        // window.setTimeout(() => {
+        //     this.setRandomMeshes(500)
+        // }, 10)
 
         // this.startAnimation()
     }
