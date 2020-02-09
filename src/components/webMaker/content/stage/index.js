@@ -3,10 +3,8 @@ import React from "react"
 import tinycolor from "tinycolor2"
 
 import WebMakerContext from "../../context"
-import { EditorMode } from "../../constants"
 
 import Mesh from "./mesh"
-import { loadComponent } from "../../componentLoader"
 
 class Stage extends React.PureComponent {
 
@@ -29,35 +27,20 @@ class Stage extends React.PureComponent {
 
         const { properties } = specs
 
-        const meshStyle = {
-            position: "absolute",
-            width: properties.$width,
-            height: properties.$height,
-            left: properties.$x,
-            top: properties.$y
-        }
-
         const meshProps = {
-            style: meshStyle,
+            componentKey,
+            specs,
             key: properties.$id
         }
 
         return (
-            <Mesh {...meshProps} >
-                {this.renderComponent(componentKey, properties)}
-            </Mesh>
+            <Mesh {...meshProps} />
         )
-    }
-
-    renderComponent(componentKey, properties) {
-        const Component = loadComponent(componentKey)
-
-        return <Component {...properties} />
     }
 
     render() {
 
-        console.log("render: stage")
+        // console.log("render: stage")
 
         const { mode, width, height, backgroundColor, meshes } = this.context
 

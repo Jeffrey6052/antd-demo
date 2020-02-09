@@ -2,6 +2,8 @@
 import React from "react"
 import { Layout } from 'antd'
 
+import styles from "./webMaker.module.css"
+
 import Header from "./header"
 import SiderLeft from "./siderLeft"
 import Content from "./content"
@@ -18,9 +20,14 @@ class WebMakerLayout extends React.PureComponent {
         }
     }
 
+
+
     render() {
+
+        // console.log("render webMakerlayout")
+
         return (
-            <Layout style={this.layoutStyle}>
+            <Layout className={styles.layout} style={this.layoutStyle}>
                 <Header />
                 <Layout style={this.layoutStyle}>
                     <SiderLeft />

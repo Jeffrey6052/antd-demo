@@ -9,7 +9,7 @@ import { EditorMode } from "./constants"
 
 import WebMakerLayout from "./layout"
 
-import { getComponent } from "./componentLoader"
+import { getComponent, ComponentKeys } from "./componentLoader"
 
 class WebMaker extends React.PureComponent {
 
@@ -32,25 +32,53 @@ class WebMaker extends React.PureComponent {
         this.addSelectedMeshes = this.addSelectedMeshes.bind(this)
         this.deleteSelectedMeshes = this.deleteSelectedMeshes.bind(this)
         this.setBackgroundColor = this.setBackgroundColor.bind(this)
+        this.setStageSize = this.setStageSize.bind(this)
 
         this.clock = 0
         this.timer = null
     }
 
     componentDidMount() {
+
+        window.setTimeout(() => {
+            this.setRandomMeshes(50)
+        }, 10)
+
         // this.startAnimation()
     }
 
     componentWillUnmount() {
-        this.stopAnimation()
+        // this.stopAnimation()
+    }
+
+    setRandomMeshes(num) {
+
+        const { width, height } = this.state
+
+        const meshes = []
+
+        for (let i = 0; i < num; i++) {
+            const componentKey = lodash.sample(ComponentKeys)
+            const sampleX = Math.round(width * Math.random())
+            const sampleY = Math.round(height * Math.random())
+
+            const newMesh = this.createMesh(componentKey, sampleX, sampleY)
+
+            meshes.push(newMesh)
+        }
+
+        this.setMeshes(meshes)
     }
 
     startAnimation() {
         this.timer = window.setInterval(() => {
 
+            const width = 1024 + Math.sin(this.clock * 0.01) * 100
+            const height = 768 + Math.sin(this.clock * 0.01) * 100
+
             this.setState({
-                width: 1024 + Math.sin(this.clock * 0.01) * 100,
-                height: 768 + Math.sin(this.clock * 0.01) * 100
+                width: width,
+                height: height
             })
 
             this.clock += 1
@@ -61,7 +89,7 @@ class WebMaker extends React.PureComponent {
         window.clearInterval(this.timer)
     }
 
-    addMesh(componentKey, x, y) {
+    createMesh(componentKey, x, y) {
 
         const component = getComponent(componentKey)
 
@@ -94,6 +122,17 @@ class WebMaker extends React.PureComponent {
         const mesh = {
             componentKey: componentKey,
             specs: specs
+        }
+
+        return mesh
+    }
+
+    addMesh(componentKey, x, y) {
+
+        const mesh = this.createMesh(componentKey, x, y)
+
+        if (!mesh) {
+            return
         }
 
         this.setState((preState) => ({
@@ -154,6 +193,10 @@ class WebMaker extends React.PureComponent {
         this.setState({ backgroundColor: color })
     }
 
+    setStageSize(width, height) {
+        this.setState({ width, height })
+    }
+
     render() {
 
         const contextValue = {
@@ -163,7 +206,8 @@ class WebMaker extends React.PureComponent {
             setSelectedMeshes: this.setSelectedMeshes,
             addSelectedMeshes: this.addSelectedMeshes,
             deleteSelectedMeshes: this.deleteSelectedMeshes,
-            setBackgroundColor: this.setBackgroundColor
+            setBackgroundColor: this.setBackgroundColor,
+            setStageSize: this.setStageSize
         }
 
         return (

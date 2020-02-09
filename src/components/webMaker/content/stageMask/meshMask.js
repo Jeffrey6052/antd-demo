@@ -1,14 +1,11 @@
 import React from "react"
 import PropTypes from 'prop-types'
 
-import WebMakerContext from "../../context"
 import { isCtrlDown, isShiftDown } from "../../../../utils/KeyboardWatch"
 
-import maskStyles from "./mask.module.css"
+import styles from "./mask.module.css"
 
 class MeshMask extends React.PureComponent {
-
-    static contextType = WebMakerContext;
 
     constructor(props) {
         super(props)
@@ -45,9 +42,9 @@ class MeshMask extends React.PureComponent {
 
         const meshId = meshProperties.$id
 
-        const { selectedMeshes, setSelectedMeshes } = this.context
+        const { selected, setSelectedMeshes } = this.props
 
-        if (!selectedMeshes.has(meshId) && !ctrlOrShiftDown) {
+        if (!selected && !ctrlOrShiftDown) {
             setSelectedMeshes([meshId])
         }
     }
@@ -67,18 +64,16 @@ class MeshMask extends React.PureComponent {
             return
         }
 
-        const { meshProperties } = this.props
+        const { meshProperties, selected, addSelectedMeshes, setSelectedMeshes, deleteSelectedMeshes } = this.props
 
         const meshId = meshProperties.$id
 
-        const { selectedMeshes, addSelectedMeshes, setSelectedMeshes, deleteSelectedMeshes } = this.context
-
         if (isShiftDown()) { // shift追加
-            if (!selectedMeshes.has(meshId)) {
+            if (!selected) {
                 addSelectedMeshes([meshId])
             }
         } else if (isCtrlDown()) { // ctrl反选
-            if (selectedMeshes.has(meshId)) {
+            if (selected) {
                 deleteSelectedMeshes([meshId])
             } else {
                 addSelectedMeshes([meshId])
@@ -90,26 +85,30 @@ class MeshMask extends React.PureComponent {
 
     render() {
 
-        const { selected } = this.props
+        const { selected, meshProperties } = this.props
 
-        const selectedClass = selected ? maskStyles.selected : ""
+        console.log("render: meshMask", meshProperties.$name)
+
+        
+
+        const selectedClass = selected ? styles.selected : ""
 
         const maskProps = {
-            className: `${maskStyles.container} ${selectedClass}`,
+            className: `${styles.mesh} ${selectedClass}`,
             onMouseDown: this.onMouseDown,
             onClick: this.onClick
         }
 
         return (
             <div {...maskProps} >
-                <div className={maskStyles["top-left"]} style={{ cursor: "nwse-resize" }} />
-                <div className={maskStyles["top"]} style={{ cursor: "ns-resize" }} />
-                <div className={maskStyles["top-right"]} style={{ cursor: "nesw-resize" }} />
-                <div className={maskStyles["right"]} style={{ cursor: "ew-resize" }} />
-                <div className={maskStyles["bottom-right"]} style={{ cursor: "nwse-resize" }} />
-                <div className={maskStyles["bottom"]} style={{ cursor: "ns-resize" }} />
-                <div className={maskStyles["bottom-left"]} style={{ cursor: "nesw-resize" }} />
-                <div className={maskStyles["left"]} style={{ cursor: "ew-resize" }} />
+                <div className={styles["top-left"]} style={{ cursor: "nwse-resize" }} />
+                <div className={styles["top"]} style={{ cursor: "ns-resize" }} />
+                <div className={styles["top-right"]} style={{ cursor: "nesw-resize" }} />
+                <div className={styles["right"]} style={{ cursor: "ew-resize" }} />
+                <div className={styles["bottom-right"]} style={{ cursor: "nwse-resize" }} />
+                <div className={styles["bottom"]} style={{ cursor: "ns-resize" }} />
+                <div className={styles["bottom-left"]} style={{ cursor: "nesw-resize" }} />
+                <div className={styles["left"]} style={{ cursor: "ew-resize" }} />
             </div>
         )
     }
@@ -119,7 +118,11 @@ class MeshMask extends React.PureComponent {
 MeshMask.propTypes = {
     meshProperties: PropTypes.object.isRequired,
     selected: PropTypes.bool.isRequired,
-    setMouseCapture: PropTypes.func.isRequired
+    setMouseCapture: PropTypes.func.isRequired,
+    setSelectedMeshes: PropTypes.func.isRequired,
+    addSelectedMeshes: PropTypes.func.isRequired,
+    setSelectedMeshes: PropTypes.func.isRequired,
+    deleteSelectedMeshes: PropTypes.func.isRequired,
 }
 
 export default MeshMask

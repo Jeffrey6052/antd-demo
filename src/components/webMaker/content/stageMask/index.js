@@ -1,8 +1,11 @@
 import React from "react"
 import PropTypes from 'prop-types'
+import classNames from "classnames"
 
 import WebMakerContext from "../../context"
 import MeshMask from "./meshMask"
+
+import styles from "./mask.module.css"
 
 class StageMask extends React.PureComponent {
 
@@ -26,16 +29,19 @@ class StageMask extends React.PureComponent {
             key: properties.$id
         }
 
-        const { selectedMeshes } = this.context
+        const { selectedMeshes, setSelectedMeshes, addSelectedMeshes, deleteSelectedMeshes } = this.context
 
         const { setMouseCapture } = this.props
 
         const maskProps = {
             selected: selectedMeshes.has(properties.$id),
             meshProperties: properties,
-            setMouseCapture: setMouseCapture
+            setMouseCapture,
+            setSelectedMeshes,
+            addSelectedMeshes,
+            setSelectedMeshes,
+            deleteSelectedMeshes
         }
-
 
         return (
             <div {...wrapProps}>
@@ -45,17 +51,27 @@ class StageMask extends React.PureComponent {
     }
 
     render() {
-        const { meshes } = this.context
 
-        const layerStyle = {
+        // console.log("render: stageMask")
+
+        const { meshes } = this.context
+        const { hoverable } = this.props
+
+        const style = {
             position: "absolute",
             width: "100%",
             height: "100%",
             zIndex: 100
         }
 
+        const maskProps = {
+            style,
+            className: classNames(styles.main, hoverable && styles.hoverable),
+            id: "stage-mask"
+        }
+
         return (
-            <div style={layerStyle} id="stage-mask">
+            <div {...maskProps}>
                 {meshes.map((mesh) => this.renderMeshMask(mesh))}
             </div>
         )
@@ -63,8 +79,8 @@ class StageMask extends React.PureComponent {
 }
 
 StageMask.propTypes = {
+    hoverable: PropTypes.bool.isRequired,
     setMouseCapture: PropTypes.func.isRequired
 }
-
 
 export default StageMask

@@ -25,6 +25,10 @@ class StageContainer extends React.PureComponent {
             mouse: this.buildDefaultMouse()
         }
 
+        // 记录宽高，用于监听变化
+        this.memoWidth = props.width
+        this.memoHeight = props.height
+
         // 记录鼠标按下瞬间的一些状态
         this.mouseDownSelectedMeshIds = new Set([])
         this.mouseDownCtrlDown = false
@@ -65,6 +69,18 @@ class StageContainer extends React.PureComponent {
         }, 0)
     }
 
+    componentDidUpdate() {
+
+        const { memoWidth, memoHeight } = this
+        const { width, height } = this.context
+
+        if (width !== memoWidth || height !== memoHeight) {
+            this.memoWidth = width
+            this.memoHeight = height
+            this.resetContainerTranslate()
+        }
+    }
+
     componentWillUnmount() {
 
         this.containerRef.current.removeEventListener('mousewheel', this.onMouseWheel)
@@ -76,15 +92,20 @@ class StageContainer extends React.PureComponent {
     }
 
     initialize() {
-        const { width, height } = this.context
-        this.setState((prevState) => ({
-            translateX: (width - 1 - 50) * prevState.scale * -1,
-            translateY: (height - 1 - 50) * prevState.scale * -1
-        }))
+
+        this.resetContainerTranslate()
 
         this.updateContainerSize()
 
         this.initShortCutEvents()
+    }
+
+    resetContainerTranslate() {
+        const { width, height } = this.context
+        this.setState((prevState) => ({
+            translateX: (width - 1) * -1 * prevState.scale + 20,
+            translateY: (height - 1) * -1 * prevState.scale + 20
+        }))
     }
 
     buildDefaultMouse() {
@@ -168,6 +189,11 @@ class StageContainer extends React.PureComponent {
     onMouseUp(e) {
 
         const { mouse } = this.state
+
+        if (!mouse.down) {
+            return
+        }
+
         const isContainerClick = !this.mouseCapture && mouse.down && !mouse.moved
 
         if (isContainerClick) {
@@ -357,18 +383,31 @@ class StageContainer extends React.PureComponent {
 
         const { $x, $y, $width, $height } = mesh.specs.properties
 
-        // 2020.02.08 优化框选判定，只要元素的两条垂直边任意一个被框住，即认为是选中
+        // 2020.02.09 优化框选判定，只要元素的任意两个角上的点被框住，即认为元素被选中
         const left = $x
         const right = $x + $width
         const top = $y
         const bottom = $y + $height
 
-        const fitLeft = area.left <= left && area.right >= left
-        const fitRight = area.left <= right && area.right >= right
-        const fitTop = area.top <= top
-        const fitBottom = area.bottom >= bottom
+        const testCases = [
+            [left, top],
+            [left, bottom],
+            [right, top],
+            [right, bottom]
+        ]
 
-        return (fitLeft || fitRight) && fitTop && fitBottom
+        let fitCount = 0
+
+        testCases.forEach(([x, y]) => {
+            const fitX = area.left <= x && area.right >= x
+            const fitY = area.top <= y && area.bottom >= y
+
+            if (fitX && fitY) {
+                fitCount += 1
+            }
+        })
+
+        return fitCount >= 2
     }
 
     initShortCutEvents() {
@@ -572,7 +611,7 @@ class StageContainer extends React.PureComponent {
 
     renderContent() {
 
-        const { containerReady, translateX, translateY, scale } = this.state
+        const { containerReady, translateX, translateY, scale, mouse } = this.state
 
         if (!containerReady) {
             return null
@@ -613,7 +652,7 @@ class StageContainer extends React.PureComponent {
                     <div style={{ marginLeft: width, marginTop: height }}>
                         <div {...wrapperProps} id="stage-wrapper" ref={this.stageAreaRef}>
                             <Stage />
-                            <StageMask setMouseCapture={this.setMouseCapture} />
+                            <StageMask hoverable={!mouse.down} setMouseCapture={this.setMouseCapture} />
                         </div>
                     </div>
                 </div>
@@ -623,7 +662,7 @@ class StageContainer extends React.PureComponent {
 
     render() {
 
-        console.log("render: stageContainer")
+        // console.log("render: stageContainer")
 
         const containerStyle = {
             width: "100%",

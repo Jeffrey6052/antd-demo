@@ -1,12 +1,15 @@
+.main {
+    display: block;
+}
 
-.container {
+.mesh {
     display: block;
     height: 100%;
     width: 100%;
 }
 
-.container:hover,
-.container.selected {
+.main.hoverable .mesh:hover,
+.mesh.selected {
     box-shadow: 0 0 0 0.5px #0070cc, inset 0 0 0 0.5px #0070cc;
 }
 
@@ -26,17 +29,17 @@
     background-color: #fff;
     border: 1px solid #0070cc;
     pointer-events: all;
-    transform: translate(-50%,-50%);
+    transform: translate(-50%, -50%);
 }
 
-.container.selected .top-left,
-.container.selected .top,
-.container.selected .top-right,
-.container.selected .right,
-.container.selected .bottom-right,
-.container.selected .bottom,
-.container.selected .bottom-left,
-.container.selected .left {
+.mesh.selected .top-left,
+.mesh.selected .top,
+.mesh.selected .top-right,
+.mesh.selected .right,
+.mesh.selected .bottom-right,
+.mesh.selected .bottom,
+.mesh.selected .bottom-left,
+.mesh.selected .left {
     display: block;
 }
 
