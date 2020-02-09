@@ -33,6 +33,8 @@ class StageContainer extends React.PureComponent {
         this.mouseDownSelectedMeshIds = new Set([])
         this.mouseDownCtrlDown = false
         this.mouseDownShiftDown = false
+        this.mouseDownX = null
+        this.mouseDownY = null
         this.mouseDownTime = 0
         this.mouseCapture = null
 
@@ -121,6 +123,9 @@ class StageContainer extends React.PureComponent {
     onMouseDown(e) {
         const { selectedMeshes } = this.context
 
+        const x = e.clientX
+        const y = e.clientY
+
         const ctrlDown = isCtrlDown()
         const shiftDown = isShiftDown()
 
@@ -128,13 +133,12 @@ class StageContainer extends React.PureComponent {
         this.mouseDownShiftDown = shiftDown // 记录当前shift键是否按下
         this.mouseDownSelectedMeshIds = selectedMeshes // 记住当前已选中的组件
         this.mouseDownTime = new Date().getTime()
+        this.mouseDownX = x
+        this.mouseDownY = y
 
         if (!this.mouseCapture) {
             this.doContainerMouseDown()
         }
-
-        const x = e.clientX
-        const y = e.clientY
 
         this.setState((prevState) => {
             return {
@@ -158,7 +162,7 @@ class StageContainer extends React.PureComponent {
             return
         }
 
-        const { mouseCapture, mouseDownTime } = this
+        const { mouseCapture, mouseDownTime, mouseDownX, mouseDownY } = this
 
         const x = e.clientX
         const y = e.clientY
@@ -167,8 +171,11 @@ class StageContainer extends React.PureComponent {
 
         const currentTime = new Date().getTime()
 
-        // 体验改进1: 鼠标按下的前200毫秒，作为点击容错判定阶段，不移动组件
-        const allowDrag = (currentTime - mouseDownTime) >= 200
+        // 体验改进1: 鼠标按下的前200毫秒，作为点击容错判定阶段，不拖动组件
+        // 体验改进2: 如果鼠标移动距离已大于10像素，则立即开始拖动
+        const moveDistance = Math.sqrt((x - mouseDownX) ** 2 + (y - mouseDownY) ** 2)
+
+        const allowDrag = (currentTime - mouseDownTime) >= 200 || moveDistance > 10
 
         if (mouseCapture && mouseCapture.type === "mesh" && allowDrag) {
             this.dragMesh(mouseCapture.data, mouse.downPosition, movedPosition)
@@ -611,7 +618,7 @@ class StageContainer extends React.PureComponent {
 
     renderContent() {
 
-        const { containerReady, translateX, translateY, scale, mouse } = this.state
+        const { containerReady, translateX, translateY, scale } = this.state
 
         if (!containerReady) {
             return null
@@ -652,7 +659,7 @@ class StageContainer extends React.PureComponent {
                     <div style={{ marginLeft: width, marginTop: height }}>
                         <div {...wrapperProps} id="stage-wrapper" ref={this.stageAreaRef}>
                             <Stage />
-                            <StageMask hoverable={!mouse.down} setMouseCapture={this.setMouseCapture} />
+                            <StageMask hoverable={!this.isMouseAreaSelect()} setMouseCapture={this.setMouseCapture} />
                         </div>
                     </div>
                 </div>

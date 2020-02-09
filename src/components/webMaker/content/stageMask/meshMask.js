@@ -59,7 +59,7 @@ class MeshMask extends React.PureComponent {
         const mouseMoved = mouseDownX !== event.clientX || mouseDownY !== event.clientY
 
         // 如果鼠标发生位移，则不认为是点击事件
-        // 体验改进1: 如果鼠标按下和抬起的间隔很短, 小于200毫秒，则认为是点击事件
+        // 体验改进1: 如果鼠标发生位移，但鼠标按下和抬起的间隔很短, 小于200毫秒，则也认为是点击事件
         if (mouseMoved && clickDuration >= 200) {
             return
         }
@@ -79,7 +79,9 @@ class MeshMask extends React.PureComponent {
                 addSelectedMeshes([meshId])
             }
         } else { // 默认点击
-            setSelectedMeshes([meshId])
+            if (!selected) {
+                setSelectedMeshes([meshId])
+            }
         }
     }
 
@@ -88,8 +90,6 @@ class MeshMask extends React.PureComponent {
         const { selected, meshProperties } = this.props
 
         console.log("render: meshMask", meshProperties.$name)
-
-        
 
         const selectedClass = selected ? styles.selected : ""
 
