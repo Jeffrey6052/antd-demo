@@ -375,6 +375,8 @@ class StageContainer extends React.PureComponent {
 
         this.shortCutEvents = {}
 
+        this.registerShortCut("esc", () => this.undoContainerMouseDown())
+
         this.registerShortCut("ctrl+c", () => console.log("ctrl+c"))
         this.registerShortCut("ctrl+v", () => console.log("ctrl+v"))
 
