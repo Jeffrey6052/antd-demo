@@ -33,10 +33,13 @@ class MeshMask extends React.PureComponent {
 
         const ctrlOrShiftDown = ctrlDown || shiftDown
 
+        // 性能优化，尝试移除onClick事件，初步方案，通过mouseCapture的数据传递，在stageContainer层进行统一操作。
         if (!ctrlOrShiftDown) {
             setMouseCapture({
                 type: "mesh",
-                data: meshProperties
+                data: meshProperties,
+                ctrlDown: ctrlDown,
+                shiftDown: shiftDown
             })
         }
 
