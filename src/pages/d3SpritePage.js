@@ -12,7 +12,7 @@ import { makeTextSprite, makeCube } from '../utils/threeHelper'
 import Layout from '../components/Layout'
 
 
-export function D3SpriteContent(props) {
+export default function D3SpritePage(props) {
 
     const [groundHeight] = useState(-250)
     const [playTime] = useState(Date.now())
@@ -60,16 +60,39 @@ export function D3SpriteContent(props) {
     const refFrameId = useRef()
 
     useEffect(() => {
+
         init3d()
 
         return () => clean3d()
     }, [])
 
     useEffect(() => {
+
+        const onWindowResize = () => {
+
+            const { camera, renderer } = env3d
+
+            camera.aspect = window.innerWidth / window.innerHeight
+            camera.updateProjectionMatrix()
+
+            renderer.setSize(window.innerWidth, window.innerHeight)
+
+            setEnv3d({
+                ...env3d,
+                width: window.innerWidth,
+                height: window.innerHeight
+            })
+        }
+
+        window.addEventListener('resize', onWindowResize, false)
+
+        return () => window.removeEventListener('resize', onWindowResize, false)
+    }, [env3d])
+
+    useEffect(() => {
         animate3d()
         return () => cancelAnimationFrame(refFrameId.current)
     }, [env3d.inited, cars, birds])
-
 
     const onRendererDomMouseDown = useCallback((e) => {
 
@@ -147,23 +170,18 @@ export function D3SpriteContent(props) {
         const scene = new THREE.Scene()
 
         // camera
-        const sceneWidth = 10000000
-        const cameraFar = sceneWidth * 10
-        const cameraNear = sceneWidth / 10000
-        const camera = new THREE.PerspectiveCamera(90, env3d.width / env3d.height, cameraNear, cameraFar)
+        const stageWidth = 10000000
+        const cameraFar = stageWidth * 10
+        const cameraNear = stageWidth / 10000
+        const camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, cameraNear, cameraFar)
         camera.position.set(-550000, groundHeight + 1430000, -780000)
 
-        // background and fog
-        // const fogColor = new THREE.Color(0xffffff)
-        // scene.background = fogColor
-        // scene.fog = new THREE.Fog(fogColor, sceneWidth * 0.4, sceneWidth)
-
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
-        renderer.setSize(env3d.width, env3d.height)
+        renderer.setSize(window.innerWidth, window.innerHeight)
         renderer.gammaInput = true
         renderer.gammaOutput = true
         renderer.shadowMap.enabled = true
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap // default THREE.PCFShadowMap
+        // renderer.shadowMap.type = THREE.PCFSoftShadowMap
 
         container.appendChild(renderer.domElement)
 
@@ -178,7 +196,7 @@ export function D3SpriteContent(props) {
         const controls = new OrbitControls(camera, renderer.domElement)
         controls.maxPolarAngle = Math.PI * 0.5
         controls.minDistance = cameraNear
-        controls.maxDistance = sceneWidth
+        controls.maxDistance = stageWidth
         controls.target = new THREE.Vector3(-1700000, 320000, -2500000)
         controls.update()
 
@@ -189,7 +207,7 @@ export function D3SpriteContent(props) {
         addCityToScene(scene)
 
         // 天空盒
-        addSkyBoxToScene(scene, sceneWidth)
+        addSkyBoxToScene(scene, stageWidth)
 
         // 文字面板
         addSpritesToScene(scene, camera, renderer)
@@ -214,6 +232,8 @@ export function D3SpriteContent(props) {
         const raycaster = new THREE.Raycaster()
 
         setEnv3d({
+            width: window.innerWidth,
+            height: window.innerHeight,
             scene,
             camera,
             controls,
@@ -569,9 +589,9 @@ export function D3SpriteContent(props) {
 
     }
 
-    const addSkyBoxToScene = (scene, sceneWidth) => {
+    const addSkyBoxToScene = (scene, stageWidth) => {
 
-        const skyWidth = sceneWidth * 10
+        const skyWidth = stageWidth * 10
 
         const geometry = new THREE.CubeGeometry(skyWidth, skyWidth, skyWidth)
 
@@ -603,9 +623,9 @@ export function D3SpriteContent(props) {
         ];
 
         const skyBox = new THREE.Mesh(geometry, cubeMaterials)
-        skyBox.position.x = sceneWidth / 2
+        skyBox.position.x = stageWidth / 2
         skyBox.position.y = 0
-        skyBox.position.z = sceneWidth / 2
+        skyBox.position.z = stageWidth / 2
 
         scene.add(skyBox)
     }
@@ -644,13 +664,11 @@ export function D3SpriteContent(props) {
         )
     }
 
-
     const visibility = cityModel ? "visible" : "hidden"
 
     const containerStyle = {
         width: `${env3d.width}px`,
         height: `${env3d.height}px`,
-        border: "1px solid #ccc",
         position: "relative",
         visibility: visibility
     }
@@ -664,18 +682,10 @@ export function D3SpriteContent(props) {
     }
 
     return (
-        <React.Fragment>
-            <h2>3D面板测试</h2>
-            <div className="demo-flex-box">
-                <div style={{ position: "relative" }}>
-                    <div {...containerProps} />
-                    {renderBuildingPanel()}
-                </div>
-                <div style={{ marginLeft: 10 }}>
-                    <SceneInspect data={cameraInspect} />
-                </div>
-            </div>
-        </React.Fragment >
+        <div style={{ width: "100%", height: "100%", position: "relative" }}>
+            <div {...containerProps} />
+            {renderBuildingPanel()}
+        </div>
     )
 }
 
@@ -698,13 +708,5 @@ function SceneInspect(props) {
             <p>ry: {rotation.y.toFixed(2)}</p>
             <p>rz: {rotation.z.toFixed(2)}</p>
         </React.Fragment>
-    )
-}
-
-export default function D3SpritePage(props) {
-    return (
-        <Layout>
-            <D3SpriteContent {...props} />
-        </Layout>
     )
 }
