@@ -1,10 +1,9 @@
-
 .layout-link {
     margin: 4px 8px;
 }
 
 .demo-flex-box {
-    display:flex;
+    display: flex;
 }
 
 .demo-block {
@@ -60,6 +59,38 @@
     margin: 4px 8px;
 }
 
-.jowo-react-json-view.icon-hidden .icon-container{
-    display:none!important;
+.jowo-react-json-view.icon-hidden .icon-container {
+    display: none!important;
+}
+
+/* 建筑面板 - 3d演示demo */
+
+.buildingPanel {
+    position: absolute;
+    top: 70px;
+    left: 20px;
+    width: 320px;
+    height: 440px;
+    box-shadow: 3px 4px 20px #080533;
+    border-radius: 5px;
+    z-index: 10;
+}
+
+.buildingPanel .container {
+    border: 1px solid #2193B9;
+    background: #0E1F54;
+    opacity: 0.8;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    position: absolute;
+    border-radius: 5px;
+    padding: 10px;
+    color: #fff;
+}
+
+.buildingPanel .col8 {
+    display: inline-block;
+    width: 33%;
+    text-align: center;
 }

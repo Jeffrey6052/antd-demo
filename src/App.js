@@ -35,6 +35,7 @@ import ElectricalSymbolPage from "./pages/ElectricalSymbol"
 import CircuitDiagramPage from "./pages/CircuitDiagram"
 import SvgJsPage from "./pages/SvgJs"
 import WebMakerPage from "./pages/webMakerPage"
+import D3SpritePage from "./pages/d3SpritePage"
 
 import "./utils/KeyboardWatch"
 
@@ -54,6 +55,9 @@ function App() {
                     </Route>
                     <Route path="/demo2">
                         <Demo2Page />
+                    </Route>
+                    <Route path="/d3_sprite">
+                        <D3SpritePage />
                     </Route>
                     <Route path="/button">
                         <ButtonPage />

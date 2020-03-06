@@ -35,6 +35,9 @@ class Layout extends React.Component {
                         <Link to="/demo2">demo2</Link>
                     </span>
                     <span className="layout-link">
+                        <Link to="/d3_sprite">d3_sprite</Link>
+                    </span>
+                    <span className="layout-link">
                         <Link to="/button">button</Link>
                     </span>
                     <span className="layout-link">

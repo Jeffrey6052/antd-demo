@@ -398,8 +398,6 @@ class Page extends React.Component {
       })
 
     })
-
-
   }
 
   animate3d() {
