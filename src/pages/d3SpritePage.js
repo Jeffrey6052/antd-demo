@@ -630,6 +630,20 @@ export default function D3SpritePage(props) {
         scene.add(skyBox)
     }
 
+    const renderLoading = () => {
+
+        if (env3d.inited && cityModel) return null
+
+        return (
+            <div id="loader-wrapper">
+                <div id="loader"></div>
+                <div class="loader-section section-left"></div>
+                <div class="loader-section section-right"></div>
+                <div class="load_title">正在加载3D资源，请稍候...</div>
+            </div>
+        )
+    }
+
     const renderBuildingPanel = () => {
         if (!focusBuilding) return null
 
@@ -664,7 +678,7 @@ export default function D3SpritePage(props) {
         )
     }
 
-    const visibility = cityModel ? "visible" : "hidden"
+    const visibility = env3d.inited && cityModel ? "visible" : "hidden"
 
     const containerStyle = {
         width: `${env3d.width}px`,
@@ -685,6 +699,7 @@ export default function D3SpritePage(props) {
         <div style={{ width: "100%", height: "100%", position: "relative" }}>
             <div {...containerProps} />
             {renderBuildingPanel()}
+            {renderLoading()}
         </div>
     )
 }
